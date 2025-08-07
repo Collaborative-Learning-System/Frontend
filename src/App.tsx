@@ -4,7 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import "./App.css";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
-import TestPage from "./pages/TestPage";
+import Quiz from "./pages/Quiz";
 import MainLayout from "./components/MainLayout";
 
 const theme = createTheme({
@@ -34,14 +34,14 @@ const App = () => {
             </MainLayout>
           }
         />
-        <Route
-          path="/test"
+        {/* <Route
+          path="/quiz"
           element={
             <MainLayout>
-              <TestPage />
+              <Quiz />
             </MainLayout>
           }
-        />
+        /> */}
       </Routes>
     </ThemeProvider>
   );

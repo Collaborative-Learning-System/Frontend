@@ -1,0 +1,373 @@
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  Drawer,
+  Box,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  IconButton,
+  Avatar,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  AppBar,
+  Toolbar,
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  Home,
+  Groups,
+  AutoFixHigh,
+  SmartToy,
+  Settings,
+  Quiz,
+  Logout,
+  AccountCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "@mui/icons-material";
+
+interface SidePanelProps {
+  open: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+}
+
+const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const drawerWidthOpen = 260;
+  const drawerWidthClosed = 70;
+
+  const menuItems = [
+    { text: "Dashboard", icon: <Home />, path: "/landing" },
+    { text: "Workspaces", icon: <Groups />, path: "/workspaces" },
+    { text: "Quiz", icon: <Quiz />, path: "/quiz" },
+    { text: "Study Plans", icon: <AutoFixHigh />, path: "/study-plans" },
+    { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
+    { text: "Settings", icon: <Settings />, path: "/settings" },
+  ];
+
+  const handleLogout = () => {
+    // Implement logout logic here
+    console.log("Logout clicked");
+    navigate("/auth");
+  };
+
+  const handleProfile = () => {
+    // Implement profile navigation here
+    console.log("Profile clicked");
+  };
+
+  const handleMenuItemClick = (path: string) => {
+    navigate(path);
+    if (isMobile) {
+      onClose();
+    }
+  };
+
+  const drawerContent = (
+    <Box
+      sx={{
+        width: open ? drawerWidthOpen : drawerWidthClosed,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: theme.palette.background.paper,
+        transition: theme.transitions.create(["width"], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        overflow: "hidden",
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: open ? "space-between" : "center",
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          minHeight: 64,
+        }}
+      >
+        {open ? (
+          <>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+                color: theme.palette.primary.main,
+              }}
+            >
+              EduCollab
+            </Typography>
+            <IconButton onClick={onToggle} size="small">
+              <ChevronLeft />
+            </IconButton>
+          </>
+        ) : (
+          <IconButton
+            onClick={onToggle}
+            size="small"
+            sx={{
+              color: theme.palette.primary.main,
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+              width: 40,
+              height: 40,
+              border: `2px solid ${theme.palette.primary.main}`,
+              borderRadius: "8px",
+              "&:hover": {
+                backgroundColor: theme.palette.primary.light,
+              },
+            }}
+          >
+            E
+          </IconButton>
+        )}
+      </Box>
+
+      {/* Navigation Menu */}
+      <Box sx={{ flexGrow: 1, overflow: "auto" }}>
+        <List sx={{ px: 1, py: 2 }}>
+          {menuItems.map((item) => {
+            const isSelected = location.pathname === item.path;
+            return (
+              <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  selected={isSelected}
+                  onClick={() => handleMenuItemClick(item.path)}
+                  sx={{
+                    borderRadius: 2,
+                    justifyContent: open ? "initial" : "center",
+                    px: open ? 2 : 1,
+                    minHeight: 48,
+                    "&:hover": {
+                      backgroundColor: theme.palette.action.hover,
+                    },
+                    "&.Mui-selected": {
+                      backgroundColor: theme.palette.primary.light,
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.light,
+                      },
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: isSelected
+                        ? theme.palette.primary.main
+                        : theme.palette.text.secondary,
+                      minWidth: open ? 40 : "auto",
+                      mr: open ? 0 : 0,
+                      justifyContent: "center",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  {open && (
+                    <ListItemText
+                      primary={item.text}
+                      sx={{ ml: 1, opacity: open ? 1 : 0 }}
+                      primaryTypographyProps={{
+                        fontSize: "0.9rem",
+                        fontWeight: isSelected ? 600 : 500,
+                        color: isSelected
+                          ? theme.palette.primary.main
+                          : theme.palette.text.primary,
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+        </List>
+      </Box>
+
+      {/* Bottom Section - Profile and Logout */}
+      <Box
+        sx={{
+          borderTop: `1px solid ${theme.palette.divider}`,
+          p: open ? 2 : 1,
+        }}
+      >
+        {/* Profile Section */}
+        {open ? (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              p: 1,
+              borderRadius: 2,
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor: theme.palette.action.hover,
+              },
+            }}
+            onClick={handleProfile}
+          >
+            <Avatar
+              sx={{
+                width: 40,
+                height: 40,
+                mr: 2,
+                bgcolor: theme.palette.primary.main,
+              }}
+            >
+              <AccountCircle />
+            </Avatar>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography variant="subtitle2" fontWeight="bold">
+                John Doe
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                john.doe@example.com
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              p: 1,
+              borderRadius: 2,
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor: theme.palette.action.hover,
+              },
+            }}
+            onClick={handleProfile}
+          >
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: theme.palette.primary.main,
+              }}
+            >
+              <AccountCircle />
+            </Avatar>
+          </Box>
+        )}
+
+        <Divider sx={{ my: 1 }} />
+        {/* Logout Button */}
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            borderRadius: 2,
+            justifyContent: open ? "initial" : "center",
+            px: open ? 2 : 1,
+            minHeight: 48,
+            "&:hover": {
+              backgroundColor: theme.palette.error.light,
+              color: theme.palette.error.contrastText,
+            },
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              color: theme.palette.error.main,
+              minWidth: open ? 40 : "auto",
+              justifyContent: "center",
+            }}
+          >
+            <Logout />
+          </ListItemIcon>
+          {open && (
+            <ListItemText
+              primary="Logout"
+              sx={{ ml: 1, opacity: open ? 1 : 0 }}
+              primaryTypographyProps={{
+                fontSize: "0.9rem",
+                fontWeight: 500,
+              }}
+            />
+          )}
+        </ListItemButton>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <>
+      {/* Mobile App Bar */}
+      {isMobile && (
+        <AppBar
+          position="fixed"
+          sx={{
+            zIndex: theme.zIndex.drawer + 1,
+            bgcolor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            boxShadow: theme.shadows[1],
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={onToggle}
+              edge="start"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                fontWeight: "bold",
+                color: theme.palette.primary.main,
+              }}
+            >
+              EduCollab
+            </Typography>
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* Drawer */}
+      <Drawer
+        variant={isMobile ? "temporary" : "persistent"}
+        anchor="left"
+        open={isMobile ? open : true} // For mobile: use open prop, for desktop: always true
+        onClose={isMobile ? onClose : undefined}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile
+        }}
+        sx={{
+          width: open ? drawerWidthOpen : drawerWidthClosed,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: open ? drawerWidthOpen : drawerWidthClosed,
+            boxSizing: "border-box",
+            zIndex: theme.zIndex.drawer,
+            transition: theme.transitions.create(["width"], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+            overflowX: "hidden",
+            border: "none",
+            boxShadow: theme.shadows[2],
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    </>
+  );
+};
+
+export default SidePanel;
