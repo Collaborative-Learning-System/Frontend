@@ -23,12 +23,10 @@ import {
   Groups,
   AutoFixHigh,
   SmartToy,
-  Settings,
   Quiz,
   Logout,
   AccountCircle,
   ChevronLeft,
-  ChevronRight,
 } from "@mui/icons-material";
 
 interface SidePanelProps {
@@ -47,12 +45,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const drawerWidthClosed = 70;
 
   const menuItems = [
-    { text: "Dashboard", icon: <Home />, path: "/landing" },
-    { text: "Workspaces", icon: <Groups />, path: "/workspaces" },
-    { text: "Quiz", icon: <Quiz />, path: "/quiz" },
+    { text: "Home", icon: <Home />, path: "/landing" },
+  //  { text: "Groups", icon: <Groups />, path: "/groups" },
     { text: "Study Plans", icon: <AutoFixHigh />, path: "/study-plans" },
     { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
-    { text: "Settings", icon: <Settings />, path: "/settings" },
   ];
 
   const handleLogout = () => {
@@ -155,9 +151,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                       backgroundColor: theme.palette.action.hover,
                     },
                     "&.Mui-selected": {
-                      backgroundColor: theme.palette.primary.light,
+                      backgroundColor: "blue[500]",
                       "&:hover": {
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: "blue[700]",
                       },
                     },
                   }}

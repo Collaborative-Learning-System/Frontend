@@ -29,7 +29,11 @@ import {
   Login,
 } from "@mui/icons-material";
 
+//import NotificationService from "../services/NotificationService";
+
 const AuthComponent = () => {
+
+
   const theme = useTheme();
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0); // 0 for login, 1 for signup
@@ -66,6 +70,7 @@ const AuthComponent = () => {
       if (loginForm.email && loginForm.password) {
         setSuccess("Login successful!");
         console.log("Login attempt:", loginForm);
+        //NotificationService.showSuccess("Login successful!");
         // Redirect to home page after successful login
         setTimeout(() => {
           navigate("/home");

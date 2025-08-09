@@ -4,17 +4,17 @@ import CssBaseline from "@mui/material/CssBaseline";
 import "./App.css";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
-import Quiz from "./pages/Quiz";
 import MainLayout from "./components/MainLayout";
+import Groups from "./pages/Groups";
 
 const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#083c70ff",
+      main: "#163b60ff",
     },
     secondary: {
-      main: "#dc004e",
+      main: "#c85662ff",
     },
   },
 });
@@ -34,14 +34,15 @@ const App = () => {
             </MainLayout>
           }
         />
-        {/* <Route
-          path="/quiz"
+        <Route
+          path="/groups"
           element={
             <MainLayout>
-              <Quiz />
+              <Groups />
             </MainLayout>
           }
-        /> */}
+        />
+        
       </Routes>
     </ThemeProvider>
   );

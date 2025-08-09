@@ -5,6 +5,9 @@ import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+
 
 const theme = createTheme({
   palette: {
@@ -17,6 +20,7 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <ToastContainer />
         <App />
       </ThemeProvider>
     </StrictMode>
