@@ -3,9 +3,10 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import "./App.css";
 import Auth from "./pages/Auth";
-import Landing from "./pages/Landing";
-import TestPage from "./pages/TestPage";
-import MainLayout from "./components/MainLayout";
+import Home from "./pages/Home";
+import UserProfile from "./pages/Userprofile";
+import Contact from "./pages/contact-us";
+import StudyPlanGenerator from "./pages/study-plan-generator";
 
 const theme = createTheme({
   palette: {
@@ -24,9 +25,9 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
-        <Route path="/" element={<Navigate to="/landing" />} />
+        
         <Route path="/auth" element={<Auth />} />
-        <Route
+        {/* <Route
           path="/landing"
           element={
             <MainLayout>
@@ -41,7 +42,11 @@ const App = () => {
               <TestPage />
             </MainLayout>
           }
-        />
+        /> */}
+        <Route path="/" element={<Home />} />
+        <Route path="/userprof" element={<UserProfile />} />
+        <Route path="/contact-us" element={<Contact />} />
+        <Route path="/study-plan-generator" element={<StudyPlanGenerator />} />
       </Routes>
     </ThemeProvider>
   );
