@@ -18,7 +18,6 @@ import {
   Add,
   Person,
   AccessTime,
-  SpatialTracking,
 } from "@mui/icons-material";
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";

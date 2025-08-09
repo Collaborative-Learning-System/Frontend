@@ -7,12 +7,11 @@ import {
   Card,
   CardContent,
   IconButton,
-  Chip,
   Stack,
   Avatar,
   alpha,
 } from "@mui/material";
-import { Close, Add, Groups, Public, Lock } from "@mui/icons-material";
+import { Close, Groups } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
 interface WorkspaceCreationProps {
@@ -23,28 +22,15 @@ const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose }) => {
   const theme = useTheme();
   const [workspaceName, setWorkspaceName] = useState("");
   const [description, setDescription] = useState("");
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
-  const [currentTag, setCurrentTag] = useState("");
 
-  const handleAddTag = () => {
-    if (currentTag.trim() && !tags.includes(currentTag.trim())) {
-      setTags([...tags, currentTag.trim()]);
-      setCurrentTag("");
-    }
-  };
 
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
-  };
+
 
   const handleSubmit = () => {
-    // Handle workspace creation logic here
     console.log({
       workspaceName,
       description,
-      isPrivate,
-      tags,
+
     });
     onClose();
   };

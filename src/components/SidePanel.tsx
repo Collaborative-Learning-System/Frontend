@@ -20,10 +20,8 @@ import {
 import {
   Menu as MenuIcon,
   Home,
-  Groups,
   AutoFixHigh,
   SmartToy,
-  Quiz,
   Logout,
   AccountCircle,
   ChevronLeft,
@@ -46,19 +44,16 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
 
   const menuItems = [
     { text: "Home", icon: <Home />, path: "/landing" },
-  //  { text: "Groups", icon: <Groups />, path: "/groups" },
     { text: "Study Plans", icon: <AutoFixHigh />, path: "/study-plans" },
     { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
   ];
 
   const handleLogout = () => {
-    // Implement logout logic here
     console.log("Logout clicked");
     navigate("/auth");
   };
 
   const handleProfile = () => {
-    // Implement profile navigation here
     console.log("Profile clicked");
   };
 
