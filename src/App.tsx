@@ -3,9 +3,11 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import "./App.css";
 import Auth from "./pages/Auth";
+
 import Landing from "./pages/Landing";
 import MainLayout from "./components/MainLayout";
 import Groups from "./pages/Groups";
+
 
 const theme = createTheme({
   palette: {
@@ -24,9 +26,9 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
-        <Route path="/" element={<Navigate to="/landing" />} />
+        
         <Route path="/auth" element={<Auth />} />
-        <Route
+         <Route
           path="/landing"
           element={
             <MainLayout>
@@ -41,8 +43,10 @@ const App = () => {
               <Groups />
             </MainLayout>
           }
+
         />
         
+
       </Routes>
     </ThemeProvider>
   );
