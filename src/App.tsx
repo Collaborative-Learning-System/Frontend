@@ -3,19 +3,20 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import "./App.css";
 import Auth from "./pages/Auth";
-import Home from "./pages/Home";
-import UserProfile from "./pages/Userprofile";
-import Contact from "./pages/contact-us";
-import StudyPlanGenerator from "./pages/study-plan-generator";
+
+import Landing from "./pages/Landing";
+import MainLayout from "./components/MainLayout";
+import Groups from "./pages/Groups";
+
 
 const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#083c70ff",
+      main: "#163b60ff",
     },
     secondary: {
-      main: "#dc004e",
+      main: "#c85662ff",
     },
   },
 });
@@ -27,7 +28,7 @@ const App = () => {
       <Routes>
         
         <Route path="/auth" element={<Auth />} />
-        {/* <Route
+         <Route
           path="/landing"
           element={
             <MainLayout>
@@ -36,17 +37,16 @@ const App = () => {
           }
         />
         <Route
-          path="/test"
+          path="/groups"
           element={
             <MainLayout>
-              <TestPage />
+              <Groups />
             </MainLayout>
           }
-        /> */}
-        <Route path="/" element={<Home />} />
-        <Route path="/userprof" element={<UserProfile />} />
-        <Route path="/contact-us" element={<Contact />} />
-        <Route path="/study-plan-generator" element={<StudyPlanGenerator />} />
+
+        />
+        
+
       </Routes>
     </ThemeProvider>
   );
