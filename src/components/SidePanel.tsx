@@ -14,17 +14,14 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  AppBar,
-  Toolbar,
 } from "@mui/material";
 import {
-  Menu as MenuIcon,
+  ChevronLeft,
   Home,
   AutoFixHigh,
   SmartToy,
   Logout,
   AccountCircle,
-  ChevronLeft,
 } from "@mui/icons-material";
 
 interface SidePanelProps {
@@ -35,9 +32,9 @@ interface SidePanelProps {
 
 const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
@@ -48,26 +45,24 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
     { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
   ];
 
+  const handleMenuItemClick = (path: string) => {
+    navigate(path);
+    if (isMobile) onClose();
+  };
+
   const handleLogout = () => {
-    console.log("Logout clicked");
     navigate("/auth");
   };
 
   const handleProfile = () => {
-    console.log("Profile clicked");
-  };
-
-  const handleMenuItemClick = (path: string) => {
-    navigate(path);
-    if (isMobile) {
-      onClose();
-    }
+    // Profile click logic
   };
 
   const drawerContent = (
     <Box
       sx={{
         width: open ? drawerWidthOpen : drawerWidthClosed,
+       // mt: "64px",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -94,10 +89,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
           <>
             <Typography
               variant="h6"
-              sx={{
-                fontWeight: "bold",
-                color: theme.palette.primary.main,
-              }}
+              sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
             >
               EduCollab
             </Typography>
@@ -117,9 +109,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               height: 40,
               border: `2px solid ${theme.palette.primary.main}`,
               borderRadius: "8px",
-              "&:hover": {
-                backgroundColor: theme.palette.primary.light,
-              },
+              "&:hover": { backgroundColor: theme.palette.primary.light },
             }}
           >
             E
@@ -142,13 +132,11 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                     justifyContent: open ? "initial" : "center",
                     px: open ? 2 : 1,
                     minHeight: 48,
-                    "&:hover": {
-                      backgroundColor: theme.palette.action.hover,
-                    },
+                    "&:hover": { backgroundColor: theme.palette.action.hover },
                     "&.Mui-selected": {
-                      backgroundColor: "blue[500]",
+                      backgroundColor: theme.palette.action.focus,
                       "&:hover": {
-                        backgroundColor: "blue[700]",
+                        backgroundColor: theme.palette.action.focus,
                       },
                     },
                   }}
@@ -159,7 +147,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                         ? theme.palette.primary.main
                         : theme.palette.text.secondary,
                       minWidth: open ? 40 : "auto",
-                      mr: open ? 0 : 0,
                       justifyContent: "center",
                     }}
                   >
@@ -201,9 +188,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               p: 1,
               borderRadius: 2,
               cursor: "pointer",
-              "&:hover": {
-                backgroundColor: theme.palette.action.hover,
-              },
+              "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
             onClick={handleProfile}
           >
@@ -234,9 +219,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               p: 1,
               borderRadius: 2,
               cursor: "pointer",
-              "&:hover": {
-                backgroundColor: theme.palette.action.hover,
-              },
+              "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
             onClick={handleProfile}
           >
@@ -251,7 +234,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             </Avatar>
           </Box>
         )}
-
         <Divider sx={{ my: 1 }} />
         {/* Logout Button */}
         <ListItemButton
@@ -280,10 +262,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             <ListItemText
               primary="Logout"
               sx={{ ml: 1, opacity: open ? 1 : 0 }}
-              primaryTypographyProps={{
-                fontSize: "0.9rem",
-                fontWeight: 500,
-              }}
+              primaryTypographyProps={{ fontSize: "0.9rem", fontWeight: 500 }}
             />
           )}
         </ListItemButton>
@@ -292,72 +271,31 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   );
 
   return (
-    <>
-      {/* Mobile App Bar */}
-      {isMobile && (
-        <AppBar
-          position="fixed"
-          sx={{
-            zIndex: theme.zIndex.drawer + 1,
-            bgcolor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            boxShadow: theme.shadows[1],
-          }}
-        >
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={onToggle}
-              edge="start"
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{
-                fontWeight: "bold",
-                color: theme.palette.primary.main,
-              }}
-            >
-              EduCollab
-            </Typography>
-          </Toolbar>
-        </AppBar>
-      )}
-
-      {/* Drawer */}
-      <Drawer
-        variant={isMobile ? "temporary" : "persistent"}
-        anchor="left"
-        open={isMobile ? open : true} // For mobile: use open prop, for desktop: always true
-        onClose={isMobile ? onClose : undefined}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
+    <Drawer
+      variant={isMobile ? "temporary" : "persistent"}
+      anchor="left"
+      open={isMobile ? open : true}
+      onClose={isMobile ? onClose : undefined}
+      ModalProps={{ keepMounted: true }}
+      sx={{
+        width: open ? drawerWidthOpen : drawerWidthClosed,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
           width: open ? drawerWidthOpen : drawerWidthClosed,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: open ? drawerWidthOpen : drawerWidthClosed,
-            boxSizing: "border-box",
-            zIndex: theme.zIndex.drawer,
-            transition: theme.transitions.create(["width"], {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-            overflowX: "hidden",
-            border: "none",
-            boxShadow: theme.shadows[2],
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    </>
+          boxSizing: "border-box",
+          zIndex: theme.zIndex.drawer,
+          transition: theme.transitions.create(["width"], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+          overflowX: "hidden",
+          border: "none",
+          boxShadow: theme.shadows[2],
+        },
+      }}
+    >
+      {drawerContent}
+    </Drawer>
   );
 };
 

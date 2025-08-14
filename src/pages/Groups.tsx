@@ -109,7 +109,12 @@ const Groups = () => {
                 0.1
               )} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
             }}
-          ></Grid>
+                  >
+                      <Box>
+                          
+                      </Box>
+                
+          </Grid>
           <Grid size={9}></Grid>
         </Grid>
       </Stack>

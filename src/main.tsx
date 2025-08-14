@@ -7,6 +7,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { AppContextProvider } from "./context/AppContext.tsx";
 
 
 const theme = createTheme({
@@ -21,7 +22,9 @@ createRoot(document.getElementById("root")!).render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ToastContainer />
-        <App />
+        <AppContextProvider>
+          <App />
+        </AppContextProvider>
       </ThemeProvider>
     </StrictMode>
   </BrowserRouter>
