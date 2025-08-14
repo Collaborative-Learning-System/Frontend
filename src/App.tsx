@@ -2,6 +2,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { ThemeContextProvider } from "./context/ThemeContext";
 import "./App.css";
 import Auth from "./pages/Auth";
+
 import Landing from "./pages/Landing";
 import MainLayout from "./components/MainLayout";
 import Groups from "./pages/Groups";
@@ -12,9 +13,9 @@ const App = () => {
   return (
     <ThemeContextProvider>
       <Routes>
-        <Route path="/" element={<Navigate to="/landing" />} />
+        
         <Route path="/auth" element={<Auth />} />
-        <Route
+         <Route
           path="/landing"
           element={
             <MainLayout>
@@ -29,23 +30,9 @@ const App = () => {
               <Groups />
             </MainLayout>
           }
+
         />
-        <Route
-          path="/quiz"
-          element={
-            <MainLayout>
-              <Quiz />
-            </MainLayout>
-          }
-        />
-        {/* <Route
-          path="/quiz-creation"
-          element={
-            <MainLayout>
-              <QuizCreation />
-            </MainLayout>
-          }
-        /> */}
+        
       </Routes>
     </ThemeContextProvider>
   );
