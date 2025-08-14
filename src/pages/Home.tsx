@@ -13,7 +13,8 @@ import {
   Card,
   CardContent,
   Avatar,
-  Rating
+  Rating,
+  useTheme
 } from '@mui/material'
 
 import {
@@ -29,35 +30,36 @@ import {
 
 export default function CollaborativeLearningHomepage() {
   const navigate = useNavigate()
+  const theme = useTheme();
 
   const features = [
     {
-      icon: <Groups sx={{ fontSize: 40, color: '#083c70ff' }} />,
+      icon: <Groups sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
       title: 'Study Groups',
       description: 'Create and join study groups based on subjects and interests. Collaborate with peers who share your learning goals.'
     },
     {
-      icon: <CloudUpload sx={{ fontSize: 40, color: '#083c70ff' }} />,
+      icon: <CloudUpload sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
       title: 'Resource Sharing',
       description: 'Upload, organize, and access learning materials with advanced tagging and search capabilities.'
     },
     {
-      icon: <Edit sx={{ fontSize: 40, color: '#083c70ff' }} />,
+      icon: <Edit sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
       title: 'Collaborative Editing',
       description: 'Real-time collaborative document editing for notes and study materials within your groups.'
     },
     {
-      icon: <School sx={{ fontSize: 40, color: '#083c70ff' }} />,
+      icon: <School sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
       title: 'Personalized Study Plans',
       description: 'AI-powered study plan generation tailored to your learning style, pace, and goals.'
     },
     {
-      icon: <Analytics sx={{ fontSize: 40, color: '#083c70ff' }} />,
+      icon: <Analytics sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
       title: 'Progress Tracking',
       description: 'Visual dashboards to monitor your learning progress and identify areas for improvement.'
     },
     {
-      icon: <Quiz sx={{ fontSize: 40, color: '#083c70ff' }} />,
+      icon: <Quiz sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
       title: 'Interactive Assessments',
       description: 'Create and participate in quizzes with immediate feedback and performance analysis.'
     }
@@ -103,7 +105,7 @@ export default function CollaborativeLearningHomepage() {
       <Container maxWidth="lg" sx={{ py: 8 }}>
         <Grid container spacing={4} alignItems="center">
           <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h2" component="h1" gutterBottom sx={{ color: '#083c70ff', fontWeight: 'bold' }}>
+            <Typography variant="h2" component="h1" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
               Learn Together, Achieve More
             </Typography>
             <Typography variant="h5" paragraph sx={{ color: 'text.secondary', mb: 4 }}>
@@ -115,11 +117,11 @@ export default function CollaborativeLearningHomepage() {
                 variant="contained" 
                 size="large" 
                 endIcon={<ArrowForward />}
-                sx={{ bgcolor: '#083c70ff', '&:hover': { bgcolor: '#0d47a1' } }}
+                sx={{ bgcolor: theme.palette.primary.main, '&:hover': { bgcolor: theme.palette.primary.light } }}
               >
                 Get Started Free
               </Button>
-              <Button variant="outlined" size="large" sx={{ color: '#083c70ff', borderColor: '#083c70ff' }}>
+              <Button variant="outlined" size="large" sx={{ color: theme.palette.primary.main, borderColor: theme.palette.primary.main }}>
                 Watch Demo
               </Button>
             </Box>
@@ -153,7 +155,7 @@ export default function CollaborativeLearningHomepage() {
             {stats.map((stat, index) => (
               <Grid size={{ xs: 6, md: 3 }} key={index}>
                 <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h3" sx={{ color: '#083c70ff', fontWeight: 'bold' }}>
+                  <Typography variant="h3" sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
                     {stat.number}
                   </Typography>
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
@@ -169,7 +171,7 @@ export default function CollaborativeLearningHomepage() {
       {/* Features Section */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
         <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography variant="h3" component="h2" gutterBottom sx={{ color: '#083c70ff', fontWeight: 'bold' }}>
+          <Typography variant="h3" component="h2" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
             Everything You Need to Excel
           </Typography>
           <Typography variant="h6" sx={{ color: 'text.secondary', maxWidth: 600, mx: 'auto' }}>
@@ -184,7 +186,7 @@ export default function CollaborativeLearningHomepage() {
                   <Box sx={{ mb: 2 }}>
                     {feature.icon}
                   </Box>
-                  <Typography variant="h6" gutterBottom sx={{ color: '#083c70ff', fontWeight: 'bold' }}>
+                  <Typography variant="h6" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
                     {feature.title}
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -198,10 +200,10 @@ export default function CollaborativeLearningHomepage() {
       </Container>
 
       {/* Testimonials Section */}
-      <Box sx={{ bgcolor: '#f8f9fa', py: 8 }}>
+      <Box sx={{ bgcolor: theme.palette.background.default, py: 8 }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Typography variant="h3" component="h2" gutterBottom sx={{ color: '#083c70ff', fontWeight: 'bold' }}>
+            <Typography variant="h3" component="h2" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
               What Students Say
             </Typography>
             <Typography variant="h6" sx={{ color: 'text.secondary' }}>
@@ -238,18 +240,18 @@ export default function CollaborativeLearningHomepage() {
 
       {/* CTA Section */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Box sx={{ textAlign: 'center', bgcolor: '#083c70ff', color: 'white', p: 6, borderRadius: 2 }}>
+        <Box sx={{ textAlign: 'center', bgcolor: theme.palette.primary.main, color: 'white', p: 6, borderRadius: 2 }}>
           <Typography variant="h3" component="h2" gutterBottom sx={{ fontWeight: 'bold' }}>
             Ready to Transform Your Learning?
           </Typography>
           <Typography variant="h6" paragraph sx={{ opacity: 0.9, mb: 4 }}>
-            Join StudySync today and experience the power of collaborative learning
+            Join EduCollab today and experience the power of collaborative learning
           </Typography>
           <Button 
             onClick={() => navigate('/auth')}
             variant="contained" 
             size="large" 
-            sx={{ bgcolor: 'white', color: '#083c70ff', '&:hover': { bgcolor: '#f5f5f5' } }}
+            sx={{ bgcolor: 'white', color: theme.palette.primary.main, '&:hover': { bgcolor: '#f5f5f5' } }}
             endIcon={<ArrowForward />}
           >
             Start Learning Now

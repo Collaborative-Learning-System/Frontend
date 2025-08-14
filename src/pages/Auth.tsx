@@ -148,10 +148,7 @@ const AuthComponent = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${alpha(
-          theme.palette.primary.light,
-          0.1
-        )} 0%, ${alpha(theme.palette.secondary.light, 0.1)} 100%)`,
+        background: theme.palette.background.default,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

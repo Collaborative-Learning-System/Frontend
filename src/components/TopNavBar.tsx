@@ -29,10 +29,10 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
   return (
     <AppBar
       position="fixed"
-      elevation={1}
+      elevation={1 }
       sx={{
         zIndex: (theme) => theme.zIndex.drawer - 1,
-        bgcolor: theme.palette.background.paper
+        bgcolor: theme.palette.background.default,
       }}
     >
       <Toolbar
@@ -71,12 +71,16 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
           <Tooltip
             title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
           >
-            <IconButton onClick={toggleTheme}  size="large">
+            <IconButton
+              onClick={toggleTheme}
+              size="large"
+              sx={{ color: theme.palette.primary.main }}
+            >
               {mode === "light" ? <DarkMode /> : <LightMode />}
             </IconButton>
           </Tooltip>
           <Tooltip title="Notifications">
-            <IconButton  size="large">
+            <IconButton size="large" sx={{ color: theme.palette.primary.main }}>
               <Notifications />
             </IconButton>
           </Tooltip>

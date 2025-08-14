@@ -28,8 +28,8 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
       createTheme({
         palette: {
           mode,
-          primary: { main: "#05055fff" },
-          secondary: { main: "#000080" },
+          primary: { main: "#083c70ff" },
+          secondary: { main: "#083c70ff" },
         },
       }),
     [mode]

@@ -1,25 +1,32 @@
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { ThemeContextProvider } from "./context/ThemeContext";
 import "./App.css";
 import Auth from "./pages/Auth";
-
 import Landing from "./pages/Landing";
 import MainLayout from "./components/MainLayout";
 import Groups from "./pages/Groups";
-import Quiz from "./pages/Quiz";
-//import QuizCreation from "./pages/QuizCreation";
+import Home from "./pages/Home"
+import StudyPlanGenerator from "./pages/study-plan-generator";
 
 const App = () => {
   return (
     <ThemeContextProvider>
       <Routes>
-        
+        <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
-         <Route
+        <Route
           path="/landing"
           element={
             <MainLayout>
               <Landing />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/study-plans-generator"
+          element={
+            <MainLayout>
+              <StudyPlanGenerator />
             </MainLayout>
           }
         />
@@ -30,9 +37,7 @@ const App = () => {
               <Groups />
             </MainLayout>
           }
-
         />
-        
       </Routes>
     </ThemeContextProvider>
   );

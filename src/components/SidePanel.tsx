@@ -41,7 +41,11 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
 
   const menuItems = [
     { text: "Home", icon: <Home />, path: "/landing" },
-    { text: "Study Plans", icon: <AutoFixHigh />, path: "/study-plans" },
+    {
+      text: "Study Plans",
+      icon: <AutoFixHigh />,
+      path: "/study-plans-generator",
+    },
     { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
   ];
 
@@ -62,7 +66,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
     <Box
       sx={{
         width: open ? drawerWidthOpen : drawerWidthClosed,
-       // mt: "64px",
+        // mt: "64px",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -94,7 +98,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               EduCollab
             </Typography>
             <IconButton onClick={onToggle} size="small">
-              <ChevronLeft />
+              <ChevronLeft sx={{ color: theme.palette.primary.main }} />
             </IconButton>
           </>
         ) : (
@@ -143,9 +147,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 >
                   <ListItemIcon
                     sx={{
-                      color: isSelected
-                        ? theme.palette.primary.main
-                        : theme.palette.text.secondary,
+                      color: theme.palette.primary.main,
+
                       minWidth: open ? 40 : "auto",
                       justifyContent: "center",
                     }}
@@ -159,9 +162,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                       primaryTypographyProps={{
                         fontSize: "0.9rem",
                         fontWeight: isSelected ? 600 : 500,
-                        color: isSelected
-                          ? theme.palette.primary.main
-                          : theme.palette.text.primary,
+                        // color: isSelected
+                        //   ? theme.palette.primary.main
+                        //   : theme.palette.text.primary,
+                        color: theme.palette.primary.main,
                       }}
                     />
                   )}
@@ -203,10 +207,17 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               <AccountCircle />
             </Avatar>
             <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="subtitle2" fontWeight="bold">
+              <Typography
+                variant="subtitle2"
+                fontWeight="bold"
+                sx={{ color: theme.palette.primary.main }}
+              >
                 John Doe
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography
+                variant="caption"
+                sx={{ color: theme.palette.primary.main }}
+              >
                 john.doe@example.com
               </Typography>
             </Box>
@@ -259,11 +270,14 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             <Logout />
           </ListItemIcon>
           {open && (
-            <ListItemText
-              primary="Logout"
-              sx={{ ml: 1, opacity: open ? 1 : 0 }}
-              primaryTypographyProps={{ fontSize: "0.9rem", fontWeight: 500 }}
-            />
+            <Typography
+              variant="body2"
+              sx={{
+                color: theme.palette.error.main,
+              }}
+            >
+              Logout
+            </Typography>
           )}
         </ListItemButton>
       </Box>
