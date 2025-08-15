@@ -1,38 +1,32 @@
-import { Route, Routes, Navigate } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+import { Route, Routes } from "react-router-dom";
+import { ThemeContextProvider } from "./context/ThemeContext";
 import "./App.css";
 import Auth from "./pages/Auth";
-
 import Landing from "./pages/Landing";
 import MainLayout from "./components/MainLayout";
 import Groups from "./pages/Groups";
-
-
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: {
-      main: "#163b60ff",
-    },
-    secondary: {
-      main: "#c85662ff",
-    },
-  },
-});
+import Home from "./pages/Home"
+import StudyPlanGenerator from "./pages/study-plan-generator";
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ThemeContextProvider>
       <Routes>
-        
+        <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
-         <Route
+        <Route
           path="/landing"
           element={
             <MainLayout>
               <Landing />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/study-plans-generator"
+          element={
+            <MainLayout>
+              <StudyPlanGenerator />
             </MainLayout>
           }
         />
@@ -43,12 +37,9 @@ const App = () => {
               <Groups />
             </MainLayout>
           }
-
         />
-        
-
       </Routes>
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 };
 

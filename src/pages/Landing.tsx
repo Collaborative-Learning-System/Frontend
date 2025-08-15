@@ -75,10 +75,7 @@ const Landing = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${alpha(
-          theme.palette.primary.light,
-          0.1
-        )} 0%, ${alpha(theme.palette.secondary.light, 0.1)} 100%)`,
+        background: theme.palette.background.paper,
         p: 1,
       }}
     >
@@ -129,10 +126,7 @@ const Landing = () => {
           <Card
             sx={{
               height: "100%",
-              background: `linear-gradient(135deg, ${alpha(
-                theme.palette.primary.main,
-                0.1
-              )} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
+              background:theme.palette.background.paper,
               border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
               transition: "transform 0.2s ease-in-out, box-shadow 0.2s",
               "&:hover": {
@@ -174,10 +168,7 @@ const Landing = () => {
           <Card
             sx={{
               height: "100%",
-              background: `linear-gradient(135deg, ${alpha(
-                theme.palette.secondary.main,
-                0.1
-              )} 0%, ${alpha(theme.palette.secondary.light, 0.05)} 100%)`,
+              background: theme.palette.background.paper,
               border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
               transition: "transform 0.2s ease-in-out, box-shadow 0.2s",
               "&:hover": {
@@ -244,10 +235,7 @@ const Landing = () => {
                   key={workspace.id}
                   sx={{
                     height: "100%",
-                    background: `linear-gradient(135deg, ${alpha(
-                      theme.palette.primary.main,
-                      0.1
-                    )} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
+                    background: theme.palette.background.paper,
                     transition: "transform 0.2s ease-in-out, box-shadow 0.2s",
                     "&:hover": {
                       transform: "translateY(-2px)",
@@ -343,31 +331,26 @@ const Landing = () => {
               <Stack
                 spacing={{ xs: 0, md: 2 }}
                 direction={{ xs: "column", md: "row" }}
-                bgcolor={alpha(
-                  theme.palette.background.paper,
-                  0.3
-                )}
+                bgcolor={alpha(theme.palette.background.paper, 0.3)}
                 padding={0.5}
               >
-                
-                  <Box
-                    sx={{
-                      p: 1,
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <IconButton>
-                      <AccessTime fontSize="small" color="primary" />
-                    </IconButton>
-                    <Typography variant="body1">{activity.time}</Typography>
-                  </Box>
-                  <Box sx={{ p: 1, alignItems: "center", display: "flex" }}>
-                    <Typography variant="body1">
-                      {activity.description}
-                    </Typography>
-                  </Box>
-              
+                <Box
+                  sx={{
+                    p: 1,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <IconButton>
+                    <AccessTime fontSize="small" color="primary" />
+                  </IconButton>
+                  <Typography variant="body1">{activity.time}</Typography>
+                </Box>
+                <Box sx={{ p: 1, alignItems: "center", display: "flex" }}>
+                  <Typography variant="body1">
+                    {activity.description}
+                  </Typography>
+                </Box>
               </Stack>
             ))}
           </Box>

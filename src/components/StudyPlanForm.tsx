@@ -18,7 +18,8 @@ import {
   FormControlLabel,
   Checkbox,
   Alert,
-  CircularProgress
+  CircularProgress,
+  useTheme
 } from '@mui/material'
 import {
   Add,
@@ -69,6 +70,7 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
     includeReview: true
   })
   const [newSubject, setNewSubject] = useState('')
+  const theme = useTheme()
 
   const studyGoals = [
     'Exam Preparation',
@@ -143,53 +145,81 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
   return (
     <Card>
       <CardContent sx={{ p: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <AutoAwesome sx={{ color: '#083c70ff' }} />
-          <Typography variant="h5" sx={{ color: '#083c70ff', fontWeight: 'bold' }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            mb: 3,
+            justifyContent: "space-between",
+          }}
+        >
+          <Box></Box>
+          <Typography
+            variant="h5"
+            sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
+          >
             AI Study Plan Generator
           </Typography>
+          <Button
+            variant="outlined"
+            // onClick={handleStartOver}
+            sx={{
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
+            }}
+          >
+            Start Over
+          </Button>
         </Box>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+        >
           {/* Subjects */}
           <Box>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
               Subjects to Study
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
               {formData.subjects.map((subject, index) => (
                 <Chip
                   key={index}
                   label={subject}
                   onDelete={() => removeSubject(subject)}
                   deleteIcon={<Delete />}
-                  sx={{ bgcolor: '#083c70ff', color: 'white' }}
+                  sx={{ bgcolor: theme.palette.primary.main, color: "white" }}
                 />
               ))}
             </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
               <TextField
                 size="small"
                 placeholder="Add subject (e.g., Mathematics, Physics)"
                 value={newSubject}
                 onChange={(e) => setNewSubject(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addSubject()
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addSubject();
                   }
                 }}
                 sx={{ flex: 1 }}
               />
-              <Button 
+              <Button
                 onClick={(e) => {
-                  e.preventDefault()
-                  addSubject()
-                }} 
+                  e.preventDefault();
+                  addSubject();
+                }}
                 startIcon={<Add />}
                 variant="outlined"
                 type="button"
-                sx={{ color: '#083c70ff', borderColor: '#083c70ff' }}
+                sx={{
+                  color: theme.palette.primary.main,
+                  borderColor: theme.palette.primary.main,
+                }}
               >
                 Add
               </Button>
@@ -204,10 +234,17 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 <Select
                   value={formData.studyGoal}
                   label="Study Goal"
-                  onChange={(e) => setFormData(prev => ({ ...prev, studyGoal: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      studyGoal: e.target.value,
+                    }))
+                  }
                 >
                   {studyGoals.map((goal) => (
-                    <MenuItem key={goal} value={goal}>{goal}</MenuItem>
+                    <MenuItem key={goal} value={goal}>
+                      {goal}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -236,24 +273,32 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 label="Start Date"
                 type="date"
                 value={formData.startDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                InputLabelProps={{ 
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    startDate: e.target.value,
+                  }))
+                }
+                InputLabelProps={{
                   shrink: true,
-                  style: { color: '#083c70ff', fontWeight: 'bold' }
+                  style: {
+                    color: theme.palette.primary.main,
+                    fontWeight: "bold",
+                  },
                 }}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: '#083c70ff',
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: theme.palette.primary.main,
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#083c70ff',
+                    "&.Mui-focused fieldset": {
+                      borderColor: theme.palette.primary.main,
                     },
                   },
-                  '& .MuiInputBase-input': {
-                    color: '#333',
+                  "& .MuiInputBase-input": {
+                    color: "#333",
                     fontWeight: 500,
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -265,24 +310,29 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 label="End Date"
                 type="date"
                 value={formData.endDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
-                InputLabelProps={{ 
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, endDate: e.target.value }))
+                }
+                InputLabelProps={{
                   shrink: true,
-                  style: { color: '#083c70ff', fontWeight: 'bold' }
+                  style: {
+                    color: theme.palette.primary.main,
+                    fontWeight: "bold",
+                  },
                 }}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: '#083c70ff',
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: theme.palette.primary.main,
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#083c70ff',
+                    "&.Mui-focused fieldset": {
+                      borderColor: theme.palette.primary.main,
                     },
                   },
-                  '& .MuiInputBase-input': {
-                    color: '#333',
+                  "& .MuiInputBase-input": {
+                    color: "#333",
                     fontWeight: 500,
-                  }
+                  },
                 }}
               />
             </Grid>
@@ -294,10 +344,17 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 <Select
                   value={formData.learningStyle}
                   label="Learning Style"
-                  onChange={(e) => setFormData(prev => ({ ...prev, learningStyle: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      learningStyle: e.target.value,
+                    }))
+                  }
                 >
                   {learningStyles.map((style) => (
-                    <MenuItem key={style} value={style}>{style}</MenuItem>
+                    <MenuItem key={style} value={style}>
+                      {style}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -310,10 +367,17 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 <Select
                   value={formData.difficulty}
                   label="Difficulty Level"
-                  onChange={(e) => setFormData(prev => ({ ...prev, difficulty: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      difficulty: e.target.value,
+                    }))
+                  }
                 >
                   {difficultyLevels.map((level) => (
-                    <MenuItem key={level} value={level}>{level}</MenuItem>
+                    <MenuItem key={level} value={level}>
+                      {level}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -322,27 +386,32 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
 
           {/* Daily Study Hours */}
           <Box>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
               Daily Study Hours: {formData.dailyHours} hours
             </Typography>
             <Slider
               value={formData.dailyHours}
-              onChange={(_, value) => setFormData(prev => ({ ...prev, dailyHours: value as number }))}
+              onChange={(_, value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  dailyHours: value as number,
+                }))
+              }
               min={1}
               max={8}
               step={0.5}
               marks
               valueLabelDisplay="auto"
-              sx={{ color: '#083c70ff' }}
+              sx={{ color: theme.palette.primary.main }}
             />
           </Box>
 
           {/* Preferred Study Times */}
           <Box>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
               Preferred Study Times
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               {preferredTimeOptions.map((time) => (
                 <FormControlLabel
                   key={time}
@@ -350,7 +419,10 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                     <Checkbox
                       checked={formData.preferredTimes.includes(time)}
                       onChange={() => handleTimePreferenceChange(time)}
-                      sx={{ color: '#083c70ff', '&.Mui-checked': { color: '#083c70ff' } }}
+                      sx={{
+                        color: theme.palette.primary.main,
+                        "&.Mui-checked": { color: theme.palette.primary.main },
+                      }}
                     />
                   }
                   label={time}
@@ -361,16 +433,24 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
 
           {/* Additional Options */}
           <Box>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
               Additional Options
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <FormControlLabel
                 control={
                   <Checkbox
                     checked={formData.includeBreaks}
-                    onChange={(e) => setFormData(prev => ({ ...prev, includeBreaks: e.target.checked }))}
-                    sx={{ color: '#083c70ff', '&.Mui-checked': { color: '#083c70ff' } }}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        includeBreaks: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: theme.palette.primary.main,
+                      "&.Mui-checked": { color: theme.palette.primary.main },
+                    }}
                   />
                 }
                 label="Include regular breaks in study sessions"
@@ -379,8 +459,16 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 control={
                   <Checkbox
                     checked={formData.includeReview}
-                    onChange={(e) => setFormData(prev => ({ ...prev, includeReview: e.target.checked }))}
-                    sx={{ color: '#083c70ff', '&.Mui-checked': { color: '#083c70ff' } }}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        includeReview: e.target.checked,
+                      }))
+                    }
+                    sx={{
+                      color: theme.palette.primary.main,
+                      "&.Mui-checked": { color: theme.palette.primary.main },
+                    }}
                   />
                 }
                 label="Include review sessions for better retention"
@@ -390,7 +478,8 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
 
           {!isFormValid && (
             <Alert severity="info">
-              Please fill in all required fields: subjects, study goal, start date, end date, learning style, and difficulty level.
+              Please fill in all required fields: subjects, study goal, start
+              date, end date, learning style, and difficulty level.
             </Alert>
           )}
 
@@ -399,17 +488,19 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
             variant="contained"
             size="large"
             disabled={!isFormValid || isGenerating}
-            startIcon={isGenerating ? <CircularProgress size={20} /> : <Schedule />}
-            sx={{ 
-              bgcolor: '#083c70ff', 
-              '&:hover': { bgcolor: '#0d47a1' },
-              py: 1.5
+            startIcon={
+              isGenerating ? <CircularProgress size={20} /> : <Schedule />
+            }
+            sx={{
+              bgcolor: theme.palette.primary.main,
+              "&:hover": { bgcolor: theme.palette.primary.dark },
+              py: 1.5,
             }}
           >
-            {isGenerating ? 'Generating Your Plan...' : 'Generate Study Plan'}
+            {isGenerating ? "Generating Your Plan..." : "Generate Study Plan"}
           </Button>
         </Box>
       </CardContent>
     </Card>
-  )
+  );
 }
