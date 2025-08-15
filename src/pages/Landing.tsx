@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Groups,
   Add,
@@ -24,6 +25,7 @@ import BrowseWorkspace from "../components/BrowseWorkspace";
 
 const Landing = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [createWs, setCreateWs] = useState(false);
   const [browseWS, setBrowseWS] = useState(false);
 
@@ -242,6 +244,7 @@ const Landing = () => {
               {mockWorkspaces.map((workspace) => (
                 <Card
                   key={workspace.id}
+                  onClick={() => navigate('/workspace')}
                   sx={{
                     height: "100%",
                     background: `linear-gradient(135deg, ${alpha(
@@ -305,7 +308,15 @@ const Landing = () => {
                       <Typography variant="caption" color="text.secondary">
                         {workspace.members} members
                       </Typography>
-                      <Button variant="outlined">Join Workspace</Button>
+                      <Button 
+                        variant="outlined"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/workspace');
+                        }}
+                      >
+                        Join Workspace
+                      </Button>
                     </Box>
                   </CardContent>
                 </Card>

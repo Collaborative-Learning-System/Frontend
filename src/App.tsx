@@ -6,14 +6,14 @@ import Auth from "./pages/Auth";
 
 import Landing from "./pages/Landing";
 import MainLayout from "./components/MainLayout";
-import Groups from "./pages/Groups";
+import Workspace from "./pages/Workspace";
 
 
 const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#163b60ff",
+      main: "#1976d2",
     },
     secondary: {
       main: "#c85662ff",
@@ -37,16 +37,14 @@ const App = () => {
           }
         />
         <Route
-          path="/groups"
+          path="/workspace"
           element={
             <MainLayout>
-              <Groups />
+              <Workspace />
             </MainLayout>
           }
 
         />
-        
-
       </Routes>
     </ThemeProvider>
   );
