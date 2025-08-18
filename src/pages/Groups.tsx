@@ -18,6 +18,11 @@ const Groups = () => {
   const [viewDetail, setViewDetail] = React.useState(false);
   const [createQuiz, setCreateQuiz] = React.useState(false);
 
+  const Users = [
+    { id: 1, name: "John Doe", role: "WORKSPACE_ADMIN" },
+    { id: 2, name: "Jane Smith", role: "WORKSPACE_ADMIN" },
+  ];
+
   return (
     <Box
       sx={{
@@ -28,23 +33,22 @@ const Groups = () => {
     >
       <Box
         sx={{
-          display: "flex",
+          display: { xs: "block", sm: "flex" },
           alignItems: "center",
           justifyContent: "space-between",
-          background: `linear-gradient(135deg, ${alpha(
-            theme.palette.primary.main,
-            0.1
-          )} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
+          background: theme.palette.background.paper,
           border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
           borderRadius: 3,
-          padding: 2,
+          padding: { xs: 1, sm: 2},
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <IconButton size="large" color="primary">
             <Group />
           </IconButton>
-          <Typography variant="h5">Computer Science and Engineering</Typography>
+          <Typography variant="h5" color={theme.palette.primary.main}>
+            Computer Science and Engineering
+          </Typography>
         </Box>
         <IconButton
           size="large"
@@ -57,18 +61,9 @@ const Groups = () => {
       {viewDetail && (
         <Box
           sx={{
-            mt: 0.5,
-            p: 2,
-            background: `linear-gradient(135deg, ${alpha(
-              theme.palette.primary.main,
-              0.1
-            )} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
-            border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-            borderRadius: 3,
-            width: "100%",
-            top: 0,
-            position: "relative",
-            right: 0,
+            display: "flex",
+            justifyContent: "flex-end",
+            width: "50%"
           }}
         >
           <Typography variant="body1">
@@ -77,16 +72,37 @@ const Groups = () => {
           </Typography>
         </Box>
       )}
+      {/* {Users.some((user) => {
+        user.role === "WORKSPACE_ADMIN" && (
+      
+          <Box
+            sx={{
+              width: "100%",
+              mt: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button variant="contained" onClick={() => setCreateQuiz(true)}>
+              Create Quiz
+            </Button>
+          </Box>
+        )
+      })} */}
       <Box
         sx={{
           width: "100%",
           mt: 2,
           display: "flex",
           justifyContent: "flex-end",
+          gap: 2,
         }}
       >
         <Button variant="contained" onClick={() => setCreateQuiz(true)}>
           Create Quiz
+        </Button>
+        <Button variant="contained">
+          Leaderboard
         </Button>
       </Box>
       <Stack spacing={2} sx={{ mt: 2 }} direction={"row"}>
@@ -163,7 +179,7 @@ const Groups = () => {
               maxWidth: 1000,
               maxHeight: "90vh",
               overflowY: "auto",
-              scrollbarWidth: "none", 
+              scrollbarWidth: "none",
               "&::-webkit-scrollbar": {
                 display: "none",
               },

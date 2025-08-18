@@ -160,16 +160,15 @@ const AuthComponent = () => {
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Avatar
             sx={{
-              bgcolor: "white",
+              
               width: 64,
               height: 64,
               mx: "auto",
-              mb: 2,
-              boxShadow: theme.shadows[4],
+              mb: 2
             }}
           >
             {isLogin ? (
-              <Login sx={{ fontSize: 32, color: theme.palette.primary.main }} />
+              <Login sx={{ fontSize: 32, color: theme.palette.primary.main, bgcolor: "transparent" }} />
             ) : (
               <PersonAdd
                 sx={{ fontSize: 32, color: theme.palette.primary.main }}
@@ -180,6 +179,7 @@ const AuthComponent = () => {
             variant="h3"
             component="h1"
             gutterBottom
+            color={theme.palette.primary.main}
             sx={{ fontWeight: "bold" }}
           >
             {isLogin ? "Welcome Back" : "Create Account"}
@@ -270,17 +270,7 @@ const AuthComponent = () => {
                         <Lock color="action" />
                       </InputAdornment>
                     ),
-                    // endAdornment: (
-                    //   <InputAdornment position="end">
-                    //     <IconButton
-                    //       aria-label="toggle password visibility"
-                    //       onClick={togglePasswordVisibility}
-                    //       edge="end"
-                    //     >
-                    //       {showPassword ? <VisibilityOff /> : <Visibility />}
-                    //     </IconButton>
-                    //   </InputAdornment>
-                    // ),
+                  
                   }}
                   placeholder="Enter your password"
                 />

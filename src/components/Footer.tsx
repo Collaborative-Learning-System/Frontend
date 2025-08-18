@@ -15,7 +15,7 @@ export default function Footer() {
     const theme = useTheme();
 
   return (
-    <Box sx={{ bgcolor: theme.palette.primary.main, color: 'white', py: 6 }}>
+    <Box sx={{ bgcolor: theme.palette.background.default, py: 6 }}>
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 4 }}>
@@ -31,9 +31,9 @@ export default function Footer() {
               Product
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Features</Button>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Pricing</Button>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Security</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Features</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Pricing</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Security</Button>
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
@@ -41,9 +41,9 @@ export default function Footer() {
               Company
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>About</Button>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Careers</Button>
-              <Button onClick={() => navigate('/contact-us')} sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Contact</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>About</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Careers</Button>
+              <Button onClick={() => navigate('/contact-us')} sx={{ justifyContent: 'flex-start', p: 0 }}>Contact</Button>
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
@@ -51,9 +51,9 @@ export default function Footer() {
               Resources
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Blog</Button>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Help Center</Button>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Community</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Blog</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Help Center</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Community</Button>
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
@@ -61,9 +61,9 @@ export default function Footer() {
               Legal
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Privacy</Button>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Terms</Button>
-              <Button sx={{ color: 'white', justifyContent: 'flex-start', p: 0 }}>Cookies</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Privacy</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Terms</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Cookies</Button>
             </Box>
           </Grid>
         </Grid>

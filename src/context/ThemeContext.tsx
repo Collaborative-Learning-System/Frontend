@@ -20,20 +20,25 @@ export const useThemeContext = () => {
 export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
   const [mode, setMode] = useState<PaletteMode>("light");
 
-  const toggleTheme = () =>
-    setMode((prev) => (prev === "light" ? "dark" : "light"));
-
   const theme = useMemo(
     () =>
       createTheme({
         palette: {
           mode,
-          primary: { main: "#083c70ff" },
-          secondary: { main: "#083c70ff" },
+          primary: { main: mode === "light" ? "#083c70" : "#84c6fdff" },
+          secondary: { main: mode === "light" ? "#083c70" : "#75ceeaff" },
+          background: {
+            default: mode === "light" ? "#ffffff" : "#121212",
+            paper: mode === "light" ? "#ffffff" : "#1d1d1d",
+          },
         },
       }),
     [mode]
   );
+
+  const toggleTheme = () => {
+    setMode((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   return (
     <ThemeContext.Provider value={{ mode, toggleTheme }}>
@@ -44,3 +49,5 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
     </ThemeContext.Provider>
   );
 };
+
+

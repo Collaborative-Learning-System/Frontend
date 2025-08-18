@@ -6,17 +6,22 @@ import {
   Button,
   Box,
   useTheme,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import { DarkMode, LightMode } from "@mui/icons-material";
+import { useThemeContext } from "../context/ThemeContext";
 
 export default function Navigation() {
+   const { mode, toggleTheme } = useThemeContext();
   const navigate = useNavigate();
   const theme = useTheme();
-  //  const ThemeContext = useContext(ThemeContext);
+  
 
   return (
     <AppBar
       position="static"
-      sx={{ bgcolor: "white", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
+      sx={{ bgcolor: theme.palette.background.default, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
     >
       <Toolbar>
         <Typography
@@ -40,7 +45,18 @@ export default function Navigation() {
           </Button>
         </Box> */}
 
-        <Box sx={{ ml: 2 }}>  
+        <Box sx={{ ml: 2 }}>
+          <Tooltip
+            title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
+          >
+            <IconButton
+              onClick={toggleTheme}
+              size="large"
+              sx={{ color: theme.palette.primary.main }}
+            >
+              {mode === "light" ? <DarkMode /> : <LightMode />}
+            </IconButton>
+          </Tooltip>
           <Button
             onClick={() => navigate("/auth")}
             variant="contained"
