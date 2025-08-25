@@ -15,14 +15,19 @@ const theme = createTheme({
   },
 });
 
+import { ThemeContextProvider } from "./context/ThemeContext";
+
+
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <StrictMode>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <ToastContainer />
-        <App />
-      </ThemeProvider>
+      <ThemeContextProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ToastContainer />
+          <App />
+        </ThemeProvider>
+      </ThemeContextProvider>
     </StrictMode>
   </BrowserRouter>
 );

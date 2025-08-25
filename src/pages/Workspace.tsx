@@ -1,83 +1,307 @@
-import { useState } from 'react';
-import ChatUI from '../components/ChatUI';
-import Quiz from '../components/Quiz';
-import Leaderboard from '../components/Leaderboard';
-import '../App.css';
-import './Workspace.css';
+import {useState } from "react";
+import ChatUI from "../components/ChatUI";
+import Quiz from "../components/Quiz";
+import Leaderboard from "../components/Leaderboard";
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  Chip,
+  Tabs,
+  Tab,
+  Container,
+  Card,
+  CardContent,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListItemIcon,
+  Divider,
+  useTheme,
+} from "@mui/material";
+import {
+  Chat as ChatIcon,
+  Quiz as QuizIcon,
+  Leaderboard as LeaderboardIcon,
+  Add as AddIcon,
+  Group as GroupIcon,
+  ExitToApp as ExitIcon,
+  AdminPanelSettings as AdminIcon,
+  School as SchoolIcon,
+} from "@mui/icons-material";
+// Update the import paths below if the files are located elsewhere, or create the missing files if they do not exist.
+import { useNavigate } from "react-router-dom";
+import * as AlertService from "../services/AlertService";
+import NotificationService from "../services/NotificationService";
+import { useThemeContext } from "../context/ThemeContext";
 
-const groups = [
-  { id: 1, name: 'Computer Security' },
-  { id: 2, name: 'Software Engineering' },
-  { id: 3, name: 'Business Analysis' },
+const modules = [
+  { id: 1, name: "Computer Security" },
+  { id: 2, name: "Software Engineering" },
+  { id: 3, name: "Business Analysis" },
 ];
 
 
+
 const Workspace = () => {
-  const [selectedGroup, setSelectedGroup] = useState(groups[0].id);
-  const [activeTab, setActiveTab] = useState('chat');
+  const [selectedGroup, setSelectedGroup] = useState(modules[0].id);
+  const [activeTab, setActiveTab] = useState(0);
+
+
+  const navigate = useNavigate();
+
+  const theme = useTheme();
+  const { mode } = useThemeContext();
+
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
+  const getTabContent = () => {
+    switch (activeTab) {
+      case 0:
+        return <ChatUI />;
+      case 1:
+        return <Quiz groupId={selectedGroup} />;
+      case 2:
+        return <Leaderboard groupId={selectedGroup} />;
+      default:
+        return <ChatUI />;
+    }
+  };
 
   return (
-    <div className="workspace-glass-root" style={{flexDirection: 'column', gap: 0, padding: 0}}>
-      {/* Header at the top */}
-      <header className="glass-panel workspace-header" style={{margin: 0, borderRadius: '0 0 24px 24px', padding: '32px 40px 24px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-        <div>
-          <h1 className="workspace-title">Semester 5 Workspace</h1>
-          <p className="workspace-desc">A short description of the workspace goes here.</p>
-        </div>
-        <div className="workspace-meta">
-          <span className="role-label admin">Admin</span>
-          <span className="member-count">12 Members</span>
-          <button className="leave-btn">Leave</button>
-        </div>
-      </header>
-
-      {/* Main content: sidebar + group content */}
-      <div style={{display: 'flex', flex: 1, minHeight: '0', gap: 24, padding: '24px'}}>
-        {/* Sidebar */}
-        <aside className="sidebar">
-          <div className="sidebar-header">
-            <span className="sidebar-icon">📚</span>
-            <h2 className="sidebar-title">Groups</h2>
-          </div>
-          
-          <nav className="groups-nav">
-            {groups.map((group) => (
-              <button
-                key={group.id}
-                className={`group-btn ${selectedGroup === group.id ? 'active' : ''}`}
-                onClick={() => setSelectedGroup(group.id)}
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        padding: { xs: 2, md: 4 },
+        background: theme.palette.background.paper,
+        height: "100vh"
+      }}
+    >
+      {/* Header */}
+      <Paper
+        elevation={3}
+        sx={{
+          borderRadius: "12px",
+          mb: 3,
+          bgcolor:
+            mode === "dark"
+              ? theme.palette.background.paper
+              : theme.palette.primary.main,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              py: 3,
+              flexDirection: { xs: "column", md: "row" },
+              gap: { xs: 2, md: 0 },
+            }}
+          >
+            <Box>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
               >
-                <span className="group-name">{group.name}</span>
-              </button>
-            ))}
-          </nav>
-          
-          <div className="sidebar-footer">
-            <button className="add-group-btn">
-              <span>+</span>
-              <span>Add Group</span>
-            </button>
-          </div>
-        </aside>
+                <SchoolIcon
+                  sx={{
+                    fontSize: { xs: 28, sm: 32 },
+                    color:
+                      mode === "dark" ? theme.palette.primary.main : "white",
+                  }}
+                />
+                <Typography
+                  variant="h4"
+                  color={mode === "dark" ? theme.palette.primary.main : "white"}
+                >
+                  Semester 5 Workspace
+                </Typography>
+              </Box>
+              <Typography variant="body1" sx={{ opacity: 0.9, color: "white" }}>
+                A short description of the workspace goes here.
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                flexDirection: { xs: "column", sm: "row" },
+                width: { xs: "100%", md: "auto" },
+              }}
+            >
+              <Chip
+                icon={<AdminIcon sx={{ color: "white" }} />}
+                label="Admin"
+                color="secondary"
+                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+              />
+              <Chip
+                icon={<GroupIcon sx={{ color: "white" }} />}
+                label="12 Members"
+                color="secondary"
+                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+              />
+              <Button
+                variant="outlined"
+                color="warning"
+                startIcon={<ExitIcon />}
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Do you really want to leave the workspace?"
+                  );
+                  if (confirmed) {
+                    NotificationService.showInfo("You have left the workspace.");
+                    navigate("/landing");
+                  }
+                }}
+              >
+                Leave
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      </Paper>
 
-        {/* Group content */}
-        <main className="glass-panel main-section" style={{margin: 0, padding: '32px 40px', minHeight: 0}}>
-          <div className="group-ui">
-            <div className="group-tabs">
-              <button className={activeTab === 'chat' ? 'active' : ''} onClick={() => setActiveTab('chat')}>Chat</button>
-              <button className={activeTab === 'quiz' ? 'active' : ''} onClick={() => setActiveTab('quiz')}>Quiz</button>
-              <button className={activeTab === 'leaderboard' ? 'active' : ''} onClick={() => setActiveTab('leaderboard')}>Leaderboard</button>
-            </div>
-            <div className="group-tab-content">
-              {activeTab === 'chat' && <ChatUI />}
-              {activeTab === 'quiz' && <Quiz groupId={selectedGroup} />}
-              {activeTab === 'leaderboard' && <Leaderboard groupId={selectedGroup} />}
-            </div>
-          </div>
-        </main>
-      </div>          
-    </div>
+      {/* Main Content */}
+      <Container maxWidth="lg" sx={{ flex: 1, pb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", lg: "row" },
+            gap: 3,
+            minHeight: 0,
+          }}
+        >
+          {/* Sidebar */}
+          <Card
+            elevation={3}
+            sx={{
+              width: { xs: "100%", lg: 270 },
+              alignSelf: { xs: "stretch", lg: "flex-start" },
+              borderRadius: 3,
+            }}
+          >
+            <CardContent sx={{ p: 0 }}>
+              <Box sx={{ p: 3, pb: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <GroupIcon color="primary" />
+                  <Typography variant="h6" color="primary">
+                    Groups
+                  </Typography>
+                </Box>
+              </Box>
+
+              <List sx={{ px: 2, pb: 2 }}>
+                {modules.map((group) => (
+                  <ListItem key={group.id} disablePadding sx={{ mb: 1 }}>
+                    <ListItemButton
+                      selected={selectedGroup === group.id}
+                      onClick={() => setSelectedGroup(group.id)}
+                      sx={{
+                        borderRadius: 2,
+                        "&.Mui-selected": {
+                          bgcolor: "primary.light",
+                          color: "primary.contrastText",
+                          "&:hover": {
+                            bgcolor: "primary.light",
+                          },
+                        },
+                      }}
+                    >
+                      <ListItemIcon>
+                        <SchoolIcon
+                          sx={{
+                            color:
+                              selectedGroup === group.id
+                                ? "primary.contrastText"
+                                : "text.secondary",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={group.name}
+                        primaryTypographyProps={{
+                          fontWeight:
+                            selectedGroup === group.id ? "bold" : "medium",
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+
+              <Divider sx={{ mx: 2 }} />
+
+              <Box sx={{ p: 2 }}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontWeight: "medium",
+                  }}
+                >
+                  Add Group
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Main Section */}
+          <Paper
+            elevation={3}
+            sx={{
+              flex: 1,
+              borderRadius: 3,
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              minHeight: { xs: "70vh", lg: "auto" },
+            }}
+          >
+            {/* Tabs */}
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                sx={{
+                  px: 3,
+                  "& .MuiTab-root": {
+                    textTransform: "none",
+                    fontWeight: "medium",
+                    fontSize: "1rem",
+                  },
+                }}
+              >
+                <Tab icon={<ChatIcon />} label="Chat" iconPosition="start" />
+                <Tab icon={<QuizIcon />} label="Quiz" iconPosition="start" />
+                <Tab
+                  icon={<LeaderboardIcon />}
+                  label="Leaderboard"
+                  iconPosition="start"
+                />
+              </Tabs>
+            </Box>
+
+            {/* Tab Content */}
+            <Box sx={{ flex: 1, p: 3, overflow: "auto" }}>
+              {getTabContent()}
+            </Box>
+          </Paper>
+        </Box>
+      </Container>
+    </Box>
   );
-}
+};
 
 export default Workspace;
