@@ -1,12 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import { ThemeContextProvider } from "./context/ThemeContext";
-import "./App.css";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
-import MainLayout from "./components/MainLayout";
+import MainLayout from "./layouts/MainLayout";
 import Groups from "./pages/Groups";
-import Home from "./pages/Home"
+import Home from "./pages/Home";
 import StudyPlanGenerator from "./pages/study-plan-generator";
+import Workspace from "./pages/Workspace";
+import Profile from "./pages/Userprofile"
 
 const App = () => {
   return (
@@ -35,6 +36,22 @@ const App = () => {
           element={
             <MainLayout>
               <Groups />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/workspace"
+          element={
+            <MainLayout>
+              <Workspace />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <MainLayout>
+              <Profile />
             </MainLayout>
           }
         />

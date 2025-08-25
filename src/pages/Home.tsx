@@ -1,8 +1,8 @@
 // Remove 'use client' directive for standard React projects
 import { useNavigate } from "react-router-dom";
-import HomepageImage from '../assets/Homepageimg.png';
+import HomepageImage from "../assets/Homepageimg.png";
 //import TopNavBar from '../components/TopNavBar';
-import Footer from '../components/Footer';
+import Footer from "../components/Footer";
 
 import {
   Typography,
@@ -14,8 +14,8 @@ import {
   CardContent,
   Avatar,
   Rating,
-  useTheme
-} from '@mui/material'
+  useTheme,
+} from "@mui/material";
 
 import {
   Groups,
@@ -25,87 +25,97 @@ import {
   CloudUpload,
   Edit,
   ArrowForward,
-  CheckCircle
-} from '@mui/icons-material'
+  CheckCircle,
+} from "@mui/icons-material";
 import Navigation from "../components/Navigation";
 
-
 export default function CollaborativeLearningHomepage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const theme = useTheme();
 
   const features = [
     {
       icon: <Groups sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Study Groups',
-      description: 'Create and join study groups based on subjects and interests. Collaborate with peers who share your learning goals.'
+      title: "Study Groups",
+      description:
+        "Create and join study groups based on subjects and interests. Collaborate with peers who share your learning goals.",
     },
     {
-      icon: <CloudUpload sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Resource Sharing',
-      description: 'Upload, organize, and access learning materials with advanced tagging and search capabilities.'
+      icon: (
+        <CloudUpload sx={{ fontSize: 40, color: theme.palette.primary.main }} />
+      ),
+      title: "Resource Sharing",
+      description:
+        "Upload, organize, and access learning materials with advanced tagging and search capabilities.",
     },
     {
       icon: <Edit sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Collaborative Editing',
-      description: 'Real-time collaborative document editing for notes and study materials within your groups.'
+      title: "Collaborative Editing",
+      description:
+        "Real-time collaborative document editing for notes and study materials within your groups.",
     },
     {
       icon: <School sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Personalized Study Plans',
-      description: 'AI-powered study plan generation tailored to your learning style, pace, and goals.'
+      title: "Personalized Study Plans",
+      description:
+        "AI-powered study plan generation tailored to your learning style, pace, and goals.",
     },
     {
-      icon: <Analytics sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Progress Tracking',
-      description: 'Visual dashboards to monitor your learning progress and identify areas for improvement.'
+      icon: (
+        <Analytics sx={{ fontSize: 40, color: theme.palette.primary.main }} />
+      ),
+      title: "Progress Tracking",
+      description:
+        "Visual dashboards to monitor your learning progress and identify areas for improvement.",
     },
     {
       icon: <Quiz sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Interactive Assessments',
-      description: 'Create and participate in quizzes with immediate feedback and performance analysis.'
-    }
-  ]
+      title: "Interactive Assessments",
+      description:
+        "Create and participate in quizzes with immediate feedback and performance analysis.",
+    },
+  ];
 
   const testimonials = [
     {
-      name: 'Sarah Chen',
-      role: 'Computer Science Student',
-      avatar: '/placeholder.svg?height=50&width=50&text=SC',
+      name: "Kasun Bandra",
+      role: "Computer Science Student",
+      avatar: "/placeholder.svg?height=50&width=50&text=SC",
       rating: 5,
-      comment: 'This platform transformed how I study. The collaborative features helped me connect with amazing study partners!'
+      comment:
+        "This platform transformed how I study. The collaborative features helped me connect with amazing study partners!",
     },
     {
-      name: 'Michael Rodriguez',
-      role: 'Engineering Student',
-      avatar: '/placeholder.svg?height=50&width=50&text=MR',
+      name: "Vimal Perera",
+      role: "Engineering Student",
+      avatar: "/placeholder.svg?height=50&width=50&text=MR",
       rating: 5,
-      comment: 'The personalized study plans are incredible. It adapts to my learning style and keeps me on track.'
+      comment:
+        "The personalized study plans are incredible. It adapts to my learning style and keeps me on track.",
     },
     {
-      name: 'Emily Johnson',
-      role: 'Medical Student',
-      avatar: '/placeholder.svg?height=50&width=50&text=EJ',
+      name: "Nalaka Silva",
+      role: "Medical Student",
+      avatar: "/placeholder.svg?height=50&width=50&text=EJ",
       rating: 5,
-      comment: 'Resource sharing made group projects so much easier. Everything is organized and accessible.'
-    }
-  ]
+      comment:
+        "Resource sharing made group projects so much easier. Everything is organized and accessible.",
+    },
+  ];
 
   const stats = [
-    { number: '10K+', label: 'Active Students' },
-    { number: '500+', label: 'Study Groups' },
-    { number: '50K+', label: 'Resources Shared' },
-    { number: '95%', label: 'Success Rate' }
-  ]
+    { number: "10K+", label: "Active Students" },
+    { number: "500+", label: "Study Groups" },
+    { number: "50K+", label: "Resources Shared" },
+    { number: "95%", label: "Success Rate" },
+  ];
 
   return (
     <Box sx={{ flexGrow: 1, bgcolor: theme.palette.background.default }}>
-      {/* Navigation */}
-      {/* <Navigation /> */}
-      < Navigation />
+      <Navigation />
 
       {/* Hero Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Container maxWidth="lg" sx={{ py: 8, mt: 2 }}>
         <Grid container spacing={4} alignItems="center">
           <Grid size={{ xs: 12, md: 6 }}>
             <Typography
@@ -151,11 +161,23 @@ export default function CollaborativeLearningHomepage() {
             </Box>
             <Box sx={{ mt: 4, display: "flex", alignItems: "center", gap: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <CheckCircle sx={{ color: "#4caf50", mr: 1 }} />
+                <CheckCircle
+                  sx={{
+                    color:
+                      theme.palette.success?.main || theme.palette.primary.main,
+                    mr: 1,
+                  }}
+                />
                 <Typography variant="body2">Free to start</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <CheckCircle sx={{ color: "#4caf50", mr: 1 }} />
+                <CheckCircle
+                  sx={{
+                    color:
+                      theme.palette.success?.main || theme.palette.primary.main,
+                    mr: 1,
+                  }}
+                />
                 <Typography variant="body2">No credit card required</Typography>
               </Box>
             </Box>
@@ -304,11 +326,14 @@ export default function CollaborativeLearningHomepage() {
       </Box>
 
       {/* CTA Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Container
+        maxWidth="lg"
+        sx={{ py: 8, bgcolor: theme.palette.background.default }}
+      >
         <Box
           sx={{
             textAlign: "center",
-            bgcolor: theme.palette.background.paper,
+            bgcolor: theme.palette.background.default,
             p: 6,
             borderRadius: 2,
           }}

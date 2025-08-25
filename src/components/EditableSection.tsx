@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -14,45 +14,66 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Chip
-} from '@mui/material'
-import { Edit, Save, Cancel, Add, Delete } from '@mui/icons-material'
+  Chip,
+  useTheme,
+} from "@mui/material";
+import { Edit, Save, Cancel, Add, Delete } from "@mui/icons-material";
 
 interface EditableSectionProps {
-  title: string
-  children: (isEditing: boolean) => React.ReactNode
-  onSave?: (data: any) => void
+  title: string;
+  children: (isEditing: boolean) => React.ReactNode;
+  onSave?: (data: any) => void;
 }
 
-export function EditableSection({ title, children, onSave }: EditableSectionProps) {
-  const [isEditing, setIsEditing] = useState(false)
+export function EditableSection({
+  title,
+  children,
+  onSave,
+}: EditableSectionProps) {
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = () => {
-    setIsEditing(false)
+    setIsEditing(false);
     if (onSave) {
-      onSave({})
+      onSave({});
     }
-  }
+  };
 
   return (
     <Card sx={{ mb: 3 }}>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ color: '#083c70ff', fontWeight: 'bold' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ color: "#083c70ff", fontWeight: "bold" }}
+          >
             {title}
           </Typography>
           <Box>
             {isEditing ? (
               <>
-                <IconButton onClick={handleSave} sx={{ color: '#4caf50' }}>
+                <IconButton onClick={handleSave} sx={{ color: "#4caf50" }}>
                   <Save />
                 </IconButton>
-                <IconButton onClick={() => setIsEditing(false)} sx={{ color: '#f44336' }}>
+                <IconButton
+                  onClick={() => setIsEditing(false)}
+                  sx={{ color: "#f44336" }}
+                >
                   <Cancel />
                 </IconButton>
               </>
             ) : (
-              <IconButton onClick={() => setIsEditing(true)} sx={{ color: '#083c70ff' }}>
+              <IconButton
+                onClick={() => setIsEditing(true)}
+                sx={{ color: "#083c70ff" }}
+              >
                 <Edit />
               </IconButton>
             )}
@@ -61,31 +82,34 @@ export function EditableSection({ title, children, onSave }: EditableSectionProp
         {children(isEditing)}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 interface PersonalInfoProps {
-  isEditing?: boolean
+  isEditing?: boolean;
   data: {
-    firstName: string
-    lastName: string
-    email: string
-    phone: string
-    university: string
-    major: string
-    year: string
-    location: string
-    bio: string
-  }
-  onUpdate?: (data: any) => void
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    university: string;
+    major: string;
+    year: string;
+    location: string;
+    bio: string;
+  };
+  onUpdate?: (data: any) => void;
 }
 
-export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfoProps) {
-  const [formData, setFormData] = useState(data)
+export function PersonalInfo({
+  isEditing = false,
+  data,
+}: PersonalInfoProps) {
+  const [formData, setFormData] = useState(data);
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   if (isEditing) {
     return (
@@ -95,7 +119,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             fullWidth
             label="First Name"
             value={formData.firstName}
-            onChange={(e) => handleChange('firstName', e.target.value)}
+            onChange={(e) => handleChange("firstName", e.target.value)}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
@@ -103,7 +127,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             fullWidth
             label="Last Name"
             value={formData.lastName}
-            onChange={(e) => handleChange('lastName', e.target.value)}
+            onChange={(e) => handleChange("lastName", e.target.value)}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
@@ -112,7 +136,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             label="Email"
             type="email"
             value={formData.email}
-            onChange={(e) => handleChange('email', e.target.value)}
+            onChange={(e) => handleChange("email", e.target.value)}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
@@ -120,7 +144,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             fullWidth
             label="Phone"
             value={formData.phone}
-            onChange={(e) => handleChange('phone', e.target.value)}
+            onChange={(e) => handleChange("phone", e.target.value)}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
@@ -128,7 +152,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             fullWidth
             label="University"
             value={formData.university}
-            onChange={(e) => handleChange('university', e.target.value)}
+            onChange={(e) => handleChange("university", e.target.value)}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
@@ -136,7 +160,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             fullWidth
             label="Major"
             value={formData.major}
-            onChange={(e) => handleChange('major', e.target.value)}
+            onChange={(e) => handleChange("major", e.target.value)}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
@@ -145,7 +169,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             <Select
               value={formData.year}
               label="Academic Year"
-              onChange={(e) => handleChange('year', e.target.value)}
+              onChange={(e) => handleChange("year", e.target.value)}
             >
               <MenuItem value="1st Year">1st Year</MenuItem>
               <MenuItem value="2nd Year">2nd Year</MenuItem>
@@ -160,7 +184,7 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             fullWidth
             label="Location"
             value={formData.location}
-            onChange={(e) => handleChange('location', e.target.value)}
+            onChange={(e) => handleChange("location", e.target.value)}
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
@@ -170,96 +194,116 @@ export function PersonalInfo({ isEditing = false, data, onUpdate }: PersonalInfo
             multiline
             rows={3}
             value={formData.bio}
-            onChange={(e) => handleChange('bio', e.target.value)}
+            onChange={(e) => handleChange("bio", e.target.value)}
             placeholder="Tell us about yourself..."
           />
         </Grid>
       </Grid>
-    )
+    );
   }
 
   return (
     <Grid container spacing={2}>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">Name</Typography>
-        <Typography variant="body1">{data.firstName} {data.lastName}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Name
+        </Typography>
+        <Typography variant="body1">
+          {data.firstName} {data.lastName}
+        </Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">Email</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Email
+        </Typography>
         <Typography variant="body1">{data.email}</Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">Phone</Typography>
-        <Typography variant="body1">{data.phone || 'Not provided'}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Phone
+        </Typography>
+        <Typography variant="body1">{data.phone || "Not provided"}</Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">University</Typography>
+        <Typography variant="body2" color="text.secondary">
+          University
+        </Typography>
         <Typography variant="body1">{data.university}</Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">Major</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Major
+        </Typography>
         <Typography variant="body1">{data.major}</Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">Academic Year</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Academic Year
+        </Typography>
         <Typography variant="body1">{data.year}</Typography>
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <Typography variant="body2" color="text.secondary">Bio</Typography>
-        <Typography variant="body1">{data.bio || 'No bio provided'}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Bio
+        </Typography>
+        <Typography variant="body1">{data.bio || "No bio provided"}</Typography>
       </Grid>
     </Grid>
-  )
+  );
 }
 
 interface LearningPreferencesProps {
-  isEditing?: boolean
+  isEditing?: boolean;
   data: {
-    learningStyle: string
-    studyTime: string
-    subjects: string[]
-    goals: string[]
-  }
+    learningStyle: string;
+    studyTime: string;
+    subjects: string[];
+    goals: string[];
+  };
 }
 
-export function LearningPreferences({ isEditing = false, data }: LearningPreferencesProps) {
-  const [formData, setFormData] = useState(data)
-  const [newSubject, setNewSubject] = useState('')
-  const [newGoal, setNewGoal] = useState('')
+export function LearningPreferences({
+  isEditing = false,
+  data,
+}: LearningPreferencesProps) {
+  const [formData, setFormData] = useState(data);
+  const [newSubject, setNewSubject] = useState("");
+  const [newGoal, setNewGoal] = useState("");
+  const theme = useTheme();
 
   const addSubject = () => {
     if (newSubject.trim()) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        subjects: [...prev.subjects, newSubject.trim()]
-      }))
-      setNewSubject('')
+        subjects: [...prev.subjects, newSubject.trim()],
+      }));
+      setNewSubject("");
     }
-  }
+  };
 
   const removeSubject = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      subjects: prev.subjects.filter((_, i) => i !== index)
-    }))
-  }
+      subjects: prev.subjects.filter((_, i) => i !== index),
+    }));
+  };
 
   const addGoal = () => {
     if (newGoal.trim()) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        goals: [...prev.goals, newGoal.trim()]
-      }))
-      setNewGoal('')
+        goals: [...prev.goals, newGoal.trim()],
+      }));
+      setNewGoal("");
     }
-  }
+  };
 
   const removeGoal = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      goals: prev.goals.filter((_, i) => i !== index)
-    }))
-  }
+      goals: prev.goals.filter((_, i) => i !== index),
+    }));
+  };
 
   if (isEditing) {
     return (
@@ -270,7 +314,12 @@ export function LearningPreferences({ isEditing = false, data }: LearningPrefere
             <Select
               value={formData.learningStyle}
               label="Learning Style"
-              onChange={(e) => setFormData(prev => ({ ...prev, learningStyle: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  learningStyle: e.target.value,
+                }))
+              }
             >
               <MenuItem value="Visual">Visual</MenuItem>
               <MenuItem value="Auditory">Auditory</MenuItem>
@@ -285,7 +334,9 @@ export function LearningPreferences({ isEditing = false, data }: LearningPrefere
             <Select
               value={formData.studyTime}
               label="Preferred Study Time"
-              onChange={(e) => setFormData(prev => ({ ...prev, studyTime: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, studyTime: e.target.value }))
+              }
             >
               <MenuItem value="Early Morning">Early Morning</MenuItem>
               <MenuItem value="Morning">Morning</MenuItem>
@@ -296,83 +347,107 @@ export function LearningPreferences({ isEditing = false, data }: LearningPrefere
           </FormControl>
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <Typography variant="subtitle1" gutterBottom>Subjects of Interest</Typography>
-          <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+          <Typography variant="subtitle1" gutterBottom>
+            Subjects of Interest
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
             {formData.subjects.map((subject, index) => (
               <Chip
                 key={index}
                 label={subject}
                 onDelete={() => removeSubject(index)}
                 deleteIcon={<Delete />}
-                sx={{ bgcolor: '#083c70ff', color: 'white' }}
+                sx={{ bgcolor: theme.palette.primary.main, color: "white" }}
               />
             ))}
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
               size="small"
               placeholder="Add subject"
               value={newSubject}
               onChange={(e) => setNewSubject(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addSubject()}
+              onKeyPress={(e) => e.key === "Enter" && addSubject()}
             />
-            <Button onClick={addSubject} startIcon={<Add />}>Add</Button>
+            <Button onClick={addSubject} startIcon={<Add />}>
+              Add
+            </Button>
           </Box>
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <Typography variant="subtitle1" gutterBottom>Learning Goals</Typography>
-          <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+          <Typography variant="subtitle1" gutterBottom>
+            Learning Goals
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
             {formData.goals.map((goal, index) => (
               <Chip
                 key={index}
                 label={goal}
                 onDelete={() => removeGoal(index)}
                 deleteIcon={<Delete />}
-                sx={{ bgcolor: '#4caf50', color: 'white' }}
+                sx={{ bgcolor: theme.palette.success.main, color: "white" }}
               />
             ))}
           </Box>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1 }}>
             <TextField
               size="small"
               placeholder="Add goal"
               value={newGoal}
               onChange={(e) => setNewGoal(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addGoal()}
+              onKeyPress={(e) => e.key === "Enter" && addGoal()}
             />
-            <Button onClick={addGoal} startIcon={<Add />}>Add</Button>
+            <Button onClick={addGoal} startIcon={<Add />}>
+              Add
+            </Button>
           </Box>
         </Grid>
       </Grid>
-    )
+    );
   }
 
   return (
     <Grid container spacing={2}>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">Learning Style</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Learning Style
+        </Typography>
         <Typography variant="body1">{data.learningStyle}</Typography>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
-        <Typography variant="body2" color="text.secondary">Preferred Study Time</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Preferred Study Time
+        </Typography>
         <Typography variant="body1">{data.studyTime}</Typography>
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <Typography variant="body2" color="text.secondary" gutterBottom>Subjects of Interest</Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Subjects of Interest
+        </Typography>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           {data.subjects.map((subject, index) => (
-            <Chip key={index} label={subject} sx={{ bgcolor: '#083c70ff', color: 'white' }} />
+            <Chip
+              key={index}
+              label={subject}
+              sx={{ bgcolor: theme.palette.primary.main, color: "white" }}
+            />
           ))}
         </Box>
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <Typography variant="body2" color="text.secondary" gutterBottom>Learning Goals</Typography>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Typography variant="body2" color="text.secondary" gutterBottom>
+          Learning Goals
+        </Typography>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           {data.goals.map((goal, index) => (
-            <Chip key={index} label={goal} sx={{ bgcolor: '#4caf50', color: 'white' }} />
+            <Chip
+              key={index}
+              label={goal}
+              sx={{ bgcolor: theme.palette.success.main, color: "white" }}
+            />
           ))}
         </Box>
       </Grid>
     </Grid>
-  )
+  );
 }

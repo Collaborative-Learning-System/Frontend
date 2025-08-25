@@ -9,23 +9,45 @@ import {
   Backdrop,
   Avatar,
   Stack,
-  IconButton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useState } from "react";
-import {
-  Groups,
-  Add,
-  Person,
-  AccessTime,
-} from "@mui/icons-material";
+import { useState, useEffect } from "react";
+import { Groups, Add, Person, AccessTime } from "@mui/icons-material";
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
+import { useNavigate } from "react-router-dom";
 
 const Landing = () => {
   const theme = useTheme();
   const [createWs, setCreateWs] = useState(false);
   const [browseWS, setBrowseWS] = useState(false);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  const navigate = useNavigate();
+
+  // Mock user name - in real app, this would come from auth context/user state
+  const userName = "John Doe";
+
+  // Update current date time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Format date and time
+  const formatDateTime = (date: Date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const mockWorkspaces = [
     {
@@ -50,7 +72,37 @@ const Landing = () => {
     },
     {
       id: 3,
-      name: "Machine Learning Enthusiasts",
+      name: "Machine Learning ",
+      description: "Exploring ML concepts and working on projects together",
+      isPrivate: false,
+      members: 25,
+      tags: ["Machine Learning", "Python", "AI"],
+      lastActivity: "3 hours ago",
+      avatar: "ML",
+    },
+    {
+      id: 1,
+      name: "React Study Group",
+      description: "Learning React fundamentals and advanced concepts",
+      isPrivate: false,
+      members: 12,
+      tags: ["React", "JavaScript", "Frontend"],
+      lastActivity: "2 hours ago",
+      avatar: "R",
+    },
+    {
+      id: 2,
+      name: "CS301 - Data Structures",
+      description: "Course workspace for Data Structures and Algorithms",
+      isPrivate: true,
+      members: 8,
+      tags: ["Computer Science", "Algorithms", "Programming"],
+      lastActivity: "1 day ago",
+      avatar: "CS",
+    },
+    {
+      id: 3,
+      name: "Machine Learning ",
       description: "Exploring ML concepts and working on projects together",
       isPrivate: false,
       members: 25,
@@ -62,12 +114,28 @@ const Landing = () => {
 
   const mockActivities = [
     {
+      id: 1,
       time: "2 hours ago",
       description: "User1 created a new workspace: React Study Group",
+      type: "create",
     },
     {
+      id: 2,
       time: "1 hour ago",
-      description: "User1 joined the workspace: React Study Group",
+      description: "User2 joined the workspace: React Study Group",
+      type: "join",
+    },
+    {
+      id: 3,
+      time: "30 minutes ago",
+      description: "User3 completed a quiz in CS301 workspace",
+      type: "quiz",
+    },
+    {
+      id: 4,
+      time: "15 minutes ago",
+      description: "User4 started a study session in ML Basics",
+      type: "study",
     },
   ];
 
@@ -75,40 +143,44 @@ const Landing = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: theme.palette.background.paper,
+        background: theme.palette.background.default,
         p: 1,
       }}
     >
       <Container maxWidth="lg">
-        {/* Hero Section */}
+        {/* Welcome Section */}
         <Box
           sx={{
-            textAlign: "center",
-            mb: 6,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
             pt: 2,
+            pb: 2,
+            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           }}
         >
-          <Typography
-            variant="h3"
-            fontWeight="bold"
-            gutterBottom
-            sx={{
-              background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Welcome to EduCollab
-          </Typography>
-          <Typography
-            variant="h6"
-            color="text.secondary"
-            sx={{ mb: 4, maxWidth: 600, mx: "auto" }}
-          >
-            Your platform for collaborative learning and personalized study
-            plans
-          </Typography>
+          <Box>
+            <Typography
+              variant="h4"
+              fontWeight="600"
+              sx={{
+                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                mb: 1,
+              }}
+            >
+              Welcome back, {userName}!
+            </Typography>
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={{ fontSize: "1.1rem" }}
+            >
+              {formatDateTime(currentDateTime)}
+            </Typography>
+          </Box>
         </Box>
 
         {/* Action Cards */}
@@ -126,7 +198,7 @@ const Landing = () => {
           <Card
             sx={{
               height: "100%",
-              background:theme.palette.background.paper,
+              background: theme.palette.background.paper,
               border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
               transition: "transform 0.2s ease-in-out, box-shadow 0.2s",
               "&:hover": {
@@ -230,7 +302,7 @@ const Landing = () => {
                 gap: 3,
               }}
             >
-              {mockWorkspaces.map((workspace) => (
+              {mockWorkspaces.length!= 0 && mockWorkspaces.map((workspace) => (
                 <Card
                   key={workspace.id}
                   sx={{
@@ -285,19 +357,33 @@ const Landing = () => {
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: "center",
+                        flexDirection: "column",
                         gap: 1,
                       }}
                     >
-                      <Person fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
-                        {workspace.members} members
-                      </Typography>
-                      <Button variant="outlined">Join Workspace</Button>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                        <Person fontSize="small" color="action" />
+                        <Typography variant="caption" color="text.secondary">
+                          {workspace.members} members
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        onClick={() => navigate("/workspace")}
+                      >
+                        Join Workspace
+                      </Button>
                     </Box>
                   </CardContent>
                 </Card>
               ))}
+              {mockWorkspaces.length === 0 && (
+                <Box sx={{ textAlign: "center", p: 4 }}>
+                  <Typography variant="body1">
+                    No workspaces available. Create or join a workspace to get
+                  </Typography>
+                </Box>
+              )}
             </Box>
           ) : (
             <Box sx={{ textAlign: "center", p: 4 }}>
@@ -326,33 +412,52 @@ const Landing = () => {
             Stay updated with the latest activities
           </Typography>
 
-          <Box>
-            {mockActivities.map((activity) => (
-              <Stack
-                spacing={{ xs: 0, md: 2 }}
-                direction={{ xs: "column", md: "row" }}
-                bgcolor={alpha(theme.palette.background.paper, 0.3)}
-                padding={0.5}
-              >
-                <Box
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {mockActivities.length !== 0 &&
+              mockActivities.map((activity) => (
+                <Card
+                  key={activity.id}
                   sx={{
-                    p: 1,
-                    display: "flex",
-                    alignItems: "center",
+                    backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                    border: `1px solid ${alpha(
+                      theme.palette.primary.main,
+                      0.1
+                    )}`,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                      transform: "translateY(-1px)",
+                      boxShadow: 2,
+                    },
                   }}
                 >
-                  <IconButton>
-                    <AccessTime fontSize="small" color="primary" />
-                  </IconButton>
-                  <Typography variant="body1">{activity.time}</Typography>
-                </Box>
-                <Box sx={{ p: 1, alignItems: "center", display: "flex" }}>
-                  <Typography variant="body1">
-                    {activity.description}
-                  </Typography>
-                </Box>
-              </Stack>
-            ))}
+                  <CardContent sx={{ py: 2 }}>
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+                      <AccessTime
+                        fontSize="small"
+                        sx={{ color: theme.palette.primary.main }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ minWidth: "80px" }}
+                      >
+                        {activity.time}
+                      </Typography>
+                      <Typography variant="body1" sx={{ flex: 1 }}>
+                        {activity.description}
+                      </Typography>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ))}
+            {mockActivities.length === 0 && (
+              <Box sx={{ textAlign: "center", p: 4 }}>
+                <Typography variant="body1">
+                  No recent activities to display.
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Box>
       </Container>
@@ -388,7 +493,6 @@ const Landing = () => {
         onClick={() => setBrowseWS(false)}
         sx={{
           zIndex: theme.zIndex.modal,
-          // backdropFilter: "blur(8px)",
           backgroundColor: alpha(theme.palette.background.default, 0.7),
         }}
       >

@@ -20,12 +20,12 @@ export default function Navigation() {
 
   return (
     <AppBar
-      position="static"
+      position="fixed"
       sx={{ bgcolor: theme.palette.background.default, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
     >
       <Toolbar>
         <Typography
-          variant="h6"
+          variant="h5"
           component="div"
           sx={{
             flexGrow: 1,
@@ -45,7 +45,7 @@ export default function Navigation() {
           </Button>
         </Box> */}
 
-        <Box sx={{ ml: 2 }}>
+        <Box sx={{ ml: 2, gap: 3, display: "flex", alignItems: "center" }}>
           <Tooltip
             title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
           >

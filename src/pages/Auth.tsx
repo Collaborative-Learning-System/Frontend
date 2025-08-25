@@ -16,7 +16,6 @@ import {
   CircularProgress,
   Link,
   useTheme,
-  alpha,
 } from "@mui/material";
 import {
   Person,

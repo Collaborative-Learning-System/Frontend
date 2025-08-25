@@ -32,8 +32,8 @@ export default function Footer() {
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Features</Button>
-              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Pricing</Button>
-              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Security</Button>
+              {/* <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Pricing</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Security</Button> */}
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
@@ -42,8 +42,8 @@ export default function Footer() {
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Button sx={{ justifyContent: 'flex-start', p: 0 }}>About</Button>
-              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Careers</Button>
-              <Button onClick={() => navigate('/contact-us')} sx={{ justifyContent: 'flex-start', p: 0 }}>Contact</Button>
+              {/* <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Careers</Button>
+              <Button onClick={() => navigate('/contact-us')} sx={{ justifyContent: 'flex-start', p: 0 }}>Contact</Button> */}
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
@@ -52,8 +52,8 @@ export default function Footer() {
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Blog</Button>
-              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Help Center</Button>
-              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Community</Button>
+              {/* <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Help Center</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Community</Button> */}
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 2 }}>
@@ -62,8 +62,8 @@ export default function Footer() {
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Privacy</Button>
-              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Terms</Button>
-              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Cookies</Button>
+              {/* <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Terms</Button>
+              <Button sx={{ justifyContent: 'flex-start', p: 0 }}>Cookies</Button> */}
             </Box>
           </Grid>
         </Grid>
