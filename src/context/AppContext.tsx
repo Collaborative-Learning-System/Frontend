@@ -66,4 +66,8 @@ export const AppContextProvider = (props: any) => {
   return (
     <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
   );
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 4d17007b1843f5b52cf82eef3f52feb62d0c69d3

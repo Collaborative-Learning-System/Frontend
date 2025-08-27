@@ -1,4 +1,3 @@
-import React from "react";
 import type { ToastOptions } from "react-toastify";
 import { toast } from "react-toastify";
 

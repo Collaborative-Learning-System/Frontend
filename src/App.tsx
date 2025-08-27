@@ -1,11 +1,10 @@
-import { Route, Routes, Navigate } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+import { Route, Routes } from "react-router-dom";
+import { ThemeContextProvider } from "./context/ThemeContext";
 import "./App.css";
 import Auth from "./pages/Auth";
-
 import Landing from "./pages/Landing";
 import MainLayout from "./components/MainLayout";
+<<<<<<< HEAD
 import Workspace from "./pages/Workspace";
 
 
@@ -20,15 +19,19 @@ const theme = createTheme({
     },
   },
 });
+=======
+import Groups from "./pages/Groups";
+import Home from "./pages/Home"
+import StudyPlanGenerator from "./pages/study-plan-generator";
+>>>>>>> 4d17007b1843f5b52cf82eef3f52feb62d0c69d3
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ThemeContextProvider>
       <Routes>
-        
+        <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
-         <Route
+        <Route
           path="/landing"
           element={
             <MainLayout>
@@ -37,16 +40,27 @@ const App = () => {
           }
         />
         <Route
+<<<<<<< HEAD
           path="/workspace"
+=======
+          path="/study-plans-generator"
+          element={
+            <MainLayout>
+              <StudyPlanGenerator />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/groups"
+>>>>>>> 4d17007b1843f5b52cf82eef3f52feb62d0c69d3
           element={
             <MainLayout>
               <Workspace />
             </MainLayout>
           }
-
         />
       </Routes>
-    </ThemeProvider>
+    </ThemeContextProvider>
   );
 };
 

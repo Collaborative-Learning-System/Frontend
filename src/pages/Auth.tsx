@@ -13,40 +13,31 @@ import {
   Tabs,
   Tab,
   InputAdornment,
-  IconButton,
   CircularProgress,
   Link,
   useTheme,
   alpha,
 } from "@mui/material";
 import {
-  Visibility,
-  VisibilityOff,
   Person,
   Email,
   Lock,
   PersonAdd,
   Login,
 } from "@mui/icons-material";
-
-//import NotificationService from "../services/NotificationService";
+import axios from "axios";
 
 const AuthComponent = () => {
-
-
   const theme = useTheme();
   const navigate = useNavigate();
-  const [tabValue, setTabValue] = useState(0); // 0 for login, 1 for signup
-  const [showPassword, setShowPassword] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Login form state
   const [loginForm, setLoginForm] = useState({
     email: "",
     password: "",
   });
 
-  // Signup form state
   const [signupForm, setSignupForm] = useState({
     name: "",
     email: "",
@@ -55,9 +46,11 @@ const AuthComponent = () => {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [info, setInfo] = useState("");
 
   const isLogin = tabValue === 0;
 
+  // Login form submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -65,26 +58,41 @@ const AuthComponent = () => {
     setIsLoading(true);
 
     try {
+       setInfo("");
       await new Promise((resolve) => setTimeout(resolve, 1500));
-
+     
       if (loginForm.email && loginForm.password) {
-        setSuccess("Login successful!");
-        console.log("Login attempt:", loginForm);
-        //NotificationService.showSuccess("Login successful!");
-        // Redirect to home page after successful login
-        setTimeout(() => {
-          navigate("/home");
-        }, 1000);
+        console.log(loginForm)
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, loginForm);
+        // need to handle response for HTTP status code
+        if (response) {
+          
+          setSuccess("Login successful!");
+          console.log(response)
+          setTimeout(() => {
+            navigate("/landing");
+          }, 1000);
+        } else {
+          setError("Login failed. Please try again.");
+          console.error("Login errorrrr:", response);
+        }
       } else {
         setError("Please fill in all fields");
       }
     } catch (err) {
-      setError("Login failed. Please try again.");
+      if (axios.isAxiosError(err) && err.response) {
+        const { message, statusCode, error: errType } = err.response.data;
+        setError(message);
+        console.error(`Error ${statusCode}: ${errType}`);
+      } else {
+        setError("Login failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Signup form submission
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -95,17 +103,34 @@ const AuthComponent = () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       if (signupForm.name && signupForm.email && signupForm.password) {
-        setSuccess("Account created successfully!");
-        console.log("Signup attempt:", signupForm);
-        // Redirect to home page after successful signup
-        setTimeout(() => {
-          navigate("/home");
-        }, 1000);
+        console.log(signupForm);
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/signup`,
+          signupForm
+        );
+        if (response) {
+          setSuccess("Account created successfully!");
+          setTimeout(() => {
+            setSuccess("");
+            setTabValue(0);
+            setInfo("Log in to your account");
+          }, 3000);
+          
+        } else {
+         setError("Signup failed. Please try again.");
+          console.error("Signup error:", error);
+        }
       } else {
         setError("Please fill in all fields");
       }
     } catch (err) {
-      setError("Signup failed. Please try again.");
+       if (axios.isAxiosError(err) && err.response) {
+         const { message, statusCode, error: errType } = err.response.data;
+         setError(message);
+         console.error(`Error ${statusCode}: ${errType}`);
+       } else {
+         setError("Signup failed. Please try again.");
+       }
     } finally {
       setIsLoading(false);
     }
@@ -119,18 +144,11 @@ const AuthComponent = () => {
     setSignupForm({ name: "", email: "", password: "" });
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${alpha(
-          theme.palette.primary.light,
-          0.1
-        )} 0%, ${alpha(theme.palette.secondary.light, 0.1)} 100%)`,
+        background: theme.palette.background.default,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -204,6 +222,12 @@ const AuthComponent = () => {
               </Alert>
             )}
 
+            {info && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                {info}
+              </Alert>
+            )}
+
             {/* Login Form */}
             {isLogin ? (
               <Box component="form" onSubmit={handleLogin} sx={{ mt: 2 }}>
@@ -231,7 +255,7 @@ const AuthComponent = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   variant="outlined"
                   margin="normal"
                   required
@@ -246,17 +270,17 @@ const AuthComponent = () => {
                         <Lock color="action" />
                       </InputAdornment>
                     ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={togglePasswordVisibility}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                    // endAdornment: (
+                    //   <InputAdornment position="end">
+                    //     <IconButton
+                    //       aria-label="toggle password visibility"
+                    //       onClick={togglePasswordVisibility}
+                    //       edge="end"
+                    //     >
+                    //       {showPassword ? <VisibilityOff /> : <Visibility />}
+                    //     </IconButton>
+                    //   </InputAdornment>
+                    // ),
                   }}
                   placeholder="Enter your password"
                 />
@@ -276,7 +300,7 @@ const AuthComponent = () => {
                       <span>Signing in...</span>
                     </Box>
                   ) : (
-                    "Sign In"
+                    "SIGN IN"
                   )}
                 </Button>
               </Box>
@@ -328,7 +352,7 @@ const AuthComponent = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   variant="outlined"
                   margin="normal"
                   required
@@ -343,17 +367,17 @@ const AuthComponent = () => {
                         <Lock color="action" />
                       </InputAdornment>
                     ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={togglePasswordVisibility}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                    // endAdornment: (
+                    //   <InputAdornment position="end">
+                    //     <IconButton
+                    //       aria-label="toggle password visibility"
+                    //       onClick={togglePasswordVisibility}
+                    //       edge="end"
+                    //     >
+                    //       {showPassword ? <VisibilityOff /> : <Visibility />}
+                    //     </IconButton>
+                    //   </InputAdornment>
+                    // ),
                   }}
                   placeholder="Create a password"
                 />
