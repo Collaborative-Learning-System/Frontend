@@ -22,15 +22,6 @@ import { ThemeContextProvider } from "./context/ThemeContext";
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <StrictMode>
-<<<<<<< HEAD
-      <ThemeContextProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <ToastContainer />
-          <App />
-        </ThemeProvider>
-      </ThemeContextProvider>
-=======
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ToastContainer />
@@ -38,7 +29,6 @@ createRoot(document.getElementById("root")!).render(
           <App />
         </AppContextProvider>
       </ThemeProvider>
->>>>>>> 4d17007b1843f5b52cf82eef3f52feb62d0c69d3
     </StrictMode>
   </BrowserRouter>
 );

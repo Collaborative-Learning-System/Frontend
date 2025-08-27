@@ -43,8 +43,4 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
       </ThemeProvider>
     </ThemeContext.Provider>
   );
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 4d17007b1843f5b52cf82eef3f52feb62d0c69d3
