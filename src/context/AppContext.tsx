@@ -1,69 +1,61 @@
 import axios from "axios";
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 interface AppContextType {
-  backendUrl: string;
-  isLoggedIn: boolean;
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-  userData: string;
-  setUserData: React.Dispatch<React.SetStateAction<string>>;
+  userData: User | null;
+  setUserData: React.Dispatch<React.SetStateAction<User | null>>;
   getUserData: () => Promise<void>;
 }
 
+interface User {
+  userId: string;
+  fullName: string;
+  email: string;
+}
 
 export const AppContext = createContext<AppContextType>({
-  backendUrl: "",
-  isLoggedIn: false,
-  setIsLoggedIn: () => {},
-  userData: "",
+  userData: null,
   setUserData: () => {},
   getUserData: async () => {},
 });
 
-
-export const AppContextProvider = (props: any) => {
-  axios.defaults.withCredentials = true;
+export const AppContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  axios.defaults.withCredentials = true;
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState("");
+  const [userData, setUserData] = useState<User | null>(null);
+    const [userId, setUserId] = useState<string | null>(
+      localStorage.getItem("userId")
+    );
 
   const getUserData = async () => {
     try {
-      const { data } = await axios.get(`${backendUrl}/auth/get-user-data`);
-      ``;
-      data.success ? setUserData(data.userData) : toast.error(data.message);
+      // fetch user
+      const { data } = await axios.get(
+        `${backendUrl}/auth/get-user-data/${userId}`
+      );
+      if (data.success) {
+        setUserData(data.data);
+      } else {
+        toast.error(data.message);
+      }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
-  // const getAuthState = async () => {
-  //   try {
-  //     const { data } = await axios.get(`${backendUrl}/auth/get-auth-state`);
-  //     data.success
-  //       ? (setIsLoggedIn(true), getUserData())
-  //       : toast.error(data.message);
-  //   } catch (error: any) {
-  //     toast.error(error.message);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   getAuthState();
-  // },[]);
-
-  const value = {
-    backendUrl,
-    isLoggedIn,
-    setIsLoggedIn,
-    userData,
-    setUserData,
-    getUserData,
-  };
+  useEffect(() => {
+    getUserData();
+  }, [userId]);
 
   return (
-    <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
+    <AppContext.Provider value={{ userData, setUserData, getUserData }}>
+      {children}
+    </AppContext.Provider>
   );
 };

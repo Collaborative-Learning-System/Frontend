@@ -11,7 +11,7 @@ import {
   Stack,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Groups,
   Add,
@@ -21,16 +21,17 @@ import {
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../context/AppContext";
 
 const Landing = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { userData } = useContext(AppContext);
+
   const [createWs, setCreateWs] = useState(false);
   const [browseWS, setBrowseWS] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
-  // Mock user name - in real app, this would come from auth context/user state
-  const userName = "John Doe";
 
   // Update current date time every minute
   useEffect(() => {
@@ -175,7 +176,7 @@ const Landing = () => {
                 mb: 1,
               }}
             >
-              Welcome back, {userName}!
+              Welcome back, {userData?.fullName}!
             </Typography>
             <Typography
               variant="body1"

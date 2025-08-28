@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
@@ -23,6 +23,7 @@ import {
   Logout,
   AccountCircle,
 } from "@mui/icons-material";
+import { AppContext } from "../context/AppContext";
 
 interface SidePanelProps {
   open: boolean;
@@ -39,6 +40,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
+  const { userData } = useContext(AppContext);
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
@@ -214,13 +216,13 @@ const SidePanel: React.FC<SidePanelProps> = ({
                 fontWeight="bold"
                 // sx={{ color: theme.palette.primary.main }}
               >
-                John Doe
+                {userData?.fullName}
               </Typography>
               <Typography
                 variant="caption"
                 // sx={{ color: theme.palette.primary.main }}
               >
-                john.doe@example.com
+                {userData?.email}
               </Typography>
             </Box>
           </Box>
