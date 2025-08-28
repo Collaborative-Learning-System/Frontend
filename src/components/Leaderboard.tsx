@@ -180,7 +180,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
       case 3:
         return "🥉";
       default:
-        return `#${rank}`;
+  return `#${rank}`;
     }
   };
 
@@ -606,12 +606,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                         <Stack alignItems="center" spacing={1}>
                           <Chip
                             label={`${user.averageScore}%`}
-                            color={
-                              getPerformanceColor(user.averageScore) as any
-                            }
-                            variant={
-                              user.averageScore >= 80 ? "filled" : "outlined"
-                            }
+                            color={getPerformanceColor(user.averageScore) as any}
+                            variant={user.averageScore >= 80 ? "filled" : "outlined"}
                             size="small"
                             sx={{ fontWeight: "bold" }}
                           />

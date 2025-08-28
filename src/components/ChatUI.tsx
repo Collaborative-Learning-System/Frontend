@@ -194,7 +194,7 @@ const ChatUI: React.FC = () => {
     "🤔",
     "👍",
     "👎",
-    "❤️",
+    "❤",
     "🔥",
     "💯",
     "🎉",
@@ -424,6 +424,7 @@ const ChatUI: React.FC = () => {
       <Box
         sx={{
           p: { xs: 1.5, sm: 2 },
+          bgcolor: "grey.50",
           borderTop: "1px solid",
           borderColor: "divider",
         }}

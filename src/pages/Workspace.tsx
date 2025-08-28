@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState } from "react";
 import ChatUI from "../components/ChatUI";
 import Quiz from "../components/Quiz";
 import Leaderboard from "../components/Leaderboard";
@@ -20,7 +20,6 @@ import {
   ListItemIcon,
   Divider,
   useTheme,
-  alpha,
 } from "@mui/material";
 import {
   Chat as ChatIcon,
@@ -32,10 +31,11 @@ import {
   AdminPanelSettings as AdminIcon,
   School as SchoolIcon,
 } from "@mui/icons-material";
-import { useThemeContext } from "../context/ThemeContext";
+// Update the import paths below if the files are located elsewhere, or create the missing files if they do not exist.
 import { useNavigate } from "react-router-dom";
-import AlertService from "../services/AlertService";
+import * as AlertService from "../services/AlertService";
 import NotificationService from "../services/NotificationService";
+import { useThemeContext } from "../context/ThemeContext";
 
 const modules = [
   { id: 1, name: "Computer Security" },
@@ -43,14 +43,18 @@ const modules = [
   { id: 3, name: "Business Analysis" },
 ];
 
+
+
 const Workspace = () => {
   const [selectedGroup, setSelectedGroup] = useState(modules[0].id);
   const [activeTab, setActiveTab] = useState(0);
+
 
   const navigate = useNavigate();
 
   const theme = useTheme();
   const { mode } = useThemeContext();
+
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -72,32 +76,32 @@ const Workspace = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        background: theme.palette.background.default,
-        p: 1,
+        display: "flex",
+        flexDirection: "column",
+        padding: { xs: 2, md: 4 },
+        background: theme.palette.background.paper,
+        height: "100vh"
       }}
     >
-      <Container maxWidth="lg">
-        {/* Header */}
-        <Paper
-          elevation={3}
-          sx={{
-            borderRadius: "12px",
-            mb: 3,
-            mt: 2,
-            bgcolor:
-              mode === "dark"
-                ? theme.palette.background.paper
-                : theme.palette.primary.main,
-          }}
-        >
+      {/* Header */}
+      <Paper
+        elevation={3}
+        sx={{
+          borderRadius: "12px",
+          mb: 3,
+          bgcolor:
+            mode === "dark"
+              ? theme.palette.background.paper
+              : theme.palette.primary.main,
+        }}
+      >
+        <Container maxWidth="lg">
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-start",
               py: 3,
-              px: 3,
               flexDirection: { xs: "column", md: "row" },
               gap: { xs: 2, md: 0 },
             }}
@@ -137,35 +141,24 @@ const Workspace = () => {
                 icon={<AdminIcon sx={{ color: "white" }} />}
                 label="Admin"
                 color="secondary"
-                sx={{
-                  bgcolor: alpha(theme.palette.background.paper, 0.3),
-                  color: "white",
-                }}
+                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
               />
               <Chip
                 icon={<GroupIcon sx={{ color: "white" }} />}
                 label="12 Members"
                 color="secondary"
-                sx={{
-                  bgcolor: alpha(theme.palette.background.paper, 0.3),
-                  color: "white",
-                }}
+                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
               />
               <Button
                 variant="outlined"
                 color="warning"
                 startIcon={<ExitIcon />}
-                onClick={async () => {
-                  const confirmed = await AlertService.showConfirm(
-                    "Do you really want to leave the workspace?",
-                    "Confirm Exit",
-                    theme.palette.primary.main,
-                    theme.palette.error.main
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Do you really want to leave the workspace?"
                   );
                   if (confirmed) {
-                    NotificationService.showInfo(
-                      "You have left the workspace."
-                    );
+                    NotificationService.showInfo("You have left the workspace.");
                     navigate("/landing");
                   }
                 }}
@@ -174,9 +167,11 @@ const Workspace = () => {
               </Button>
             </Box>
           </Box>
-        </Paper>
+        </Container>
+      </Paper>
 
-        {/* Main Content */}
+      {/* Main Content */}
+      <Container maxWidth="lg" sx={{ flex: 1, pb: 3 }}>
         <Box
           sx={{
             display: "flex",
@@ -185,6 +180,7 @@ const Workspace = () => {
             minHeight: 0,
           }}
         >
+          {/* Sidebar */}
           <Card
             elevation={3}
             sx={{
@@ -300,7 +296,7 @@ const Workspace = () => {
             {/* Tab Content */}
             <Box sx={{ flex: 1, p: 3, overflow: "auto" }}>
               {getTabContent()}
-            </Box> 
+            </Box>
           </Paper>
         </Box>
       </Container>

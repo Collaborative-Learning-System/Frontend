@@ -12,18 +12,22 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState, useEffect } from "react";
-import { Groups, Add, Person, AccessTime } from "@mui/icons-material";
+import {
+  Groups,
+  Add,
+  Person,
+  AccessTime,
+} from "@mui/icons-material";
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
 import { useNavigate } from "react-router-dom";
 
 const Landing = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [createWs, setCreateWs] = useState(false);
   const [browseWS, setBrowseWS] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
-
-  const navigate = useNavigate();
 
   // Mock user name - in real app, this would come from auth context/user state
   const userName = "John Doe";
@@ -305,6 +309,7 @@ const Landing = () => {
               {mockWorkspaces.length!= 0 && mockWorkspaces.map((workspace) => (
                 <Card
                   key={workspace.id}
+                  onClick={() => navigate('/workspace')}
                   sx={{
                     height: "100%",
                     background: theme.palette.background.paper,
@@ -361,18 +366,11 @@ const Landing = () => {
                         gap: 1,
                       }}
                     >
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <Person fontSize="small" color="action" />
-                        <Typography variant="caption" color="text.secondary">
-                          {workspace.members} members
-                        </Typography>
-                      </Box>
-                      <Button
-                        variant="outlined"
-                        onClick={() => navigate("/workspace")}
-                      >
-                        Join Workspace
-                      </Button>
+                      <Person fontSize="small" color="action" />
+                      <Typography variant="caption" color="text.secondary">
+                        {workspace.members} members
+                      </Typography>
+                      <Button variant="outlined">Join Workspace</Button>
                     </Box>
                   </CardContent>
                 </Card>

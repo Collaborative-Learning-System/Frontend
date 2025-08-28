@@ -16,6 +16,9 @@ const theme = createTheme({
   },
 });
 
+import { ThemeContextProvider } from "./context/ThemeContext";
+
+
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <StrictMode>

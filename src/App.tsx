@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material/styles"; // Added ThemeProvider and createTheme import
 import { ThemeContextProvider } from "./context/ThemeContext";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
