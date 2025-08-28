@@ -10,17 +10,14 @@ const AlertService = {
   showConfirm: async (
     message: string,
     title: string = "Are you sure?",
-    confirmButtonColor: string,
-    cancelButtonColor: string
-    
   ): Promise<boolean> => {
     const result = await MySwal.fire({
       title,
       text: message,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor,
-      cancelButtonColor,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes",
       cancelButtonText: "Cancel",
       reverseButtons: true,
