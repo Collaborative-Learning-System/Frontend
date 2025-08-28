@@ -67,10 +67,15 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
               {!viewWs ? (
                 <Groups />
               ) : (
-                <KeyboardBackspaceIcon onClick={() => setViewWs(false)} />
+                <KeyboardBackspaceIcon
+                  onClick={() => {
+                    setViewWs(false);
+                    setValue("");
+                  }}
+                />
               )}
             </Avatar>
-            <Typography variant="h5" fontWeight="bold" color="secondary">
+            <Typography variant="h5" fontWeight="bold">
               {!viewWs ? "Browse Workspaces" : "Workspace Details"}
             </Typography>
           </Box>

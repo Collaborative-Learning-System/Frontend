@@ -2,7 +2,6 @@ import React from "react";
 import {
   AppBar,
   Toolbar,
-  IconButton,
   Tooltip,
   Box,
   useTheme,
@@ -15,11 +14,21 @@ import {
   DarkMode,
   Menu as MenuIcon,
 } from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
+import Badge, { badgeClasses } from "@mui/material/Badge";
 import { useThemeContext } from "../context/ThemeContext";
 
 interface TopNavBarProps {
   onSidebarToggle?: () => void;
 }
+
+const CartBadge = styled(Badge)`
+  & .${badgeClasses.badge} {
+    top: -12px;
+    right: -6px;
+  }
+`;
 
 const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
   const { mode, toggleTheme } = useThemeContext();
@@ -29,10 +38,12 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
   return (
     <AppBar
       position="fixed"
-      elevation={1 }
+      elevation={1}
+      color="transparent"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer - 1,
-        bgcolor: theme.palette.background.default,
+        bgcolor: theme.palette.background.paper,
+        boxShadow: theme.shadows[1],
       }}
     >
       <Toolbar
@@ -58,7 +69,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
               </Tooltip>
               <Box>
                 <Typography
-                  variant="h6"
+                  variant="h5"
                   sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
                 >
                   EduCollab
@@ -82,6 +93,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
           <Tooltip title="Notifications">
             <IconButton size="large" sx={{ color: theme.palette.primary.main }}>
               <Notifications />
+              <CartBadge badgeContent={2} color="warning" overlap="circular" />
             </IconButton>
           </Tooltip>
         </Box>

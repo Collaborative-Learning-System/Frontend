@@ -30,7 +30,11 @@ interface SidePanelProps {
   onClose: () => void;
 }
 
-const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
+const SidePanel: React.FC<SidePanelProps> = ({
+  open,
+  onToggle,
+  onClose,
+}) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
@@ -59,14 +63,13 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   };
 
   const handleProfile = () => {
-    // Profile click logic
+    navigate("/profile");
   };
 
   const drawerContent = (
     <Box
       sx={{
         width: open ? drawerWidthOpen : drawerWidthClosed,
-        // mt: "64px",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -113,7 +116,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               height: 40,
               border: `2px solid ${theme.palette.primary.main}`,
               borderRadius: "8px",
-              "&:hover": { backgroundColor: theme.palette.primary.light },
             }}
           >
             E
@@ -147,7 +149,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 >
                   <ListItemIcon
                     sx={{
-                      color: theme.palette.primary.main,
+                      //color: theme.palette.primary.main,
 
                       minWidth: open ? 40 : "auto",
                       justifyContent: "center",
@@ -165,7 +167,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                         // color: isSelected
                         //   ? theme.palette.primary.main
                         //   : theme.palette.text.primary,
-                        color: theme.palette.primary.main,
+                        //color: theme.palette.primary.main,
                       }}
                     />
                   )}
@@ -201,7 +203,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 width: 40,
                 height: 40,
                 mr: 2,
-                bgcolor: theme.palette.primary.main,
+                //bgcolor: theme.palette.primary.main,
               }}
             >
               <AccountCircle />
@@ -210,13 +212,13 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               <Typography
                 variant="subtitle2"
                 fontWeight="bold"
-                sx={{ color: theme.palette.primary.main }}
+                // sx={{ color: theme.palette.primary.main }}
               >
                 John Doe
               </Typography>
               <Typography
                 variant="caption"
-                sx={{ color: theme.palette.primary.main }}
+                // sx={{ color: theme.palette.primary.main }}
               >
                 john.doe@example.com
               </Typography>
@@ -255,7 +257,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             px: open ? 2 : 1,
             minHeight: 48,
             "&:hover": {
-              backgroundColor: theme.palette.error.light,
+              backgroundColor: theme.palette.action.hover,
               color: theme.palette.error.contrastText,
             },
           }}
@@ -298,6 +300,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
           width: open ? drawerWidthOpen : drawerWidthClosed,
           boxSizing: "border-box",
           zIndex: theme.zIndex.drawer,
+          bgcolor: theme.palette.background.paper,
           transition: theme.transitions.create(["width"], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,

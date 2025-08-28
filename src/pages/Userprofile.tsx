@@ -1,34 +1,35 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
-  Container,
   Box,
   Typography,
   Tabs,
   Tab,
-  AppBar,
-  Toolbar,
-  IconButton,
+  Avatar,
+  TextField,
   Button,
   useTheme,
-  useMediaQuery
-} from '@mui/material'
+  alpha,
+  Stack,
+  Divider,
+  IconButton,
+} from "@mui/material";
 import {
-  ArrowBack,
-  Settings,
-  Notifications,
-  Security
-} from '@mui/icons-material'
-
-import ProfileHeader from '../components/ProfileHeader'
-import { EditableSection, PersonalInfo, LearningPreferences } from '../components/EditableSection'
-import StudyStats from '../components/StudyStats'
+  Person,
+  Email,
+  Lock,
+  Edit,
+  Save,
+  Cancel,
+  Dashboard,
+  PhotoCamera,
+} from "@mui/icons-material";
 
 interface TabPanelProps {
-  children?: React.ReactNode
-  index: number
-  value: number
+  children?: React.ReactNode;
+  index: number;
+  value: number;
 }
 
 function TabPanel({ children, value, index }: TabPanelProps) {
@@ -36,180 +37,350 @@ function TabPanel({ children, value, index }: TabPanelProps) {
     <div hidden={value !== index}>
       {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
     </div>
-  )
+  );
 }
 
 export default function UserProfile() {
-  const [tabValue, setTabValue] = useState(0)
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [tabValue, setTabValue] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const theme = useTheme();
 
-  // Mock user data - in real app, this would come from API/state management
   const [userData, setUserData] = useState({
-    name: 'Alex Johnson',
-    email: 'alex.johnson@university.edu',
-    avatar: '/placeholder.svg?height=120&width=120&text=AJ',
-    university: 'Stanford University',
-    major: 'Computer Science',
-    location: 'California, USA',
-    joinDate: 'September 2023',
-    studyStreak: 15,
-    level: 'Advanced Learner'
-  })
+    name: "Alex Johnson",
+    email: "alex.johnson@university.edu",
+    password: "********",
+    bio: "Passionate computer science student interested in AI and machine learning. Love collaborating with peers and sharing knowledge.",
+    avatar: "/placeholder.svg?height=120&width=120&text=AJ",
+  });
 
-  const [personalInfo, setPersonalInfo] = useState({
-    firstName: 'Alex',
-    lastName: 'Johnson',
-    email: 'alex.johnson@university.edu',
-    phone: '+1 (555) 123-4567',
-    university: 'Stanford University',
-    major: 'Computer Science',
-    year: '3rd Year',
-    location: 'California, USA',
-    bio: 'Passionate computer science student interested in AI and machine learning. Love collaborating with peers and sharing knowledge.'
-  })
+  const [editData, setEditData] = useState(userData);
 
-  const [learningPreferences, setLearningPreferences] = useState({
-    learningStyle: 'Visual',
-    studyTime: 'Evening',
-    subjects: ['Machine Learning', 'Data Structures', 'Web Development', 'Algorithms'],
-    goals: ['Master React', 'Complete AI Course', 'Build Portfolio Project', 'Improve Problem Solving']
-  })
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
-  const studyStats = {
-    totalStudyHours: 247,
-    weeklyGoal: 25,
-    completedCourses: 8,
-    activeGroups: 5,
-    averageScore: 87,
-    currentStreak: 15,
-    achievements: ['Study Streak Master', 'Quiz Champion', 'Collaboration Expert', 'Resource Sharer'],
-    weeklyProgress: [4, 3, 5, 2, 6, 3, 4] // Hours per day for the week
-  }
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditData(userData);
+  };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-  }
+  const handleSave = () => {
+    setUserData(editData);
+    setIsEditing(false);
+  };
 
-  const handleUpdateAvatar = (file: File) => {
-    // In real app, upload file and update user data
-    console.log('Updating avatar:', file)
-  }
+  const handleCancel = () => {
+    setEditData(userData);
+    setIsEditing(false);
+  };
 
-  const handleSavePersonalInfo = (data: any) => {
-    setPersonalInfo(prev => ({ ...prev, ...data }))
-    console.log('Saving personal info:', data)
-  }
-
-  const handleSaveLearningPreferences = (data: any) => {
-    setLearningPreferences(prev => ({ ...prev, ...data }))
-    console.log('Saving learning preferences:', data)
-  }
+  const handleInputChange =
+    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setEditData((prev) => ({ ...prev, [field]: event.target.value }));
+    };
 
   return (
-    <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh' }}>
-      {/* Header */}
-      <AppBar position="static" sx={{ bgcolor: 'white', boxShadow: 1 }}>
-        <Toolbar>
-          <IconButton sx={{ color: '#083c70ff', mr: 2 }}>
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, color: '#083c70ff', fontWeight: 'bold' }}>
-            Profile Settings
-          </Typography>
-          <IconButton sx={{ color: '#083c70ff' }}>
-            <Notifications />
-          </IconButton>
-          <IconButton sx={{ color: '#083c70ff' }}>
-            <Settings />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: theme.palette.background.default,
+        p: 4,
+      }}
+    >
+      {/* Profile Header */}
+      <Box
+        sx={{
+          mb: 4,
+          p: 4,
+          bgcolor: theme.palette.background.paper,
+          borderRadius: 2,
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        }}
+      >
+        <Stack direction="row" spacing={3} alignItems="center">
+          <Box sx={{ position: "relative" }}>
+            <Avatar
+              src={userData.avatar}
+              sx={{
+                width: 100,
+                height: 100,
+                fontSize: "2rem",
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+              }}
+            >
+              {userData.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </Avatar>
+            <IconButton
+              size="small"
+              sx={{
+                position: "absolute",
+                bottom: -5,
+                right: -5,
+                bgcolor: theme.palette.primary.main,
+                color: "white",
+                "&:hover": { bgcolor: theme.palette.primary.dark },
+              }}
+            >
+              <PhotoCamera fontSize="small" />
+            </IconButton>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h4" fontWeight="600" sx={{ mb: 1 }}>
+              {userData.name}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              {userData.email}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {userData.bio}
+            </Typography>
+          </Box>
+        </Stack>
+      </Box>
 
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-        {/* Profile Header */}
-        <ProfileHeader user={userData} onUpdateAvatar={handleUpdateAvatar} />
-
-        {/* Navigation Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'white', borderRadius: '8px 8px 0 0' }}>
-          <Tabs 
-            value={tabValue} 
+      {/* Navigation Tabs */}
+      <Box
+        sx={{
+          bgcolor: theme.palette.background.paper,
+          borderRadius: 2,
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        }}
+      >
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs
+            value={tabValue}
             onChange={handleTabChange}
-            variant={isMobile ? "scrollable" : "standard"}
-            scrollButtons="auto"
+            centered
             sx={{
-              '& .MuiTab-root': {
-                color: '#666',
-                '&.Mui-selected': {
-                  color: '#083c70ff'
-                }
+              "& .MuiTab-root": {
+                color: theme.palette.text.secondary,
+                fontWeight: 500,
+                "&.Mui-selected": {
+                  color: theme.palette.primary.main,
+                },
               },
-              '& .MuiTabs-indicator': {
-                backgroundColor: '#083c70ff'
-              }
+              "& .MuiTabs-indicator": {
+                backgroundColor: theme.palette.primary.main,
+              },
             }}
           >
-            <Tab label="Personal Information" />
-            <Tab label="Learning Preferences" />
-            <Tab label="Study Statistics" />
-            <Tab label="Account Settings" />
+            <Tab icon={<Dashboard />} label="Dashboard" />
+            <Tab icon={<Person />} label="Profile" />
           </Tabs>
         </Box>
 
         {/* Tab Content */}
-        <Box sx={{ bgcolor: 'white', borderRadius: '0 0 8px 8px', minHeight: 400 }}>
-          <TabPanel value={tabValue} index={0}>
-            <EditableSection title="Personal Information" onSave={handleSavePersonalInfo}>
-              {(isEditing) => (
-                <PersonalInfo data={personalInfo} onUpdate={handleSavePersonalInfo} isEditing={isEditing} />
-              )}
-            </EditableSection>
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={1}>
-            <EditableSection title="Learning Preferences" onSave={handleSaveLearningPreferences}>
-              {(isEditing) => (
-                <LearningPreferences data={learningPreferences} isEditing={isEditing} />
-              )}
-            </EditableSection>
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={2}>
-            <StudyStats stats={studyStats} />
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={3}>
-            <Box sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ color: '#083c70ff', fontWeight: 'bold', mb: 3 }}>
-                Account Settings
+        <TabPanel value={tabValue} index={0}>
+          <Box sx={{ p: 4 }}>
+            <Typography variant="h5" fontWeight="600" sx={{ mb: 3 }}>
+              Dashboard
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: 300,
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                borderRadius: 2,
+                border: `2px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
+              }}
+            >
+              <Typography
+                variant="h6"
+                color="text.secondary"
+                textAlign="center"
+              >
+                Dashboard content will be added here
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Button
-                  variant="outlined"
-                  startIcon={<Security />}
-                  sx={{ justifyContent: 'flex-start', color: '#083c70ff', borderColor: '#083c70ff' }}
-                >
-                  Change Password
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<Notifications />}
-                  sx={{ justifyContent: 'flex-start', color: '#083c70ff', borderColor: '#083c70ff' }}
-                >
-                  Notification Preferences
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  sx={{ justifyContent: 'flex-start' }}
-                >
-                  Delete Account
-                </Button>
-              </Box>
             </Box>
-          </TabPanel>
-        </Box>
-      </Container>
+          </Box>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={1}>
+          <Box sx={{ p: 4 }}>
+            <Box
+              sx={{
+                mb: 4,
+                display: "flex",
+                justifyContent: "between",
+                alignItems: "center",
+              }}
+            >
+              <Typography variant="h5" fontWeight="600">
+                User Information
+              </Typography>
+              {!isEditing ? (
+                <Button
+                  variant="contained"
+                  startIcon={<Edit />}
+                  onClick={handleEdit}
+                  sx={{ ml: "auto" }}
+                >
+                  Edit Profile
+                </Button>
+              ) : (
+                <Stack direction="row" spacing={2} sx={{ ml: "auto" }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Cancel />}
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<Save />}
+                    onClick={handleSave}
+                  >
+                    Save
+                  </Button>
+                </Stack>
+              )}
+            </Box>
+
+            <Divider sx={{ mb: 4 }} />
+
+            <Stack spacing={3}>
+              {/* Name Field */}
+              <Box>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 1 }}
+                >
+                  <Person sx={{ color: theme.palette.primary.main }} />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Full Name
+                  </Typography>
+                </Stack>
+                {isEditing ? (
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    value={editData.name}
+                    onChange={handleInputChange("name")}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      },
+                    }}
+                  />
+                ) : (
+                  <Typography variant="body1" sx={{ ml: 4 }}>
+                    {userData.name}
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Email Field */}
+              <Box>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 1 }}
+                >
+                  <Email sx={{ color: theme.palette.primary.main }} />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Email Address
+                  </Typography>
+                </Stack>
+                {isEditing ? (
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="email"
+                    value={editData.email}
+                    onChange={handleInputChange("email")}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      },
+                    }}
+                  />
+                ) : (
+                  <Typography variant="body1" sx={{ ml: 4 }}>
+                    {userData.email}
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Password Field */}
+              <Box>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 1 }}
+                >
+                  <Lock sx={{ color: theme.palette.primary.main }} />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Password
+                  </Typography>
+                </Stack>
+                {isEditing ? (
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="password"
+                    value={editData.password}
+                    onChange={handleInputChange("password")}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      },
+                    }}
+                  />
+                ) : (
+                  <Typography variant="body1" sx={{ ml: 4 }}>
+                    ********
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Bio Field */}
+              <Box>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{ mb: 1 }}
+                >
+                  <Person sx={{ color: theme.palette.primary.main }} />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Bio
+                  </Typography>
+                </Stack>
+                {isEditing ? (
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    multiline
+                    rows={4}
+                    value={editData.bio}
+                    onChange={handleInputChange("bio")}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      },
+                    }}
+                  />
+                ) : (
+                  <Typography variant="body1" sx={{ ml: 4, lineHeight: 1.6 }}>
+                    {userData.bio}
+                  </Typography>
+                )}
+              </Box>
+            </Stack>
+          </Box>
+        </TabPanel>
+      </Box>
     </Box>
-  )
+  );
 }

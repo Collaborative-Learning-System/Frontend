@@ -25,7 +25,7 @@ interface Question {
   text: string;
   answers: Answer[];
   correctIndex: number | null;
-  isSaved: boolean; 
+  isSaved: boolean;
 }
 
 interface QuizCreationProps {
@@ -36,6 +36,9 @@ const QuizCreation: React.FC<QuizCreationProps> = ({ onClose }) => {
   const theme = useTheme();
   const [questionNo, setQuestionNo] = React.useState(1);
   const [questions, setQuestions] = React.useState<Question[]>([]);
+  const [isSelected, setIsSelected] = React.useState<string | null>(null);
+  const [unit, setUnit] = React.useState<string>("minutes");
+
 
   // Update question text
   const updateQuestionText = (index: number, value: string) => {
@@ -57,6 +60,14 @@ const QuizCreation: React.FC<QuizCreationProps> = ({ onClose }) => {
     updated[qIndex].correctIndex = aIndex;
     setQuestions(updated);
   };
+
+  const Buttons = [{
+    id: "btn1", label: "Easy", color: "success"
+  }, {
+    id: "btn2", label: "Medium", color: "warning"
+  }, {
+    id: "btn3", label: "Hard", color: "error"
+  }];
 
   const handleAddQuestion = () => {
     setQuestions([
@@ -109,7 +120,9 @@ const QuizCreation: React.FC<QuizCreationProps> = ({ onClose }) => {
           alignItems={{ xs: "flex-start", sm: "center" }}
           position="relative"
         >
-          <Typography variant="h4">Create Quiz</Typography>
+          <Typography variant="h5" color={theme.palette.primary.main}>
+            Create Quiz
+          </Typography>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <Button variant="contained">Save Quiz</Button>
             <Button variant="outlined" onClick={onClose}>
@@ -141,8 +154,8 @@ const QuizCreation: React.FC<QuizCreationProps> = ({ onClose }) => {
             <Grid item xs={12} sm={6}>
               <Select
                 fullWidth
-                value="minutes"
-                onChange={() => {}}
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
                 displayEmpty
               >
                 <MenuItem value="minutes">Minutes</MenuItem>
@@ -152,26 +165,36 @@ const QuizCreation: React.FC<QuizCreationProps> = ({ onClose }) => {
           </Grid>
 
           <Box sx={{ mt: 3 }}>
-            <Typography variant="subtitle1" fontWeight={500} gutterBottom>
+            <Typography
+              variant="subtitle1"
+              fontWeight={500}
+              gutterBottom
+              color={theme.palette.primary.main}
+            >
               Select Difficulty
             </Typography>
             <Stack direction="row" spacing={2} flexWrap="wrap">
-              <Button variant="outlined" color="success">
-                Easy
-              </Button>
-              <Button variant="outlined" color="warning">
-                Medium
-              </Button>
-              <Button variant="outlined" color="error">
-                Hard
-              </Button>
+              {Buttons.map((btn) => (
+                <Button
+                  key={btn.id}
+                  variant={isSelected === btn.id? "contained" : "outlined"}
+                  color={btn.color as any}
+                  onClick={() => setIsSelected(btn.id)}
+                >
+                  {btn.label}
+                </Button>
+              ))}
             </Stack>
           </Box>
         </Box>
 
         {/* Questions Section */}
         <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" fontWeight={600}>
+          <Typography
+            variant="subtitle1"
+            fontWeight={500}
+            color={theme.palette.primary.main}
+          >
             Add Questions
           </Typography>
 

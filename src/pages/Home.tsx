@@ -1,8 +1,8 @@
 // Remove 'use client' directive for standard React projects
 import { useNavigate } from "react-router-dom";
-import HomepageImage from '../assets/Homepageimg.png';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
+import HomepageImage from "../assets/Homepageimg.png";
+//import TopNavBar from '../components/TopNavBar';
+import Footer from "../components/Footer";
 
 import {
   Typography,
@@ -14,8 +14,8 @@ import {
   CardContent,
   Avatar,
   Rating,
-  useTheme
-} from '@mui/material'
+  useTheme,
+} from "@mui/material";
 
 import {
   Groups,
@@ -25,123 +25,174 @@ import {
   CloudUpload,
   Edit,
   ArrowForward,
-  CheckCircle
-} from '@mui/icons-material'
+  CheckCircle,
+} from "@mui/icons-material";
+import Navigation from "../components/Navigation";
 
 export default function CollaborativeLearningHomepage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const theme = useTheme();
 
   const features = [
     {
       icon: <Groups sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Study Groups',
-      description: 'Create and join study groups based on subjects and interests. Collaborate with peers who share your learning goals.'
+      title: "Study Groups",
+      description:
+        "Create and join study groups based on subjects and interests. Collaborate with peers who share your learning goals.",
     },
     {
-      icon: <CloudUpload sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Resource Sharing',
-      description: 'Upload, organize, and access learning materials with advanced tagging and search capabilities.'
+      icon: (
+        <CloudUpload sx={{ fontSize: 40, color: theme.palette.primary.main }} />
+      ),
+      title: "Resource Sharing",
+      description:
+        "Upload, organize, and access learning materials with advanced tagging and search capabilities.",
     },
     {
       icon: <Edit sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Collaborative Editing',
-      description: 'Real-time collaborative document editing for notes and study materials within your groups.'
+      title: "Collaborative Editing",
+      description:
+        "Real-time collaborative document editing for notes and study materials within your groups.",
     },
     {
       icon: <School sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Personalized Study Plans',
-      description: 'AI-powered study plan generation tailored to your learning style, pace, and goals.'
+      title: "Personalized Study Plans",
+      description:
+        "AI-powered study plan generation tailored to your learning style, pace, and goals.",
     },
     {
-      icon: <Analytics sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Progress Tracking',
-      description: 'Visual dashboards to monitor your learning progress and identify areas for improvement.'
+      icon: (
+        <Analytics sx={{ fontSize: 40, color: theme.palette.primary.main }} />
+      ),
+      title: "Progress Tracking",
+      description:
+        "Visual dashboards to monitor your learning progress and identify areas for improvement.",
     },
     {
       icon: <Quiz sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      title: 'Interactive Assessments',
-      description: 'Create and participate in quizzes with immediate feedback and performance analysis.'
-    }
-  ]
+      title: "Interactive Assessments",
+      description:
+        "Create and participate in quizzes with immediate feedback and performance analysis.",
+    },
+  ];
 
   const testimonials = [
     {
-      name: 'Sarah Chen',
-      role: 'Computer Science Student',
-      avatar: '/placeholder.svg?height=50&width=50&text=SC',
+      name: "Kasun Bandra",
+      role: "Computer Science Student",
+      avatar: "/placeholder.svg?height=50&width=50&text=SC",
       rating: 5,
-      comment: 'This platform transformed how I study. The collaborative features helped me connect with amazing study partners!'
+      comment:
+        "This platform transformed how I study. The collaborative features helped me connect with amazing study partners!",
     },
     {
-      name: 'Michael Rodriguez',
-      role: 'Engineering Student',
-      avatar: '/placeholder.svg?height=50&width=50&text=MR',
+      name: "Vimal Perera",
+      role: "Engineering Student",
+      avatar: "/placeholder.svg?height=50&width=50&text=MR",
       rating: 5,
-      comment: 'The personalized study plans are incredible. It adapts to my learning style and keeps me on track.'
+      comment:
+        "The personalized study plans are incredible. It adapts to my learning style and keeps me on track.",
     },
     {
-      name: 'Emily Johnson',
-      role: 'Medical Student',
-      avatar: '/placeholder.svg?height=50&width=50&text=EJ',
+      name: "Nalaka Silva",
+      role: "Medical Student",
+      avatar: "/placeholder.svg?height=50&width=50&text=EJ",
       rating: 5,
-      comment: 'Resource sharing made group projects so much easier. Everything is organized and accessible.'
-    }
-  ]
+      comment:
+        "Resource sharing made group projects so much easier. Everything is organized and accessible.",
+    },
+  ];
 
   const stats = [
-    { number: '10K+', label: 'Active Students' },
-    { number: '500+', label: 'Study Groups' },
-    { number: '50K+', label: 'Resources Shared' },
-    { number: '95%', label: 'Success Rate' }
-  ]
+    { number: "10K+", label: "Active Students" },
+    { number: "500+", label: "Study Groups" },
+    { number: "50K+", label: "Resources Shared" },
+    { number: "95%", label: "Success Rate" },
+  ];
 
   return (
-    <Box sx={{ flexGrow: 1, bgcolor: 'white' }}>
-      {/* Navigation */}
+    <Box sx={{ flexGrow: 1, bgcolor: theme.palette.background.default }}>
       <Navigation />
 
       {/* Hero Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Container maxWidth="lg" sx={{ py: 8, mt: 2 }}>
         <Grid container spacing={4} alignItems="center">
           <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="h2" component="h1" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
+            <Typography
+              variant="h2"
+              component="h1"
+              gutterBottom
+              sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
+            >
               Learn Together, Achieve More
             </Typography>
-            <Typography variant="h5" paragraph sx={{ color: 'text.secondary', mb: 4 }}>
-              Join the ultimate collaborative learning platform where students connect, share resources, and create personalized study plans powered by AI.
+            <Typography
+              variant="h5"
+              paragraph
+              sx={{ color: "text.secondary", mb: 4 }}
+            >
+              Join the ultimate collaborative learning platform where students
+              connect, share resources, and create personalized study plans
+              powered by AI.
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button 
-                onClick={() => navigate('/auth')}
-                variant="contained" 
-                size="large" 
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Button
+                onClick={() => navigate("/auth")}
+                variant="contained"
+                size="large"
                 endIcon={<ArrowForward />}
-                sx={{ bgcolor: theme.palette.primary.main, '&:hover': { bgcolor: theme.palette.primary.light } }}
+                sx={{
+                  bgcolor: theme.palette.primary.main,
+                  "&:hover": { bgcolor: theme.palette.primary.light },
+                }}
               >
                 Get Started Free
               </Button>
-              <Button variant="outlined" size="large" sx={{ color: theme.palette.primary.main, borderColor: theme.palette.primary.main }}>
+              <Button
+                variant="outlined"
+                size="large"
+                sx={{
+                  color: theme.palette.primary.main,
+                  borderColor: theme.palette.primary.main,
+                }}
+              >
                 Watch Demo
               </Button>
             </Box>
-            <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CheckCircle sx={{ color: '#4caf50', mr: 1 }} />
+            <Box sx={{ mt: 4, display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CheckCircle
+                  sx={{
+                    color:
+                      theme.palette.success?.main || theme.palette.primary.main,
+                    mr: 1,
+                  }}
+                />
                 <Typography variant="body2">Free to start</Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CheckCircle sx={{ color: '#4caf50', mr: 1 }} />
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CheckCircle
+                  sx={{
+                    color:
+                      theme.palette.success?.main || theme.palette.primary.main,
+                    mr: 1,
+                  }}
+                />
                 <Typography variant="body2">No credit card required</Typography>
               </Box>
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box sx={{ position: 'relative', textAlign: 'center' }}>
-              <img 
-                src={HomepageImage} 
-                alt="Students collaborating" 
-                style={{ width: '100%', maxWidth: 500, height: 'auto', borderRadius: 16 }}
+            <Box sx={{ position: "relative", textAlign: "center" }}>
+              <img
+                src={HomepageImage}
+                alt="Students collaborating"
+                style={{
+                  width: "100%",
+                  maxWidth: 500,
+                  height: "auto",
+                  borderRadius: 16,
+                }}
               />
             </Box>
           </Grid>
@@ -149,16 +200,22 @@ export default function CollaborativeLearningHomepage() {
       </Container>
 
       {/* Stats Section */}
-      <Box sx={{ bgcolor: '#f8f9fa', py: 6 }}>
+      <Box sx={{ bgcolor: theme.palette.background.default, py: 6 }}>
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             {stats.map((stat, index) => (
               <Grid size={{ xs: 6, md: 3 }} key={index}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h3" sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      color: theme.palette.primary.main,
+                      fontWeight: "bold",
+                    }}
+                  >
                     {stat.number}
                   </Typography>
-                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                  <Typography variant="body1" sx={{ color: "text.secondary" }}>
                     {stat.label}
                   </Typography>
                 </Box>
@@ -170,26 +227,40 @@ export default function CollaborativeLearningHomepage() {
 
       {/* Features Section */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography variant="h3" component="h2" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
+        <Box sx={{ textAlign: "center", mb: 6 }}>
+          <Typography
+            variant="h3"
+            component="h2"
+            gutterBottom
+            sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
+          >
             Everything You Need to Excel
           </Typography>
-          <Typography variant="h6" sx={{ color: 'text.secondary', maxWidth: 600, mx: 'auto' }}>
-            Comprehensive tools designed to enhance your learning experience and boost academic success
+          <Typography
+            variant="h6"
+            sx={{ color: "text.secondary", maxWidth: 600, mx: "auto" }}
+          >
+            Comprehensive tools designed to enhance your learning experience and
+            boost academic success
           </Typography>
         </Box>
         <Grid container spacing={4}>
           {features.map((feature, index) => (
             <Grid size={{ xs: 12, md: 4 }} key={index}>
-              <Card sx={{ height: '100%', p: 2, '&:hover': { boxShadow: 4 } }}>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Box sx={{ mb: 2 }}>
-                    {feature.icon}
-                  </Box>
-                  <Typography variant="h6" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
+              <Card sx={{ height: "100%", p: 2, "&:hover": { boxShadow: 4 } }}>
+                <CardContent sx={{ textAlign: "center" }}>
+                  <Box sx={{ mb: 2 }}>{feature.icon}</Box>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{
+                      color: theme.palette.primary.main,
+                      fontWeight: "bold",
+                    }}
+                  >
                     {feature.title}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     {feature.description}
                   </Typography>
                 </CardContent>
@@ -202,32 +273,48 @@ export default function CollaborativeLearningHomepage() {
       {/* Testimonials Section */}
       <Box sx={{ bgcolor: theme.palette.background.default, py: 8 }}>
         <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <Typography variant="h3" component="h2" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>
+          <Box sx={{ textAlign: "center", mb: 6 }}>
+            <Typography
+              variant="h3"
+              component="h2"
+              gutterBottom
+              sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
+            >
               What Students Say
             </Typography>
-            <Typography variant="h6" sx={{ color: 'text.secondary' }}>
-              Join thousands of students who have transformed their learning experience
+            <Typography variant="h6" sx={{ color: "text.secondary" }}>
+              Join thousands of students who have transformed their learning
+              experience
             </Typography>
           </Box>
           <Grid container spacing={4}>
             {testimonials.map((testimonial, index) => (
               <Grid size={{ xs: 12, md: 4 }} key={index}>
-                <Card sx={{ height: '100%', p: 3 }}>
+                <Card sx={{ height: "100%", p: 3 }}>
                   <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                       <Avatar src={testimonial.avatar} sx={{ mr: 2 }} />
                       <Box>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: "bold" }}
+                        >
                           {testimonial.name}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
                           {testimonial.role}
                         </Typography>
                       </Box>
                     </Box>
-                    <Rating value={testimonial.rating} readOnly sx={{ mb: 2 }} />
-                    <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                    <Rating
+                      value={testimonial.rating}
+                      readOnly
+                      sx={{ mb: 2 }}
+                    />
+                    <Typography variant="body2" sx={{ fontStyle: "italic" }}>
                       "{testimonial.comment}"
                     </Typography>
                   </CardContent>
@@ -239,19 +326,50 @@ export default function CollaborativeLearningHomepage() {
       </Box>
 
       {/* CTA Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Box sx={{ textAlign: 'center', bgcolor: theme.palette.primary.main, color: 'white', p: 6, borderRadius: 2 }}>
-          <Typography variant="h3" component="h2" gutterBottom sx={{ fontWeight: 'bold' }}>
+      <Container
+        maxWidth="lg"
+        sx={{ py: 8, bgcolor: theme.palette.background.default }}
+      >
+        <Box
+          sx={{
+            textAlign: "center",
+            bgcolor: theme.palette.background.default,
+            p: 6,
+            borderRadius: 2,
+          }}
+        >
+          <Typography
+            variant="h3"
+            component="h2"
+            gutterBottom
+            sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+          >
             Ready to Transform Your Learning?
           </Typography>
-          <Typography variant="h6" paragraph sx={{ opacity: 0.9, mb: 4 }}>
-            Join EduCollab today and experience the power of collaborative learning
+
+          <Typography
+            variant="h6"
+            paragraph
+            sx={{ opacity: 0.9, mb: 4, color: theme.palette.text.secondary }}
+          >
+            Join EduCollab today and experience the power of collaborative
+            learning
           </Typography>
-          <Button 
-            onClick={() => navigate('/auth')}
-            variant="contained" 
-            size="large" 
-            sx={{ bgcolor: 'white', color: theme.palette.primary.main, '&:hover': { bgcolor: '#f5f5f5' } }}
+
+          <Button
+            onClick={() => navigate("/auth")}
+            variant="contained"
+            size="large"
+            sx={{
+              bgcolor: theme.palette.primary.main,
+              color: theme.palette.getContrastText(theme.palette.primary.main),
+              "&:hover": {
+                bgcolor:
+                  theme.palette.mode === "light"
+                    ? theme.palette.primary.dark
+                    : theme.palette.primary.light,
+              },
+            }}
             endIcon={<ArrowForward />}
           >
             Start Learning Now
@@ -262,5 +380,5 @@ export default function CollaborativeLearningHomepage() {
       {/* Footer */}
       <Footer />
     </Box>
-  )
+  );
 }

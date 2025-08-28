@@ -1,14 +1,8 @@
-"use client";
-
 import { useState } from "react";
 import {
   Container,
   Box,
   Typography,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Button,
   Stepper,
   Step,
   StepLabel,
@@ -17,7 +11,6 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  ArrowBack,
   AutoAwesome,
   Schedule,
   CheckCircle,
@@ -271,14 +264,14 @@ export default function StudyPlanGenerator() {
     setGeneratedPlan(null);
   };
 
-  const handleStartOver = () => {
-    setCurrentStep(0);
-    setGeneratedPlan(null);
-    setIsGenerating(false);
-  };
+  // const handleStartOver = () => {
+  //   setCurrentStep(0);
+  //   setGeneratedPlan(null);
+  //   setIsGenerating(false);
+  // };
 
   return (
-    <Box sx={{ bgcolor: theme.palette.background.paper, minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: theme.palette.background.default, minHeight: "100vh" }}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Progress Stepper */}
         <Card sx={{ mb: 4 }}>
@@ -294,10 +287,12 @@ export default function StudyPlanGenerator() {
                           height: 40,
                           borderRadius: "50%",
                           bgcolor: completed
-                            ? "#4caf50"
+                            ? theme.palette.success?.main ||
+                              theme.palette.primary.main
                             : active
                             ? theme.palette.primary.main
-                            : "#e0e0e0",
+                            : theme.palette.action?.disabled ||
+                              theme.palette.grey[300],
                           color: "white",
                           display: "flex",
                           alignItems: "center",
