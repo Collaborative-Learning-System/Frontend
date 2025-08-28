@@ -56,22 +56,21 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
             paper: mode === "light" ? "#fdfbfbff" : "#1e1e1e",
           },
         },
-        // components: {
-        //   MuiInputBase: {
-        //     styleOverrides: {
-        //       root: {
-        //         "& input:-webkit-autofill": {
-        //           WebkitBoxShadow: `0 0 0 1000px ${
-        //             mode === "light" ? "#fdfbfbff" : "#1e1e1e"
-        //           } inset`,
-        //           WebkitTextFillColor: mode === "light" ? "#000" : "#fff",
-        //           transition: "background-color 5000s ease-in-out 0s",
-        //           border: "1px solid #444",
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
+        components: {
+          MuiInputBase: {
+            styleOverrides: {
+              root: {
+                "& input:-webkit-autofill": {
+                  WebkitBoxShadow: `0 0 0 1000px ${
+                    mode === "light" ? "#fdfbfbff" : "#1e1e1e"
+                  } inset`,
+                  WebkitTextFillColor: mode === "light" ? "#181818ff" : "#fff",
+                  transition: "background-color 5000s ease-in-out 0s",
+                },
+              },
+            },
+          },
+        },
       }),
     [mode]
   );

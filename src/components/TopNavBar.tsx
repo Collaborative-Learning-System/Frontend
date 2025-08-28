@@ -43,6 +43,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
       sx={{
         zIndex: (theme) => theme.zIndex.drawer - 1,
         bgcolor: theme.palette.background.paper,
+        boxShadow: theme.shadows[1],
       }}
     >
       <Toolbar
