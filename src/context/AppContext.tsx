@@ -49,6 +49,7 @@ export const AppContextProvider = ({
     }
   };
 
+  useEffect(() => {
     if (userId) {
       getUserData();
     }
