@@ -49,8 +49,9 @@ export const AppContextProvider = ({
     }
   };
 
-  useEffect(() => {
-    getUserData();
+    if (userId) {
+      getUserData();
+    }
   }, [userId]);
 
   return (
