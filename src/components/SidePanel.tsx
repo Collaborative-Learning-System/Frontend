@@ -26,7 +26,6 @@ import {
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import NotificationService from "../services/NotificationService";
-import AlertService from "../services/AlertService";
 
 interface SidePanelProps {
   open: boolean;
@@ -39,7 +38,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-  const { userData, setUserData } = useContext(AppContext);
+  const { userData, setUserData, setUserId } = useContext(AppContext);
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
@@ -65,11 +64,14 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       const response = await axios.post(
         `${backendUrl}/auth/logout/${userData?.userId}`
       );
+      console.log("response", response);
       if (response.data.success) {
-        setUserData(null);
-        localStorage.removeItem("userId");
         NotificationService.showSuccess("Logged out successfully");
-        navigate("/auth");
+        setTimeout(() => {
+          navigate("/auth");
+          setUserData(null);
+          setUserId("");
+        }, 1000);
       }
     } catch (error) {
       NotificationService.showError("Failed to log out");
@@ -210,7 +212,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               cursor: "pointer",
               "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
-            onClick={handleLogout}
+            onClick={handleProfile}
           >
             <Avatar
               sx={{

@@ -8,7 +8,6 @@ const defaultOptions: ToastOptions = {
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
-  theme: "colored",
 };
 
 const NotificationService = {
