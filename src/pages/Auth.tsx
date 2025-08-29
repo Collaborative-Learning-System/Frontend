@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -25,10 +25,13 @@ import {
   Login,
 } from "@mui/icons-material";
 import axios from "axios";
+import { AppContext } from "../context/AppContext";
 
 const AuthComponent = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { setUserId } = useContext(AppContext);
+
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -66,7 +69,7 @@ const AuthComponent = () => {
         );
         // need to handle response for HTTP status code
         if (response) {
-          localStorage.setItem("userId", response.data.data.userId);
+          setUserId(response.data.data.userId);
           setSuccess(response.data.message);
           console.log("response", response)
           setTimeout(() => {

@@ -6,6 +6,8 @@ interface AppContextType {
   userData: User | null;
   setUserData: React.Dispatch<React.SetStateAction<User | null>>;
   getUserData: () => Promise<void>;
+  userId: string | null;
+  setUserId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 interface User {
@@ -17,7 +19,9 @@ interface User {
 export const AppContext = createContext<AppContextType>({
   userData: null,
   setUserData: () => {},
-  getUserData: async () => {},
+  getUserData: async () => { },
+  userId: "",
+  setUserId: () => { },
 });
 
 export const AppContextProvider = ({
@@ -29,9 +33,7 @@ export const AppContextProvider = ({
   axios.defaults.withCredentials = true;
 
   const [userData, setUserData] = useState<User | null>(null);
-    const [userId, setUserId] = useState<string | null>(
-      localStorage.getItem("userId")
-    );
+  const [userId, setUserId] = useState<string | null>(null);
 
   const getUserData = async () => {
     try {
@@ -49,13 +51,14 @@ export const AppContextProvider = ({
     }
   };
 
+  useEffect(() => {
     if (userId) {
       getUserData();
     }
   }, [userId]);
 
   return (
-    <AppContext.Provider value={{ userData, setUserData, getUserData }}>
+    <AppContext.Provider value={{ userData, setUserData, getUserData, userId, setUserId }}>
       {children}
     </AppContext.Provider>
   );
