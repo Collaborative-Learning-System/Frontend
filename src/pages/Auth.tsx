@@ -38,7 +38,7 @@ const AuthComponent = () => {
   });
 
   const [signupForm, setSignupForm] = useState({
-    name: "",
+    fullName: "",
     email: "",
     password: "",
   });
@@ -62,12 +62,13 @@ const AuthComponent = () => {
      
       if (loginForm.email && loginForm.password) {
         console.log(loginForm)
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, loginForm);
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, loginForm,
+        );
         // need to handle response for HTTP status code
         if (response) {
-          
-          setSuccess("Login successful!");
-          console.log(response)
+          localStorage.setItem("userId", response.data.data.userId);
+          setSuccess(response.data.message);
+          console.log("response", response)
           setTimeout(() => {
             navigate("/landing");
           }, 1000);
@@ -101,14 +102,14 @@ const AuthComponent = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      if (signupForm.name && signupForm.email && signupForm.password) {
+      if (signupForm.fullName && signupForm.email && signupForm.password) {
         console.log(signupForm);
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/auth/signup`,
           signupForm
         );
         if (response) {
-          setSuccess("Account created successfully!");
+          setSuccess(response.data.message);
           setTimeout(() => {
             setSuccess("");
             setTabValue(0);
@@ -140,7 +141,7 @@ const AuthComponent = () => {
     setError("");
     setSuccess("");
     setLoginForm({ email: "", password: "" });
-    setSignupForm({ name: "", email: "", password: "" });
+    setSignupForm({ fullName: "", email: "", password: "" });
   };
 
   return (
@@ -159,15 +160,20 @@ const AuthComponent = () => {
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Avatar
             sx={{
-              
               width: 64,
               height: 64,
               mx: "auto",
-              mb: 2
+              mb: 2,
             }}
           >
             {isLogin ? (
-              <Login sx={{ fontSize: 32, color: theme.palette.primary.main, bgcolor: "transparent" }} />
+              <Login
+                sx={{
+                  fontSize: 32,
+                  color: theme.palette.primary.main,
+                  bgcolor: "transparent",
+                }}
+              />
             ) : (
               <PersonAdd
                 sx={{ fontSize: 32, color: theme.palette.primary.main }}
@@ -269,7 +275,6 @@ const AuthComponent = () => {
                         <Lock color="action" />
                       </InputAdornment>
                     ),
-                  
                   }}
                   placeholder="Enter your password"
                 />
@@ -303,9 +308,9 @@ const AuthComponent = () => {
                   variant="outlined"
                   margin="normal"
                   required
-                  value={signupForm.name}
+                  value={signupForm.fullName}
                   onChange={(e) =>
-                    setSignupForm({ ...signupForm, name: e.target.value })
+                    setSignupForm({ ...signupForm, fullName: e.target.value })
                   }
                   InputProps={{
                     startAdornment: (
@@ -356,17 +361,6 @@ const AuthComponent = () => {
                         <Lock color="action" />
                       </InputAdornment>
                     ),
-                    // endAdornment: (
-                    //   <InputAdornment position="end">
-                    //     <IconButton
-                    //       aria-label="toggle password visibility"
-                    //       onClick={togglePasswordVisibility}
-                    //       edge="end"
-                    //     >
-                    //       {showPassword ? <VisibilityOff /> : <Visibility />}
-                    //     </IconButton>
-                    //   </InputAdornment>
-                    // ),
                   }}
                   placeholder="Create a password"
                 />

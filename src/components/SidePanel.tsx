@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
@@ -23,6 +23,10 @@ import {
   Logout,
   AccountCircle,
 } from "@mui/icons-material";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import NotificationService from "../services/NotificationService";
+import AlertService from "../services/AlertService";
 
 interface SidePanelProps {
   open: boolean;
@@ -30,15 +34,12 @@ interface SidePanelProps {
   onClose: () => void;
 }
 
-const SidePanel: React.FC<SidePanelProps> = ({
-  open,
-  onToggle,
-  onClose,
-}) => {
+const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
+  const { userData, setUserData } = useContext(AppContext);
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
@@ -58,8 +59,21 @@ const SidePanel: React.FC<SidePanelProps> = ({
     if (isMobile) onClose();
   };
 
-  const handleLogout = () => {
-    navigate("/auth");
+  const handleLogout = async () => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    try {
+      const response = await axios.post(
+        `${backendUrl}/auth/logout/${userData?.userId}`
+      );
+      if (response.data.success) {
+        setUserData(null);
+        localStorage.removeItem("userId");
+        NotificationService.showSuccess("Logged out successfully");
+        navigate("/auth");
+      }
+    } catch (error) {
+      NotificationService.showError("Failed to log out");
+    }
   };
 
   const handleProfile = () => {
@@ -196,7 +210,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
               cursor: "pointer",
               "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
-            onClick={handleProfile}
+            onClick={handleLogout}
           >
             <Avatar
               sx={{
@@ -214,13 +228,13 @@ const SidePanel: React.FC<SidePanelProps> = ({
                 fontWeight="bold"
                 // sx={{ color: theme.palette.primary.main }}
               >
-                John Doe
+                {userData?.fullName}
               </Typography>
               <Typography
                 variant="caption"
                 // sx={{ color: theme.palette.primary.main }}
               >
-                john.doe@example.com
+                {userData?.email}
               </Typography>
             </Box>
           </Box>
@@ -277,6 +291,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
               sx={{
                 color: theme.palette.error.main,
               }}
+              onClick={handleLogout}
             >
               Logout
             </Typography>

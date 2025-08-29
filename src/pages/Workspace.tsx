@@ -33,7 +33,6 @@ import {
 } from "@mui/icons-material";
 // Update the import paths below if the files are located elsewhere, or create the missing files if they do not exist.
 import { useNavigate } from "react-router-dom";
-import * as AlertService from "../services/AlertService";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
 

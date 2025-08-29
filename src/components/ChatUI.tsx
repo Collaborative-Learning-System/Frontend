@@ -19,7 +19,6 @@ import {
   Send as SendIcon,
   InsertEmoticon as InsertEmoticonIcon,
   SmartToy as SmartToyIcon,
-  Image as ImageIcon,
 } from "@mui/icons-material";
 
 interface Message {
