@@ -9,6 +9,8 @@ import Home from "./pages/Home";
 import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
 import Profile from "./pages/Userprofile"
+import ContactForm from "./components/ContactForm";
+import ContactInfo from "./components/ContactInfo";
 
 const App = () => {
   return (
@@ -53,6 +55,14 @@ const App = () => {
           element={
             <MainLayout>
               <Profile />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/contact-us"
+          element={
+            <MainLayout>
+              <ContactForm/>
             </MainLayout>
           }
         />

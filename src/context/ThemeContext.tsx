@@ -53,6 +53,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
           },
           background: {
             default: mode === "light" ? "#f7f6f4ff" : "#181818ff",
+           // default: mode === "light" ? "#f7f6f4ff" : "#d10303ff",
             paper: mode === "light" ? "#fdfbfbff" : "#1e1e1e",
           },
         },

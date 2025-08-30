@@ -1,4 +1,4 @@
-import React, { use, useContext } from "react";
+import React, { useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
@@ -14,6 +14,7 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  alpha,
 } from "@mui/material";
 import {
   ChevronLeft,
@@ -21,7 +22,7 @@ import {
   AutoFixHigh,
   SmartToy,
   Logout,
-  AccountCircle,
+  ContactPhoneRounded,
 } from "@mui/icons-material";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
@@ -38,7 +39,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-  const { userData, setUserData, setUserId } = useContext(AppContext);
+  const { userData,logout } = useContext(AppContext);
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
@@ -51,6 +52,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       path: "/study-plans-generator",
     },
     { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
+    { text: "Contact Us", icon: <ContactPhoneRounded />, path: "/contact-us" },
   ];
 
   const handleMenuItemClick = (path: string) => {
@@ -64,13 +66,11 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       const response = await axios.post(
         `${backendUrl}/auth/logout/${userData?.userId}`
       );
-      console.log("response", response);
       if (response.data.success) {
         NotificationService.showSuccess("Logged out successfully");
         setTimeout(() => {
           navigate("/auth");
-          setUserData(null);
-          setUserId("");
+          logout();
         }, 1000);
       }
     } catch (error) {
@@ -90,6 +90,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         display: "flex",
         flexDirection: "column",
         bgcolor: theme.palette.background.paper,
+        boxShadow: theme.shadows[1],
         transition: theme.transitions.create(["width"], {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen,
@@ -110,8 +111,20 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       >
         {open ? (
           <>
+            <Box
+              component="img"
+              src="/EduCollab.png"
+              alt="EduCollab Logo"
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                boxShadow: 3,
+                objectFit: "cover",
+              }}
+            />
             <Typography
-              variant="h6"
+              variant="h5"
               sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
             >
               EduCollab
@@ -121,21 +134,19 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             </IconButton>
           </>
         ) : (
-          <IconButton
+          <Box
+            component="img"
+            src="/EduCollab.png"
+            alt="EduCollab Logo"
             onClick={onToggle}
-            size="small"
             sx={{
-              color: theme.palette.primary.main,
-              fontSize: "1.2rem",
-              fontWeight: "bold",
               width: 40,
               height: 40,
-              border: `2px solid ${theme.palette.primary.main}`,
-              borderRadius: "8px",
+              borderRadius: 12,
+              boxShadow: 3,
+              objectFit: "cover",
             }}
-          >
-            E
-          </IconButton>
+          />
         )}
       </Box>
 
@@ -214,7 +225,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             }}
             onClick={handleProfile}
           >
-            <Avatar
+            {/* <Avatar
               sx={{
                 width: 40,
                 height: 40,
@@ -223,6 +234,22 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               }}
             >
               <AccountCircle />
+            </Avatar> */}
+            <Avatar
+              src={""}
+              sx={{
+                width: 40,
+                height: 40,
+                fontSize: "1rem",
+                mr: 2,
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+              }}
+            >
+              {userData?.fullName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
             </Avatar>
             <Box sx={{ flexGrow: 1 }}>
               <Typography
@@ -253,13 +280,19 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             onClick={handleProfile}
           >
             <Avatar
+              src={""}
               sx={{
-                width: 32,
-                height: 32,
-                bgcolor: theme.palette.primary.main,
+                width: 40,
+                height: 40,
+                fontSize: "1rem",
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
               }}
             >
-              <AccountCircle />
+              {userData?.fullName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
             </Avatar>
           </Box>
         )}

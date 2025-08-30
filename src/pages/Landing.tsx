@@ -167,7 +167,7 @@ const Landing = () => {
         >
           <Box>
             <Typography
-              variant="h4"
+              variant="h5"
               fontWeight="600"
               sx={{
                 background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,

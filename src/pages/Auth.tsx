@@ -64,29 +64,24 @@ const AuthComponent = () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
      
       if (loginForm.email && loginForm.password) {
-        console.log(loginForm)
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, loginForm,
         );
-        // need to handle response for HTTP status code
         if (response) {
           setUserId(response.data.data.userId);
+          localStorage.setItem('userId', response.data.data.userId);
           setSuccess(response.data.message);
-          console.log("response", response)
           setTimeout(() => {
             navigate("/landing");
           }, 1000);
         } else {
           setError("Login failed. Please try again.");
-          console.error("Login errorrrr:", response);
         }
       } else {
         setError("Please fill in all fields");
       }
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
-        const { message, statusCode, error: errType } = err.response.data;
-        setError(message);
-        console.error(`Error ${statusCode}: ${errType}`);
+        setError(err.response.data.message);
       } else {
         setError("Login failed. Please try again.");
       }

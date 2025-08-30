@@ -14,10 +14,52 @@ import {
   DarkMode,
   Menu as MenuIcon,
 } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
+import SearchIcon from "@mui/icons-material/Search";
+import { alpha, styled } from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
 import Badge, { badgeClasses } from "@mui/material/Badge";
+import InputBase from '@mui/material/InputBase';
 import { useThemeContext } from "../context/ThemeContext";
+
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: 20,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(3),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      width: "20ch",
+    },
+  },
+}));
 
 interface TopNavBarProps {
   onSidebarToggle?: () => void;
@@ -78,7 +120,35 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
             </Box>
           )}
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+         
+          {/* <Box
+            sx={{
+              display: { xs: "none", sm: "flex" }, // hidden on xs (mobile)
+              alignItems: "center",
+            }}
+          >
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search…"
+                inputProps={{ "aria-label": "search" }}
+              />
+            </Search>
+          </Box>
+
+        
+          <Box
+            sx={{
+              display: { xs: "flex", sm: "none" }, // show only on mobile
+            }}
+          >
+            <IconButton>
+              <SearchIcon />
+            </IconButton>
+          </Box> */}
           <Tooltip
             title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
           >

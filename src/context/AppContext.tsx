@@ -8,6 +8,7 @@ interface AppContextType {
   getUserData: () => Promise<void>;
   userId: string | null;
   setUserId: React.Dispatch<React.SetStateAction<string | null>>;
+  logout: () => void;
 }
 
 interface User {
@@ -22,6 +23,7 @@ export const AppContext = createContext<AppContextType>({
   getUserData: async () => { },
   userId: "",
   setUserId: () => { },
+  logout: () => { },
 });
 
 export const AppContextProvider = ({
@@ -33,11 +35,11 @@ export const AppContextProvider = ({
   axios.defaults.withCredentials = true;
 
   const [userData, setUserData] = useState<User | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(localStorage.getItem('userId'));
 
+  console.log("userData:", userData )
   const getUserData = async () => {
     try {
-      // fetch user
       const { data } = await axios.get(
         `${backendUrl}/auth/get-user-data/${userId}`
       );
@@ -57,8 +59,21 @@ export const AppContextProvider = ({
     }
   }, [userId]);
 
+  const logout = () => {
+    setUserData(null);
+    setUserId(null);
+    localStorage.removeItem('userId');
+  };
+
   return (
-    <AppContext.Provider value={{ userData, setUserData, getUserData, userId, setUserId }}>
+    <AppContext.Provider value={{ 
+      userData, 
+      setUserData, 
+      getUserData, 
+      userId, 
+      setUserId,
+      logout
+    }}>
       {children}
     </AppContext.Provider>
   );
