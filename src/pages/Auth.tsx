@@ -97,12 +97,12 @@ const AuthComponent = () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       if (signupForm.fullName && signupForm.email && signupForm.password) {
-        console.log(signupForm);
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/auth/signup`,
           signupForm
         );
         if (response) {
+          sendWelcomeEmail(signupForm.email, signupForm.fullName);
           setSuccess(response.data.message);
           setTimeout(() => {
             setSuccess("");
@@ -126,6 +126,17 @@ const AuthComponent = () => {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const sendWelcomeEmail = async (email: string, fullName: string) => {
+    try {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/notification/welcome-email`, {
+        email,
+        fullName,
+      });
+    } catch (error) {
+      console.error("Error sending welcome email:", error);
     }
   };
 
