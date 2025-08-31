@@ -11,6 +11,8 @@ import Workspace from "./pages/Workspace";
 import Profile from "./pages/Userprofile"
 import ContactForm from "./components/ContactForm";
 import ContactInfo from "./components/ContactInfo";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const App = () => {
   return (
@@ -62,10 +64,12 @@ const App = () => {
           path="/contact-us"
           element={
             <MainLayout>
-              <ContactForm/>
+              <ContactForm />
             </MainLayout>
           }
         />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </ThemeContextProvider>
   );

@@ -17,13 +17,7 @@ import {
   Link,
   useTheme,
 } from "@mui/material";
-import {
-  Person,
-  Email,
-  Lock,
-  PersonAdd,
-  Login,
-} from "@mui/icons-material";
+import { Person, Email, Lock, PersonAdd, Login } from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 
@@ -60,15 +54,17 @@ const AuthComponent = () => {
     setIsLoading(true);
 
     try {
-       setInfo("");
+      setInfo("");
       await new Promise((resolve) => setTimeout(resolve, 1500));
-     
+
       if (loginForm.email && loginForm.password) {
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, loginForm,
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
+          loginForm
         );
         if (response) {
           setUserId(response.data.data.userId);
-          localStorage.setItem('userId', response.data.data.userId);
+          localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
           setTimeout(() => {
             navigate("/landing");
@@ -113,22 +109,21 @@ const AuthComponent = () => {
             setTabValue(0);
             setInfo("Log in to your account");
           }, 3000);
-          
         } else {
-         setError("Signup failed. Please try again.");
+          setError("Signup failed. Please try again.");
           console.error("Signup error:", error);
         }
       } else {
         setError("Please fill in all fields");
       }
     } catch (err) {
-       if (axios.isAxiosError(err) && err.response) {
-         const { message, statusCode, error: errType } = err.response.data;
-         setError(message);
-         console.error(`Error ${statusCode}: ${errType}`);
-       } else {
-         setError("Signup failed. Please try again.");
-       }
+      if (axios.isAxiosError(err) && err.response) {
+        const { message, statusCode, error: errType } = err.response.data;
+        setError(message);
+        console.error(`Error ${statusCode}: ${errType}`);
+      } else {
+        setError("Signup failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -276,6 +271,17 @@ const AuthComponent = () => {
                   }}
                   placeholder="Enter your password"
                 />
+
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  sx={{ mt: 1 }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <Link onClick={() => navigate("/forgot-password")}>
+                    Forgot password?
+                  </Link>
+                </Typography>
 
                 <Button
                   type="submit"
