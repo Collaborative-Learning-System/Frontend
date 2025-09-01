@@ -90,7 +90,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         display: "flex",
         flexDirection: "column",
         bgcolor: theme.palette.background.paper,
-        boxShadow: theme.shadows[1],
         transition: theme.transitions.create(["width"], {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen,
@@ -119,7 +118,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 width: 40,
                 height: 40,
                 borderRadius: 12,
-                boxShadow: 3,
                 objectFit: "cover",
               }}
             />
@@ -143,7 +141,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               width: 40,
               height: 40,
               borderRadius: 12,
-              boxShadow: 3,
               objectFit: "cover",
             }}
           />
@@ -357,7 +354,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
           }),
           overflowX: "hidden",
           border: "none",
-          boxShadow: theme.shadows[2],
         },
       }}
     >

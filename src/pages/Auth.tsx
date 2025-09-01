@@ -66,9 +66,10 @@ const AuthComponent = () => {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          setTimeout(() => {
-            navigate("/landing");
-          }, 1000);
+          // setTimeout(() => {
+          //   navigate("/landing");
+          // }, 1000);
+           navigate("/landing");
         } else {
           setError("Login failed. Please try again.");
         }
@@ -199,7 +200,7 @@ const AuthComponent = () => {
         </Box>
 
         {/* Form Card */}
-        <Card sx={{ boxShadow: theme.shadows[8] }}>
+        <Card>
           <CardContent sx={{ p: 4 }}>
             {/* Tabs for Login/Signup */}
             <Tabs

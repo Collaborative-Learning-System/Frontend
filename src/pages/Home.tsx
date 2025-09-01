@@ -247,7 +247,7 @@ export default function CollaborativeLearningHomepage() {
         <Grid container spacing={4}>
           {features.map((feature, index) => (
             <Grid size={{ xs: 12, md: 4 }} key={index}>
-              <Card sx={{ height: "100%", p: 2, "&:hover": { boxShadow: 4 } }}>
+              <Card sx={{ height: "100%", p: 2, "&:hover": { transform: "translateY(-2px)" } }}>
                 <CardContent sx={{ textAlign: "center" }}>
                   <Box sx={{ mb: 2 }}>{feature.icon}</Box>
                   <Typography

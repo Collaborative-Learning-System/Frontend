@@ -1,4 +1,4 @@
-import { Close, Groups, Search } from "@mui/icons-material";
+import { Close, Groups } from "@mui/icons-material";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import {
   Card,
@@ -10,7 +10,6 @@ import {
   Box,
   useTheme,
   TextField,
-  InputAdornment,
   Autocomplete,
   Button,
   alpha,
@@ -43,7 +42,6 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
         backdropFilter: "blur(5px)",
         backgroundColor: alpha(theme.palette.background.paper, 0.9),
         border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-        boxShadow: theme.shadows[10],
       }}
     >
       <CardContent sx={{ p: 4 }}>

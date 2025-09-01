@@ -21,7 +21,7 @@ export default function Navigation() {
   return (
     <AppBar
       position="fixed"
-      sx={{ bgcolor: theme.palette.background.default, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
+      sx={{ bgcolor: theme.palette.background.default }}
     >
       <Toolbar>
         <Typography

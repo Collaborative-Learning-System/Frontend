@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -17,12 +17,10 @@ import {
 } from "@mui/material";
 import { Lock, ArrowBack } from "@mui/icons-material";
 import axios from "axios";
-import { AppContext } from "../context/AppContext";
 
 const ForgotPassword = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const {userData} = useContext(AppContext);
 
   // Form states
   const [resetEmail, setResetEmail] = useState("");
@@ -107,7 +105,7 @@ const ForgotPassword = () => {
         </Box>
 
         {/* Form Card */}
-        <Card sx={{ boxShadow: theme.shadows[8] }}>
+        <Card>
           <CardContent sx={{ p: 4 }}>
             {/* Back to Login Link */}
             <Box sx={{ mb: 2 }}>

@@ -26,7 +26,6 @@ import {
   NavigateNext as NextIcon,
   NavigateBefore as PrevIcon,
   Check as CheckIcon,
-  Flag as FlagIcon,
   Quiz as QuizIcon,
 } from "@mui/icons-material";
 
@@ -559,7 +558,6 @@ const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onBack }) => {
                               : "transparent",
                           "&:hover": {
                             borderColor: "primary.light",
-                            boxShadow: 2,
                           },
                         }}
                       >

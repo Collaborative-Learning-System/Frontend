@@ -205,10 +205,10 @@ const Landing = () => {
               height: "100%",
               background: theme.palette.background.paper,
               border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-              transition: "transform 0.2s ease-in-out, box-shadow 0.2s",
+              transition: "transform 0.2s ease-in-out",
               "&:hover": {
                 transform: "translateY(-4px)",
-                boxShadow: theme.shadows[8],
+                borderColor: theme.palette.primary.main,
               },
             }}
           >
@@ -247,10 +247,10 @@ const Landing = () => {
               height: "100%",
               background: theme.palette.background.paper,
               border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
-              transition: "transform 0.2s ease-in-out, box-shadow 0.2s",
+              transition: "transform 0.2s ease-in-out",
               "&:hover": {
                 transform: "translateY(-4px)",
-                boxShadow: theme.shadows[8],
+                borderColor: theme.palette.secondary.main,
               },
             }}
           >
@@ -314,10 +314,10 @@ const Landing = () => {
                   sx={{
                     height: "100%",
                     background: theme.palette.background.paper,
-                    transition: "transform 0.2s ease-in-out, box-shadow 0.2s",
+                    transition: "transform 0.2s ease-in-out",
                     "&:hover": {
                       transform: "translateY(-2px)",
-                      boxShadow: theme.shadows[4],
+                      borderColor: theme.palette.primary.main,
                     },
                     cursor: "pointer",
                   }}
@@ -426,7 +426,7 @@ const Landing = () => {
                     "&:hover": {
                       backgroundColor: alpha(theme.palette.primary.main, 0.08),
                       transform: "translateY(-1px)",
-                      boxShadow: 2,
+                      borderColor: theme.palette.primary.main,
                     },
                   }}
                 >

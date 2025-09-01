@@ -37,37 +37,106 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
         palette: {
           mode,
           primary: {
-            main: mode === "light" ? "#083c70" : "#5da2f0ff",
-            dark: mode === "light" ? "#062951" : "#4a8acc",
-            light: mode === "light" ? "#1a5490" : "#70b2f3",
+            main: mode === "light" ? "#407cb7ff" : "#42a5f5",
+            dark: mode === "light" ? "#1565c0" : "#1e88e5",
+            light: mode === "light" ? "#42a5f5" : "#64b5f6",
           },
           secondary: {
-            main: mode === "light" ? "#083c70" : "#63a5f1ff",
-            dark: mode === "light" ? "#062951" : "#4f87d1",
-            light: mode === "light" ? "#1a5490" : "#7bb4f4",
+            main: mode === "light" ? "#92c261ff" : "#b2cf6eff",
+            dark: mode === "light" ? "#75d775ff" : "#6eb027ff",
+            light: mode === "light" ? "#99da80ff" : "#b4d893ff",
           },
           success: {
-            main: mode === "light" ? "#4caf50" : "#66bb6a",
-            dark: mode === "light" ? "#388e3c" : "#4a9c4e",
-            light: mode === "light" ? "#66bb6a" : "#81c784",
+            main: mode === "light" ? "#2e7d32" : "#4caf50",
+            dark: mode === "light" ? "#1b5e20" : "#388e3c",
+            light: mode === "light" ? "#4caf50" : "#66bb6a",
+          },
+          error: {
+            main: mode === "light" ? "#d32f2f" : "#f44336",
+            dark: mode === "light" ? "#c62828" : "#d32f2f",
+            light: mode === "light" ? "#f44336" : "#ef5350",
+          },
+          warning: {
+            main: mode === "light" ? "#ed6c02" : "#ff9800",
+            dark: mode === "light" ? "#e65100" : "#f57c00",
+            light: mode === "light" ? "#ff9800" : "#ffb74d",
+          },
+          info: {
+            main: mode === "light" ? "#0288d1" : "#29b6f6",
+            dark: mode === "light" ? "#01579b" : "#0277bd",
+            light: mode === "light" ? "#03a9f4" : "#4fc3f7",
           },
           background: {
-            default: mode === "light" ? "#f7f6f4ff" : "#181818ff",
-           // default: mode === "light" ? "#f7f6f4ff" : "#d10303ff",
-            paper: mode === "light" ? "#fdfbfbff" : "#1e1e1e",
+            default: mode === "light" ? "#fafafa" : "#121212",
+            paper: mode === "light" ? "#ffffff" : "#1e1e1e",
+          },
+          text: {
+            primary: mode === "light" ? "#212121" : "#ffffff",
+            secondary: mode === "light" ? "#757575" : "#b0b0b0",
           },
         },
+        shadows: [
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+          'none',
+        ],
         components: {
           MuiInputBase: {
             styleOverrides: {
               root: {
                 "& input:-webkit-autofill": {
                   WebkitBoxShadow: `0 0 0 1000px ${
-                    mode === "light" ? "#fdfbfbff" : "#1e1e1e"
+                    mode === "light" ? "#ffffff" : "#1e1e1e"
                   } inset`,
-                  WebkitTextFillColor: mode === "light" ? "#181818ff" : "#fff",
+                  WebkitTextFillColor: mode === "light" ? "#212121" : "#ffffff",
                   transition: "background-color 5000s ease-in-out 0s",
                 },
+              },
+            },
+          },
+          MuiCard: {
+            styleOverrides: {
+              root: {
+                boxShadow: 'none',
+                border: mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+              },
+            },
+          },
+          MuiPaper: {
+            styleOverrides: {
+              root: {
+                boxShadow: 'none',
+                border: mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+              },
+            },
+          },
+          MuiAppBar: {
+            styleOverrides: {
+              root: {
+                boxShadow: 'none',
+                borderBottom: mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
               },
             },
           },

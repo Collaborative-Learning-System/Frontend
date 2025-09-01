@@ -128,7 +128,6 @@ import React, { useState } from "react";
     const Quiz: React.FC<QuizProps> = ({ groupId }) => {
       const theme = useTheme();
       const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-      const isTablet = useMediaQuery(theme.breakpoints.down("md"));
       const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
       const [quizzes, setQuizzes] = useState(mockQuizzes[groupId] || []);
 
@@ -331,7 +330,7 @@ import React, { useState } from "react";
                       overflow: "visible",
                       "&:hover": {
                         transform: "translateY(-8px)",
-                        boxShadow: 8,
+                        borderColor: "primary.main",
                       },
                       borderRadius: 3,
                       border: quiz.completed ? "2px solid" : "1px solid",
@@ -355,7 +354,6 @@ import React, { useState } from "react";
                               borderRadius: "50%",
                               fontSize: 24,
                               p: 0.5,
-                              boxShadow: 2,
                             }}
                           />
                         </Badge>
@@ -543,7 +541,6 @@ import React, { useState } from "react";
                             py: 1,
                             "&:hover": {
                               transform: "scale(1.02)",
-                              boxShadow: 2,
                             },
                             transition: "all 0.2s ease-in-out",
                           }}
@@ -561,10 +558,8 @@ import React, { useState } from "react";
                             textTransform: "none",
                             fontWeight: "medium",
                             py: 1,
-                            boxShadow: 3,
                             "&:hover": {
                               transform: "scale(1.02)",
-                              boxShadow: 6,
                             },
                             transition: "all 0.2s ease-in-out",
                           }}

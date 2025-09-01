@@ -44,7 +44,6 @@ const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose }) => {
         backdropFilter: "blur(10px)",
         backgroundColor: alpha(theme.palette.background.paper, 0.9),
         border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-        boxShadow: theme.shadows[10],
       }}
     >
       <CardContent sx={{ p: 4 }}>

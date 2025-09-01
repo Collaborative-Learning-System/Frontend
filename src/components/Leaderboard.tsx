@@ -333,7 +333,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                     transition: "all 0.3s ease-in-out",
                     "&:hover": {
                       transform: "translateY(-4px) scale(1.02)",
-                      boxShadow: 8,
+                      borderColor: "primary.main",
                     },
                     mb: { xs: 2, sm: 0 },
                     "&::before":
@@ -352,7 +352,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                             alignItems: "center",
                             justifyContent: "center",
                             zIndex: 1,
-                            boxShadow: 3,
                           }
                         : {},
                   }}
@@ -380,7 +379,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                           : "grey.300",
                         border: "3px solid",
                         borderColor: "background.paper",
-                        boxShadow: 3,
                       }}
                     >
                       {user.avatar}

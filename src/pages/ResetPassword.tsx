@@ -141,7 +141,7 @@ const ResetPassword = () => {
         </Box>
 
         {/* Form Card */}
-        <Card sx={{ boxShadow: theme.shadows[8] }}>
+        <Card>
           <CardContent sx={{ p: 4 }}>
             {/* Back to Login Link */}
             <Box sx={{ mb: 2 }}>
