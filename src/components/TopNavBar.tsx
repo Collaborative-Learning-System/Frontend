@@ -63,7 +63,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
                   edge="start"
                   sx={{ mr: 1 }}
                 >
-                  <MenuIcon />
+                  <MenuIcon sx={{ color: theme.palette.primary.main }} />
                 </IconButton>
               </Tooltip>
               <Box>
@@ -78,34 +78,6 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
           )}
         </Box>
         <Box sx={{ display: "flex", alignItems: "center" }}>
-         
-          {/* <Box
-            sx={{
-              display: { xs: "none", sm: "flex" }, // hidden on xs (mobile)
-              alignItems: "center",
-            }}
-          >
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ "aria-label": "search" }}
-              />
-            </Search>
-          </Box>
-
-        
-          <Box
-            sx={{
-              display: { xs: "flex", sm: "none" }, // show only on mobile
-            }}
-          >
-            <IconButton>
-              <SearchIcon />
-            </IconButton>
-          </Box> */}
           <Tooltip
             title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
           >
@@ -120,7 +92,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
           <Tooltip title="Notifications">
             <IconButton size="large" sx={{ color: theme.palette.primary.main }}>
               <Notifications />
-              <CartBadge badgeContent={2} color="warning" overlap="circular" />
+              <CartBadge badgeContent={2} color="error" overlap="circular" />
             </IconButton>
           </Tooltip>
         </Box>

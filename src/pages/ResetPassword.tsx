@@ -7,15 +7,15 @@ import {
   TextField,
   Button,
   Typography,
-  Container,
   Avatar,
   Alert,
   InputAdornment,
   CircularProgress,
   Link,
   useTheme,
+  IconButton,
 } from "@mui/material";
-import { Lock, ArrowBack } from "@mui/icons-material";
+import { Lock, ArrowBack, VisibilityOff, Visibility } from "@mui/icons-material";
 import axios from "axios";
 
 const ResetPassword = () => {
@@ -30,6 +30,8 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -108,11 +110,15 @@ const ResetPassword = () => {
         background: theme.palette.background.default,
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         p: 2,
+        backgroundImage: 'url("/welcome.png")',
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
       }}
     >
-      <Container maxWidth="sm">
+      <Box sx={{ width: "100%", maxWidth: "500px", ml: 4 }}>
         {/* Header */}
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Avatar
@@ -180,7 +186,7 @@ const ResetPassword = () => {
               <TextField
                 fullWidth
                 label="New Password"
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 variant="outlined"
                 margin="normal"
                 required
@@ -192,6 +198,17 @@ const ResetPassword = () => {
                       <Lock color="action" />
                     </InputAdornment>
                   ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        edge="end"
+                        aria-label="toggle password visibility"
+                      >
+                        {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
                 placeholder="Enter your new password"
                 helperText="Password must be at least 8 characters long, must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character"
@@ -200,7 +217,7 @@ const ResetPassword = () => {
               <TextField
                 fullWidth
                 label="Confirm New Password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 variant="outlined"
                 margin="normal"
                 required
@@ -210,6 +227,23 @@ const ResetPassword = () => {
                   startAdornment: (
                     <InputAdornment position="start">
                       <Lock color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        edge="end"
+                        aria-label="toggle password visibility"
+                      >
+                        {showConfirmPassword ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
+                      </IconButton>
                     </InputAdornment>
                   ),
                 }}
@@ -223,8 +257,8 @@ const ResetPassword = () => {
                 size="large"
                 onClick={handleResetPassword}
                 disabled={
-                  isLoading || 
-                  !newPassword.trim() || 
+                  isLoading ||
+                  !newPassword.trim() ||
                   !confirmPassword.trim() ||
                   newPassword.length < 8 ||
                   newPassword !== confirmPassword
@@ -243,7 +277,7 @@ const ResetPassword = () => {
             </Box>
           </CardContent>
         </Card>
-      </Container>
+      </Box>
     </Box>
   );
 };

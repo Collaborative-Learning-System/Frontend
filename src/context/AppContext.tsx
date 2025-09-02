@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 interface AppContextType {
@@ -20,10 +21,10 @@ interface User {
 export const AppContext = createContext<AppContextType>({
   userData: null,
   setUserData: () => {},
-  getUserData: async () => { },
+  getUserData: async () => {},
   userId: "",
-  setUserId: () => { },
-  logout: () => { },
+  setUserId: () => {},
+  logout: () => {},
 });
 
 export const AppContextProvider = ({
@@ -34,10 +35,12 @@ export const AppContextProvider = ({
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   axios.defaults.withCredentials = true;
 
-  const [userData, setUserData] = useState<User | null>(null);
-  const [userId, setUserId] = useState<string | null>(localStorage.getItem('userId'));
+  const navigate = useNavigate();
 
-  console.log("userData:", userData )
+  const [userData, setUserData] = useState<User | null>(null);
+  const [userId, setUserId] = useState<string | null>(
+    localStorage.getItem("userId")
+  );
   const getUserData = async () => {
     try {
       const { data } = await axios.get(
@@ -49,7 +52,13 @@ export const AppContextProvider = ({
         toast.error(data.message);
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message);
+      const refreshToken = error.response.data.data.refreshToken;
+      try {
+        await axios.post(`${backendUrl}/auth/refresh-token`, { refreshToken });
+        getUserData();
+      } catch (error) {
+        navigate("/auth");
+      }
     }
   };
 
@@ -62,18 +71,20 @@ export const AppContextProvider = ({
   const logout = () => {
     setUserData(null);
     setUserId(null);
-    localStorage.removeItem('userId');
+    localStorage.removeItem("userId");
   };
 
   return (
-    <AppContext.Provider value={{ 
-      userData, 
-      setUserData, 
-      getUserData, 
-      userId, 
-      setUserId,
-      logout
-    }}>
+    <AppContext.Provider
+      value={{
+        userData,
+        setUserData,
+        getUserData,
+        userId,
+        setUserId,
+        logout,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );

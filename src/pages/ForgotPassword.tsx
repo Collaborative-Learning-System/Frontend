@@ -7,7 +7,6 @@ import {
   TextField,
   Button,
   Typography,
-  Container,
   Avatar,
   Alert,
   InputAdornment,
@@ -15,7 +14,7 @@ import {
   Link,
   useTheme,
 } from "@mui/material";
-import { Lock, ArrowBack } from "@mui/icons-material";
+import { Lock, ArrowBack, Email } from "@mui/icons-material";
 import axios from "axios";
 
 const ForgotPassword = () => {
@@ -72,11 +71,15 @@ const ForgotPassword = () => {
         background: theme.palette.background.default,
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         p: 2,
+        backgroundImage: 'url("/welcome.png")',
+        backgroundSize: "fit",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
       }}
     >
-      <Container maxWidth="sm">
+      <Box sx={{ width: "100%", maxWidth: "500px", ml: 4 }}>
         {/* Header */}
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Avatar
@@ -157,7 +160,7 @@ const ForgotPassword = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock color="action" />
+                      <Email color="action" />
                     </InputAdornment>
                   ),
                 }}
@@ -186,7 +189,7 @@ const ForgotPassword = () => {
             </Box>
           </CardContent>
         </Card>
-      </Container>
+      </Box>
     </Box>
   );
 };

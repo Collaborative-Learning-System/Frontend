@@ -200,33 +200,34 @@ export default function CollaborativeLearningHomepage() {
       </Container>
 
       {/* Stats Section */}
-      <Box sx={{ bgcolor: theme.palette.background.default, py: 6 }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            {stats.map((stat, index) => (
-              <Grid size={{ xs: 6, md: 3 }} key={index}>
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography
-                    variant="h3"
-                    sx={{
-                      color: theme.palette.primary.main,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {stat.number}
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                    {stat.label}
-                  </Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+      <Container
+        maxWidth="lg"
+        sx={{ py: 0, bgcolor: theme.palette.background.paper }}
+      >
+        <Grid container spacing={4} sx={{padding: 2}}>
+          {stats.map((stat, index) => (
+            <Grid size={{ xs: 6, md: 3 }} key={index}>
+              <Box sx={{ textAlign: "center" }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    color: theme.palette.primary.main,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {stat.number}
+                </Typography>
+                <Typography variant="body1" sx={{ color: "text.secondary" }}>
+                  {stat.label}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
 
       {/* Features Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Box sx={{ textAlign: "center", mb: 6 }}>
           <Typography
             variant="h3"
@@ -247,7 +248,13 @@ export default function CollaborativeLearningHomepage() {
         <Grid container spacing={4}>
           {features.map((feature, index) => (
             <Grid size={{ xs: 12, md: 4 }} key={index}>
-              <Card sx={{ height: "100%", p: 2, "&:hover": { transform: "translateY(-2px)" } }}>
+              <Card
+                sx={{
+                  height: "100%",
+                  p: 2,
+                  "&:hover": { transform: "translateY(-2px)" },
+                }}
+              >
                 <CardContent sx={{ textAlign: "center" }}>
                   <Box sx={{ mb: 2 }}>{feature.icon}</Box>
                   <Typography
@@ -271,7 +278,7 @@ export default function CollaborativeLearningHomepage() {
       </Container>
 
       {/* Testimonials Section */}
-      <Box sx={{ bgcolor: theme.palette.background.default, py: 8 }}>
+      <Box sx={{ bgcolor: theme.palette.background.default, py: 4 }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: "center", mb: 6 }}>
             <Typography
@@ -328,7 +335,7 @@ export default function CollaborativeLearningHomepage() {
       {/* CTA Section */}
       <Container
         maxWidth="lg"
-        sx={{ py: 8, bgcolor: theme.palette.background.default }}
+        sx={{ py: 4, bgcolor: theme.palette.background.default }}
       >
         <Box
           sx={{

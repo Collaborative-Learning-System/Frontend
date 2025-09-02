@@ -42,9 +42,9 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
             light: mode === "light" ? "#42a5f5" : "#64b5f6",
           },
           secondary: {
-            main: mode === "light" ? "#92c261ff" : "#b2cf6eff",
-            dark: mode === "light" ? "#75d775ff" : "#6eb027ff",
-            light: mode === "light" ? "#99da80ff" : "#b4d893ff",
+            main: mode === "light" ? "#8ed33eff" : "#b2cf6eff",
+            dark: mode === "light" ? "#80bf39ff" : "#6eb027ff",
+            light: mode === "light" ? "#81bd69ff" : "#b4d893ff",
           },
           success: {
             main: mode === "light" ? "#2e7d32" : "#4caf50",
@@ -75,33 +75,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
             secondary: mode === "light" ? "#757575" : "#b0b0b0",
           },
         },
-        shadows: [
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-          'none',
-        ],
+
         components: {
           MuiInputBase: {
             styleOverrides: {
@@ -119,24 +93,27 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
           MuiCard: {
             styleOverrides: {
               root: {
-                boxShadow: 'none',
-                border: mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+                boxShadow: "none",
+                border:
+                  mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
               },
             },
           },
           MuiPaper: {
             styleOverrides: {
               root: {
-                boxShadow: 'none',
-                border: mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+                boxShadow: "none",
+                border:
+                  mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
               },
             },
           },
           MuiAppBar: {
             styleOverrides: {
               root: {
-                boxShadow: 'none',
-                borderBottom: mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+                boxShadow: "none",
+                borderBottom:
+                  mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
               },
             },
           },

@@ -7,7 +7,6 @@ import {
   TextField,
   Button,
   Typography,
-  Container,
   Avatar,
   Alert,
   Tabs,
@@ -16,8 +15,17 @@ import {
   CircularProgress,
   Link,
   useTheme,
+  IconButton,
 } from "@mui/material";
-import { Person, Email, Lock, PersonAdd, Login } from "@mui/icons-material";
+import {
+  Person,
+  Email,
+  Lock,
+  PersonAdd,
+  Login,
+  VisibilityOff,
+  Visibility,
+} from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 
@@ -28,6 +36,8 @@ const AuthComponent = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
 
   const [loginForm, setLoginForm] = useState({
     email: "",
@@ -69,7 +79,7 @@ const AuthComponent = () => {
           // setTimeout(() => {
           //   navigate("/landing");
           // }, 1000);
-           navigate("/landing");
+          navigate("/landing");
         } else {
           setError("Login failed. Please try again.");
         }
@@ -132,10 +142,13 @@ const AuthComponent = () => {
 
   const sendWelcomeEmail = async (email: string, fullName: string) => {
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/notification/welcome-email`, {
-        email,
-        fullName,
-      });
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/notification/welcome-email`,
+        {
+          email,
+          fullName,
+        }
+      );
     } catch (error) {
       console.error("Error sending welcome email:", error);
     }
@@ -156,11 +169,15 @@ const AuthComponent = () => {
         background: theme.palette.background.default,
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         p: 2,
+        backgroundImage: 'url("/welcome.png")',
+        backgroundSize: "fit",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
       }}
     >
-      <Container maxWidth="sm">
+      <Box sx={{ width: "100%", maxWidth: "500px", ml: 4 }}>
         {/* Header */}
         <Box sx={{ textAlign: "center", mb: 4 }}>
           <Avatar
@@ -169,19 +186,22 @@ const AuthComponent = () => {
               height: 64,
               mx: "auto",
               mb: 2,
+              bgcolor: theme.palette.primary.main,
             }}
           >
             {isLogin ? (
               <Login
                 sx={{
                   fontSize: 32,
-                  color: theme.palette.primary.main,
-                  bgcolor: "transparent",
+                  color: "white",
                 }}
               />
             ) : (
               <PersonAdd
-                sx={{ fontSize: 32, color: theme.palette.primary.main }}
+                sx={{
+                  fontSize: 32,
+                  color: "white",
+                }}
               />
             )}
           </Avatar>
@@ -265,7 +285,7 @@ const AuthComponent = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type="password"
+                  type={showLoginPassword ? "text" : "password"}
                   variant="outlined"
                   margin="normal"
                   required
@@ -278,6 +298,23 @@ const AuthComponent = () => {
                     startAdornment: (
                       <InputAdornment position="start">
                         <Lock color="action" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            setShowLoginPassword(!showLoginPassword)
+                          }
+                          edge="end"
+                          aria-label="toggle password visibility"
+                        >
+                          {showLoginPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
                       </InputAdornment>
                     ),
                   }}
@@ -362,7 +399,7 @@ const AuthComponent = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type="password"
+                  type={showSignupPassword ? "text" : "password"}
                   variant="outlined"
                   margin="normal"
                   required
@@ -375,6 +412,23 @@ const AuthComponent = () => {
                     startAdornment: (
                       <InputAdornment position="start">
                         <Lock color="action" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            setShowSignupPassword(!showSignupPassword)
+                          }
+                          edge="end"
+                          aria-label="toggle password visibility"
+                        >
+                          {showSignupPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
                       </InputAdornment>
                     ),
                   }}
@@ -422,7 +476,7 @@ const AuthComponent = () => {
             </Box>
           </CardContent>
         </Card>
-      </Container>
+      </Box>
     </Box>
   );
 };

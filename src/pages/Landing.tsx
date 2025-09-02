@@ -176,7 +176,7 @@ const Landing = () => {
                 mb: 1,
               }}
             >
-              Welcome back, {userData?.fullName}!
+              Welcome to EduCollab, {userData?.fullName}!
             </Typography>
             <Typography
               variant="body1"
@@ -307,75 +307,88 @@ const Landing = () => {
                 gap: 3,
               }}
             >
-              {mockWorkspaces.length!= 0 && mockWorkspaces.map((workspace) => (
-                <Card
-                  key={workspace.id}
-                  onClick={() => navigate('/workspace')}
-                  sx={{
-                    height: "100%",
-                    background: theme.palette.background.paper,
-                    transition: "transform 0.2s ease-in-out",
-                    "&:hover": {
-                      transform: "translateY(-2px)",
-                      borderColor: theme.palette.primary.main,
-                    },
-                    cursor: "pointer",
-                  }}
-                >
-                  <CardContent sx={{ p: 3 }}>
-                    {/* Header */}
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        mb: 2,
-                      }}
-                    >
+              {mockWorkspaces.length != 0 &&
+                mockWorkspaces.map((workspace) => (
+                  <Card
+                    key={workspace.id}
+                    onClick={() => navigate("/workspace")}
+                    sx={{
+                      height: "100%",
+                      background: theme.palette.background.paper,
+                      transition: "transform 0.2s ease-in-out",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        borderColor: theme.palette.primary.main,
+                      },
+                      cursor: "pointer",
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      {/* Header */}
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          mb: 2,
+                        }}
                       >
-                        <Avatar
-                          sx={{
-                            bgcolor: theme.palette.primary.main,
-                            width: 40,
-                            height: 40,
-                          }}
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
                         >
-                          {workspace.avatar}
-                        </Avatar>
-                        <Box>
-                          <Typography variant="h6" fontWeight="bold">
-                            {workspace.name}
-                          </Typography>
+                          <Avatar
+                            sx={{
+                              bgcolor: theme.palette.primary.main,
+                              width: 40,
+                              height: 40,
+                            }}
+                          >
+                            {workspace.avatar}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="h6" fontWeight="bold">
+                              {workspace.name}
+                            </Typography>
+                          </Box>
                         </Box>
                       </Box>
-                    </Box>
 
-                    {/* Description */}
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 2, minHeight: 40 }}
-                    >
-                      {workspace.description}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 1,
-                      }}
-                    >
-                      <Person fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
-                        {workspace.members} members
+                      {/* Description */}
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 2, minHeight: 40 }}
+                      >
+                        {workspace.description}
                       </Typography>
-                      <Button variant="outlined">Join Workspace</Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
+                        <Stack direction="row" spacing={2}>
+                          <Person fontSize="small" color="action" />
+                          <Typography variant="caption" color="text.primary">
+                            {workspace.members} members
+                          </Typography>
+                        </Stack>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          sx={{
+                            "&:hover": {
+                              borderColor: theme.palette.secondary.main,
+                            },
+                          }}
+                        >
+                          Join Workspace
+                        </Button>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
               {mockWorkspaces.length === 0 && (
                 <Box sx={{ textAlign: "center", p: 4 }}>
                   <Typography variant="body1">
@@ -431,10 +444,14 @@ const Landing = () => {
                   }}
                 >
                   <CardContent sx={{ py: 2 }}>
-                    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={2}
+                      alignItems="center"
+                    >
                       <AccessTime
                         fontSize="small"
-                        sx={{ color: theme.palette.primary.main }}
+                        sx={{ color: theme.palette.secondary.main }}
                       />
                       <Typography
                         variant="body2"
