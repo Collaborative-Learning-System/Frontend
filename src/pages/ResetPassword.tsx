@@ -112,42 +112,44 @@ const ResetPassword = () => {
         alignItems: "center",
         justifyContent: "flex-start",
         p: 2,
-        backgroundImage: 'url("/welcome.png")',
+        backgroundImage: `url('${
+          theme.palette.mode === "light" ? "/welcome.png" : "/welcome_dark.png"
+        }')`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
       }}
     >
       <Box sx={{ width: "100%", maxWidth: "500px", ml: 4 }}>
-        {/* Header */}
-        <Box sx={{ textAlign: "center", mb: 4 }}>
-          <Avatar
-            sx={{
-              width: 64,
-              height: 64,
-              mx: "auto",
-              mb: 2,
-              bgcolor: theme.palette.primary.main,
-            }}
-          >
-            <Lock sx={{ fontSize: 32, color: "white" }} />
-          </Avatar>
-          <Typography
-            variant="h3"
-            component="h1"
-            gutterBottom
-            color={theme.palette.primary.main}
-            sx={{ fontWeight: "bold" }}
-          >
-            Reset Password
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Enter your new password below
-          </Typography>
-        </Box>
-
         {/* Form Card */}
         <Card>
+          {/* Header */}
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Avatar
+              sx={{
+                width: 64,
+                height: 64,
+                mx: "auto",
+                mb: 2,
+                bgcolor: theme.palette.primary.main,
+              }}
+            >
+              <Lock sx={{ fontSize: 32, color: "white" }} />
+            </Avatar>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              color={theme.palette.primary.main}
+              sx={{ fontWeight: "bold" }}
+            >
+              Reset Password
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Enter your new password below
+            </Typography>
+          </Box>
+
           <CardContent sx={{ p: 4 }}>
             {/* Back to Login Link */}
             <Box sx={{ mb: 2 }}>

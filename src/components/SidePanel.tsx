@@ -20,10 +20,11 @@ import {
   ChevronLeft,
   Home,
   AutoFixHigh,
-  SmartToy,
   Logout,
   ContactPhoneRounded,
+  AutoAwesome,
 } from "@mui/icons-material";
+import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import NotificationService from "../services/NotificationService";
@@ -51,7 +52,16 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       icon: <AutoFixHigh />,
       path: "/study-plans-generator",
     },
-    { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
+    {
+      text: "Document Summary",
+      icon: <AutoAwesome />,
+      path: "/document-summary",
+    },
+    {
+      text: "Real-Time Collaboration",
+      icon: <GroupWorkIcon />,
+      path: "/ai-assistant",
+    },
     { text: "Contact Us", icon: <ContactPhoneRounded />, path: "/contact-us" },
   ];
 

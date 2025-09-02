@@ -127,19 +127,19 @@ const Landing = () => {
     {
       id: 2,
       time: "1 hour ago",
-      description: "User2 joined the workspace: React Study Group",
+      description: "User1 joined the workspace: React Study Group",
       type: "join",
     },
     {
       id: 3,
       time: "30 minutes ago",
-      description: "User3 completed a quiz in CS301 workspace",
+      description: "User1 completed a quiz in CS301 workspace",
       type: "quiz",
     },
     {
       id: 4,
       time: "15 minutes ago",
-      description: "User4 started a study session in ML Basics",
+      description: "User1 started a study session in ML Basics",
       type: "study",
     },
   ];
@@ -168,12 +168,14 @@ const Landing = () => {
           <Box>
             <Typography
               variant="h5"
-              fontWeight="600"
+              component="h1"
+              gutterBottom
               sx={{
+                fontWeight: "bold",
                 background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
-                mb: 1,
+                WebkitTextFillColor: "transparent",
               }}
             >
               Welcome to EduCollab, {userData?.fullName}!

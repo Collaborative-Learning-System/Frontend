@@ -69,7 +69,10 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
               <Box>
                 <Typography
                   variant="h5"
-                  sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+                  sx={{
+                    fontWeight: "bold",
+                    color: theme.palette.primary.main,
+                      }}
                 >
                   EduCollab
                 </Typography>

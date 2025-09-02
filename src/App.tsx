@@ -13,6 +13,7 @@ import ContactForm from "./components/ContactForm";
 import ContactInfo from "./components/ContactInfo";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import DocumentSummary from "./pages/DocumentSummary";
 
 const App = () => {
   return (
@@ -65,6 +66,14 @@ const App = () => {
           element={
             <MainLayout>
               <ContactForm />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/document-summary"
+          element={
+            <MainLayout>
+              <DocumentSummary />
             </MainLayout>
           }
         />
