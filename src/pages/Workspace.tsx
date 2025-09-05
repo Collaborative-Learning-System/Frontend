@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import ChatUI from "../components/ChatUI";
 import Quiz from "../components/Quiz";
 import Leaderboard from "../components/Leaderboard";
@@ -19,6 +20,8 @@ import {
   ListItemIcon,
   Divider,
   useTheme,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import {
   Chat as ChatIcon,
@@ -34,6 +37,15 @@ import { useNavigate } from "react-router-dom";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
 
+interface WorkspaceData {
+  id: string;
+  name: string;
+  description: string;
+  adminId: string;
+  memberCount: number;
+  role: string;
+}
+
 const modules = [
   { id: 1, name: "Computer Security" },
   { id: 2, name: "Software Engineering" },
@@ -43,10 +55,58 @@ const modules = [
 const Workspace = () => {
   const [selectedGroup, setSelectedGroup] = useState(modules[0].id);
   const [activeTab, setActiveTab] = useState(0);
+  const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  const { workspaceId } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
   const theme = useTheme();
   const { mode } = useThemeContext();
+
+  useEffect(() => {
+    const fetchWorkspaceDetails = async () => {
+      if (!workspaceId) {
+        setError("Workspace ID not found in URL");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:3000/api/workspaces/details", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // This sends cookies with the request
+          body: JSON.stringify({
+            workspaceId: workspaceId,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          setWorkspaceData(result.data);
+          setError(null);
+        } else {
+          throw new Error(result.message || "Failed to fetch workspace details");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch workspace details");
+        console.error("Error fetching workspace details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkspaceDetails();
+  }, [workspaceId]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -64,6 +124,39 @@ const Workspace = () => {
         return <ChatUI />;
     }
   };
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !workspaceData) {
+    return (
+      <Box
+        sx={{
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 3,
+        }}
+      >
+        <Alert severity="error" sx={{ maxWidth: 400 }}>
+          {error || "Workspace not found"}
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -122,7 +215,7 @@ const Workspace = () => {
                   fontSize: { xs: "1.75rem", sm: "2.125rem" },
                 }}
               >
-                Semester 5 Workspace
+                {workspaceData.name}
               </Typography>
             </Box>
             <Typography
@@ -132,7 +225,7 @@ const Workspace = () => {
                 color: mode === "dark" ? "inherit" : "white",
               }}
             >
-              A short description of the workspace goes here.
+              {workspaceData.description || "No description available"}
             </Typography>
           </Box>
 
@@ -146,20 +239,22 @@ const Workspace = () => {
               justifyContent: { xs: "flex-start", md: "flex-end" },
             }}
           >
-            <Chip
-              icon={<AdminIcon sx={{ color: "white" }} />}
-              label="Admin"
-              color="secondary"
-              size="small"
-              sx={{
-                bgcolor: "rgba(255,255,255,0.2)",
-                color: "white",
-                "& .MuiChip-icon": { color: "white" },
-              }}
-            />
+            {workspaceData.role === "admin" && (
+              <Chip
+                icon={<AdminIcon sx={{ color: "white" }} />}
+                label="Admin"
+                color="secondary"
+                size="small"
+                sx={{
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  color: "white",
+                  "& .MuiChip-icon": { color: "white" },
+                }}
+              />
+            )}
             <Chip
               icon={<GroupIcon sx={{ color: "white" }} />}
-              label="12 Members"
+              label={`${workspaceData.memberCount} Members`}
               color="secondary"
               size="small"
               sx={{

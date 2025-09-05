@@ -9,6 +9,11 @@ import {
   Backdrop,
   Avatar,
   Stack,
+  CircularProgress,
+  Fade,
+  Slide,
+  Zoom,
+  Chip,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState, useEffect, useContext } from "react";
@@ -17,11 +22,39 @@ import {
   Add,
   Person,
   AccessTime,
+  TrendingUp,
+  Workspaces,
+  Dashboard,
 } from "@mui/icons-material";
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+
+// Define interface for workspace data
+interface Workspace {
+  id: string;
+  name: string;
+  description: string;
+  adminId: string;
+  memberCount: number;
+  role: string;
+}
+
+interface WorkspacesResponse {
+  success: boolean;
+  message: string;
+  data: {
+    workspaces: Workspace[];
+    totalCount: number;
+  };
+}
+
+interface CreateWorkspaceResponse {
+  success: boolean;
+  message?: string;
+  data?: any;
+}
 
 const Landing = () => {
   const theme = useTheme();
@@ -31,15 +64,92 @@ const Landing = () => {
   const [createWs, setCreateWs] = useState(false);
   const [browseWS, setBrowseWS] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [loadingWorkspaces, setLoadingWorkspaces] = useState(true);
+  const [workspaceError, setWorkspaceError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
+  // Function to fetch workspaces
+  const fetchWorkspaces = async () => {
+    try {
+      setLoadingWorkspaces(true);
+      setWorkspaceError(null);
+      
+      const response = await fetch('http://localhost:3000/api/workspaces', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: WorkspacesResponse = await response.json();
+      
+      if (data.success) {
+        setWorkspaces(data.data.workspaces);
+      } else {
+        setWorkspaceError(data.message || 'Failed to fetch workspaces');
+      }
+    } catch (error) {
+      console.error('Error fetching workspaces:', error);
+      setWorkspaceError('Failed to load workspaces. Please try again later.');
+    } finally {
+      setLoadingWorkspaces(false);
+    }
+  };
+
+  // Function for creating workspace
+  const handleCreateWorkspace = async (workspacename: string, description: string): Promise<CreateWorkspaceResponse> => {
+    try {
+      const response = await fetch('http://localhost:3000/api/workspaces', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          workspacename,
+          description
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Refresh workspaces list after successful creation
+        await fetchWorkspaces();
+        setCreateWs(false);
+        return { success: true, data };
+      } else {
+        return { success: false, message: data.message || 'Failed to create workspace' };
+      }
+    } catch (error) {
+      console.error('Error creating workspace:', error);
+      return { success: false, message: 'Failed to create workspace. Please try again later.' };
+    }
+  };
 
   // Update current date time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
-    }, 60000); // Update every minute
+    }, 60000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch workspaces on component mount
+  useEffect(() => {
+    fetchWorkspaces();
+    setMounted(true);
   }, []);
 
   // Format date and time
@@ -54,68 +164,14 @@ const Landing = () => {
     });
   };
 
-  const mockWorkspaces = [
-    {
-      id: 1,
-      name: "React Study Group",
-      description: "Learning React fundamentals and advanced concepts",
-      isPrivate: false,
-      members: 12,
-      tags: ["React", "JavaScript", "Frontend"],
-      lastActivity: "2 hours ago",
-      avatar: "R",
-    },
-    {
-      id: 2,
-      name: "CS301 - Data Structures",
-      description: "Course workspace for Data Structures and Algorithms",
-      isPrivate: true,
-      members: 8,
-      tags: ["Computer Science", "Algorithms", "Programming"],
-      lastActivity: "1 day ago",
-      avatar: "CS",
-    },
-    {
-      id: 3,
-      name: "Machine Learning ",
-      description: "Exploring ML concepts and working on projects together",
-      isPrivate: false,
-      members: 25,
-      tags: ["Machine Learning", "Python", "AI"],
-      lastActivity: "3 hours ago",
-      avatar: "ML",
-    },
-    {
-      id: 1,
-      name: "React Study Group",
-      description: "Learning React fundamentals and advanced concepts",
-      isPrivate: false,
-      members: 12,
-      tags: ["React", "JavaScript", "Frontend"],
-      lastActivity: "2 hours ago",
-      avatar: "R",
-    },
-    {
-      id: 2,
-      name: "CS301 - Data Structures",
-      description: "Course workspace for Data Structures and Algorithms",
-      isPrivate: true,
-      members: 8,
-      tags: ["Computer Science", "Algorithms", "Programming"],
-      lastActivity: "1 day ago",
-      avatar: "CS",
-    },
-    {
-      id: 3,
-      name: "Machine Learning ",
-      description: "Exploring ML concepts and working on projects together",
-      isPrivate: false,
-      members: 25,
-      tags: ["Machine Learning", "Python", "AI"],
-      lastActivity: "3 hours ago",
-      avatar: "ML",
-    },
-  ];
+  // Get avatar text from workspace name
+  const getAvatarText = (name: string) => {
+    const words = name.trim().split(' ');
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   const mockActivities = [
     {
@@ -144,340 +200,414 @@ const Landing = () => {
     },
   ];
 
+  // Glassmorphism card styles with reduced curviness
+  const glassCardStyles = {
+    background: alpha(theme.palette.background.paper, 0.85),
+    backdropFilter: 'blur(20px)',
+    borderRadius: '12px', // Reduced from 24px
+    border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+    boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '&:hover': {
+      transform: 'translateY(-8px) scale(1.02)',
+      boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.2)}`,
+      background: alpha(theme.palette.background.paper, 0.95),
+    },
+  };
+
+  const glassBackdropStyles = {
+    background: `linear-gradient(135deg, 
+      ${alpha(theme.palette.primary.main, 0.1)} 0%, 
+      ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+    backdropFilter: 'blur(10px)',
+    borderRadius: '12px', // Reduced from 20px
+    border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
+  };
+
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: theme.palette.background.default,
-        p: 1,
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.primary.main, 0.03)} 0%, 
+          ${alpha(theme.palette.secondary.main, 0.02)} 50%,
+          ${alpha(theme.palette.background.default, 0.95)} 100%)`,
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `radial-gradient(circle at 20% 80%, ${alpha(theme.palette.primary.main, 0.1)} 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, ${alpha(theme.palette.secondary.main, 0.1)} 0%, transparent 50%)`,
+          pointerEvents: 'none',
+        },
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1, py: 4 }}>
         {/* Welcome Section */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 4,
-            pt: 2,
-            pb: 2,
-            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h5"
-              component="h1"
-              gutterBottom
-              sx={{
-                fontWeight: "bold",
-                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              Welcome to EduCollab, {userData?.fullName}!
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ fontSize: "1.1rem" }}
-            >
-              {formatDateTime(currentDateTime)}
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Action Cards */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              md: "1fr 1fr",
-            },
-            gap: 3,
-            mb: 6,
-          }}
-        >
-          <Card
+        <Fade in={mounted} timeout={800}>
+          <Box
             sx={{
-              height: "100%",
-              background: theme.palette.background.paper,
-              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-              transition: "transform 0.2s ease-in-out",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                borderColor: theme.palette.primary.main,
-              },
+              ...glassBackdropStyles,
+              p: 4,
+              mb: 4,
+              textAlign: 'center',
             }}
           >
-            <CardContent sx={{ p: 4, textAlign: "center" }}>
-              <Avatar
-                sx={{
-                  width: 60,
-                  height: 60,
-                  bgcolor: theme.palette.primary.main,
-                  mx: "auto",
-                  mb: 2,
-                }}
-              >
-                <Add fontSize="large" />
-              </Avatar>
-              <Typography variant="h5" fontWeight="bold" gutterBottom>
-                Create Workspace
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Start a new collaborative workspace and invite your peers to
-                learn together
-              </Typography>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => setCreateWs(true)}
-                startIcon={<Groups />}
-              >
-                Create Workspace
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card
-            sx={{
-              height: "100%",
-              background: theme.palette.background.paper,
-              border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
-              transition: "transform 0.2s ease-in-out",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                borderColor: theme.palette.secondary.main,
-              },
-            }}
-          >
-            <CardContent sx={{ p: 4, textAlign: "center" }}>
-              <Avatar
-                sx={{
-                  width: 60,
-                  height: 60,
-                  bgcolor: theme.palette.secondary.main,
-                  mx: "auto",
-                  mb: 2,
-                }}
-              >
-                <Groups fontSize="large" />
-              </Avatar>
-              <Typography variant="h5" fontWeight="bold" gutterBottom>
-                Join Workspace
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                Connect with existing workspaces and collaborate with peers on
-                shared learning goals
-              </Typography>
-              <Button
-                variant="contained"
-                size="large"
-                color="secondary"
-                onClick={() => setBrowseWS(true)}
-                startIcon={<Groups />}
-              >
-                Browse Workspace
-              </Button>
-            </CardContent>
-          </Card>
-        </Box>
-
-        {/* Current Workspaces Section */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Your Workspaces
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Continue your collaborative learning journey
-          </Typography>
-
-          {mockWorkspaces.length !== 0 ? (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  md: "1fr 1fr",
-                  lg: "1fr 1fr 1fr",
-                },
-                gap: 3,
-              }}
-            >
-              {mockWorkspaces.length != 0 &&
-                mockWorkspaces.map((workspace) => (
-                  <Card
-                    key={workspace.id}
-                    onClick={() => navigate("/workspace")}
-                    sx={{
-                      height: "100%",
-                      background: theme.palette.background.paper,
-                      transition: "transform 0.2s ease-in-out",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        borderColor: theme.palette.primary.main,
-                      },
-                      cursor: "pointer",
-                    }}
-                  >
-                    <CardContent sx={{ p: 3 }}>
-                      {/* Header */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          mb: 2,
-                        }}
-                      >
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <Avatar
-                            sx={{
-                              bgcolor: theme.palette.primary.main,
-                              width: 40,
-                              height: 40,
-                            }}
-                          >
-                            {workspace.avatar}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="h6" fontWeight="bold">
-                              {workspace.name}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-
-                      {/* Description */}
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 2, minHeight: 40 }}
-                      >
-                        {workspace.description}
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 1,
-                        }}
-                      >
-                        <Stack direction="row" spacing={2}>
-                          <Person fontSize="small" color="action" />
-                          <Typography variant="caption" color="text.primary">
-                            {workspace.members} members
-                          </Typography>
-                        </Stack>
-                        <Button
-                          variant="outlined"
-                          color="secondary"
-                          sx={{
-                            "&:hover": {
-                              borderColor: theme.palette.secondary.main,
-                            },
-                          }}
-                        >
-                          Join Workspace
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
-              {mockWorkspaces.length === 0 && (
-                <Box sx={{ textAlign: "center", p: 4 }}>
-                  <Typography variant="body1">
-                    No workspaces available. Create or join a workspace to get
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-          ) : (
-            <Box sx={{ textAlign: "center", p: 4 }}>
-              <Typography variant="body1">
-                No workspaces available. Create or join a workspace to get
-                started.
-              </Typography>
-            </Box>
-          )}
-        </Box>
-
-        {/* Recent Activities Section */}
-
-        <Box
-          sx={{
-            mb: 4,
-            //backgroundColor: alpha(theme.palette.background.default, 0.8),
-            pt: 1,
-            pb: 1,
-          }}
-        >
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Recent Activities
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            Stay updated with the latest activities
-          </Typography>
-
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {mockActivities.length !== 0 &&
-              mockActivities.map((activity) => (
-                <Card
-                  key={activity.id}
+            <Slide in={mounted} direction="down" timeout={1000}>
+              <Box>
+                <Typography
+                  variant="h3"
+                  fontWeight="700"
                   sx={{
-                    backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                    border: `1px solid ${alpha(
-                      theme.palette.primary.main,
-                      0.1
-                    )}`,
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                      transform: "translateY(-1px)",
-                      borderColor: theme.palette.primary.main,
-                    },
+                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    mb: 2,
+                    fontSize: { xs: '2rem', md: '3rem' },
                   }}
                 >
-                  <CardContent sx={{ py: 2 }}>
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={2}
-                      alignItems="center"
-                    >
-                      <AccessTime
-                        fontSize="small"
-                        sx={{ color: theme.palette.secondary.main }}
-                      />
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ minWidth: "80px" }}
-                      >
-                        {activity.time}
-                      </Typography>
-                      <Typography variant="body1" sx={{ flex: 1 }}>
-                        {activity.description}
-                      </Typography>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              ))}
-            {mockActivities.length === 0 && (
-              <Box sx={{ textAlign: "center", p: 4 }}>
-                <Typography variant="body1">
-                  No recent activities to display.
+                  Welcome back, {userData?.fullName || 'User'}! 👋
+                </Typography>
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  sx={{ 
+                    fontSize: "1.2rem",
+                    fontWeight: 400,
+                    opacity: 0.8,
+                  }}
+                >
+                  {formatDateTime(currentDateTime)}
                 </Typography>
               </Box>
+            </Slide>
+          </Box>
+        </Fade>
+
+        {/* Action Cards */}
+        <Fade in={mounted} timeout={1200}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+              gap: 4,
+              mb: 6,
+            }}
+          >
+            <Zoom in={mounted} timeout={1000}>
+              <Card sx={glassCardStyles}>
+                <CardContent sx={{ p: 5, textAlign: "center" }}>
+                  <Avatar
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                      mx: "auto",
+                      mb: 3,
+                      boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.3)}`,
+                    }}
+                  >
+                    <Add fontSize="large" />
+                  </Avatar>
+                  <Typography variant="h4" fontWeight="bold" gutterBottom>
+                    Create Workspace
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.6 }}>
+                    Start a new collaborative workspace and invite your peers to learn together
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => setCreateWs(true)}
+                    startIcon={<Groups />}
+                    sx={{
+                      borderRadius: '30px', // Reduced from 50px
+                      px: 4,
+                      py: 1.5,
+                      fontSize: '1.1rem',
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                      boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 6px 25px ${alpha(theme.palette.primary.main, 0.5)}`,
+                      },
+                    }}
+                  >
+                    Create Workspace
+                  </Button>
+                </CardContent>
+              </Card>
+            </Zoom>
+
+            <Zoom in={mounted} timeout={1200}>
+              <Card sx={glassCardStyles}>
+                <CardContent sx={{ p: 5, textAlign: "center" }}>
+                  <Avatar
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      bgcolor: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
+                      mx: "auto",
+                      mb: 3,
+                      boxShadow: `0 8px 24px ${alpha(theme.palette.secondary.main, 0.3)}`,
+                    }}
+                  >
+                    <Groups fontSize="large" />
+                  </Avatar>
+                  <Typography variant="h4" fontWeight="bold" gutterBottom>
+                    Join Workspace
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.6 }}>
+                    Connect with existing workspaces and collaborate with peers on shared learning goals
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    color="secondary"
+                    onClick={() => setBrowseWS(true)}
+                    startIcon={<Groups />}
+                    sx={{
+                      borderRadius: '30px', // Reduced from 50px
+                      px: 4,
+                      py: 1.5,
+                      fontSize: '1.1rem',
+                      background: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
+                      boxShadow: `0 4px 20px ${alpha(theme.palette.secondary.main, 0.4)}`,
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 6px 25px ${alpha(theme.palette.secondary.main, 0.5)}`,
+                      },
+                    }}
+                  >
+                    Browse Workspaces
+                  </Button>
+                </CardContent>
+              </Card>
+            </Zoom>
+          </Box>
+        </Fade>
+
+        {/* Current Workspaces Section */}
+        <Fade in={mounted} timeout={1400}>
+          <Box sx={{ mb: 6 }}>
+            <Box sx={{ ...glassBackdropStyles, p: 4, mb: 4 }}>
+              <Typography 
+                variant="h4" 
+                fontWeight="bold" 
+                gutterBottom
+                sx={{
+                  background: `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.primary.main})`,
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                <Dashboard sx={{ mr: 2, verticalAlign: 'middle' }} />
+                Your Workspaces
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+                Continue your collaborative learning journey
+              </Typography>
+            </Box>
+
+            {loadingWorkspaces ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 6 }}>
+                <CircularProgress size={60} thickness={4} />
+              </Box>
+            ) : workspaceError ? (
+              <Card sx={glassCardStyles}>
+                <CardContent sx={{ textAlign: "center", p: 4 }}>
+                  <Typography variant="h6" color="error">
+                    {workspaceError}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ) : workspaces.length > 0 ? (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    md: "repeat(2, 1fr)",
+                    lg: "repeat(3, 1fr)",
+                  },
+                  gap: 3,
+                }}
+              >
+                {workspaces.map((workspace, index) => (
+                  <Zoom in={mounted} timeout={1600 + index * 100} key={workspace.id}>
+                    <Card
+                      onClick={() => navigate(`/workspace/${workspace.id}`)}
+                      sx={{
+                        ...glassCardStyles,
+                        cursor: "pointer",
+                        height: '100%',
+                      }}
+                    >
+                      <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        {/* Header */}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                              width: 50,
+                              height: 50,
+                              fontSize: '1.2rem',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {getAvatarText(workspace.name)}
+                          </Avatar>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
+                              {workspace.name}
+                            </Typography>
+                            <Chip 
+                              label={workspace.role} 
+                              size="small" 
+                              color="primary"
+                              sx={{ 
+                                borderRadius: '8px', // Reduced from 12px
+                                fontWeight: 600,
+                                fontSize: '0.75rem',
+                              }}
+                            />
+                          </Box>
+                        </Box>
+
+                        {/* Description */}
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 3, flex: 1, lineHeight: 1.6 }}
+                        >
+                          {workspace.description || "No description available"}
+                        </Typography>
+
+                        {/* Footer */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 2,
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Person fontSize="small" color="action" />
+                            <Typography variant="body2" color="text.secondary">
+                              {workspace.memberCount} member{workspace.memberCount !== 1 ? 's' : ''}
+                            </Typography>
+                          </Box>
+                          <Button 
+                            variant="outlined" 
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/workspace/${workspace.id}`);
+                            }}
+                            sx={{
+                              borderRadius: '16px', // Reduced from 20px
+                              px: 3,
+                              '&:hover': {
+                                transform: 'scale(1.05)',
+                              },
+                            }}
+                          >
+                            Open
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Zoom>
+                ))}
+              </Box>
+            ) : (
+              <Card sx={glassCardStyles}>
+                <CardContent sx={{ textAlign: "center", p: 6 }}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    No workspaces available
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Create or join a workspace to get started.
+                  </Typography>
+                </CardContent>
+              </Card>
             )}
           </Box>
-        </Box>
+        </Fade>
+
+        {/* Recent Activities Section */}
+        <Fade in={mounted} timeout={1800}>
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ ...glassBackdropStyles, p: 4, mb: 4 }}>
+              <Typography 
+                variant="h4" 
+                fontWeight="bold" 
+                gutterBottom
+                sx={{
+                  background: `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.secondary.main})`,
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                <TrendingUp sx={{ mr: 2, verticalAlign: 'middle' }} />
+                Recent Activities
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+                Stay updated with the latest activities
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {mockActivities.length > 0 ? (
+                mockActivities.map((activity, index) => (
+                  <Slide in={mounted} direction="up" timeout={2000 + index * 100} key={activity.id}>
+                    <Card sx={glassCardStyles}>
+                      <CardContent sx={{ py: 3, px: 4 }}>
+                        <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems="center">
+                          <Avatar
+                            sx={{
+                              bgcolor: alpha(theme.palette.primary.main, 0.1),
+                              color: theme.palette.primary.main,
+                              width: 48,
+                              height: 48,
+                            }}
+                          >
+                            <AccessTime />
+                          </Avatar>
+                          <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' } }}>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                              {activity.time}
+                            </Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                              {activity.description}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Slide>
+                ))
+              ) : (
+                <Card sx={glassCardStyles}>
+                  <CardContent sx={{ textAlign: "center", p: 4 }}>
+                    <Typography variant="body1">
+                      No recent activities to display.
+                    </Typography>
+                  </CardContent>
+                </Card>
+              )}
+            </Box>
+          </Box>
+        </Fade>
       </Container>
 
       {/* Workspace Creation Modal */}
@@ -486,23 +616,28 @@ const Landing = () => {
         onClick={() => setCreateWs(false)}
         sx={{
           zIndex: theme.zIndex.modal,
-          // backdropFilter: "blur(8px)",
-          backgroundColor: alpha(theme.palette.background.default, 0.7),
+          backgroundColor: alpha(theme.palette.background.default, 0.8),
+          backdropFilter: 'blur(8px)',
         }}
       >
-        <Box
-          onClick={(e) => e.stopPropagation()}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            height: "100%",
-            p: 2,
-          }}
-        >
-          <WorkspaceCreation onClose={() => setCreateWs(false)} />
-        </Box>
+        <Zoom in={createWs} timeout={300}>
+          <Box
+            onClick={(e) => e.stopPropagation()}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+              p: 2,
+            }}
+          >
+            <WorkspaceCreation 
+              onClose={() => setCreateWs(false)}
+              onCreateWorkspace={handleCreateWorkspace}
+            />
+          </Box>
+        </Zoom>
       </Backdrop>
 
       {/* Browse Workspaces Modal */}
@@ -511,22 +646,25 @@ const Landing = () => {
         onClick={() => setBrowseWS(false)}
         sx={{
           zIndex: theme.zIndex.modal,
-          backgroundColor: alpha(theme.palette.background.default, 0.7),
+          backgroundColor: alpha(theme.palette.background.default, 0.8),
+          backdropFilter: 'blur(8px)',
         }}
       >
-        <Box
-          onClick={(e) => e.stopPropagation()}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            height: "100%",
-            p: 2,
-          }}
-        >
-          <BrowseWorkspace onClose={() => setBrowseWS(false)} />
-        </Box>
+        <Zoom in={browseWS} timeout={300}>
+          <Box
+            onClick={(e) => e.stopPropagation()}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              height: "100%",
+              p: 2,
+            }}
+          >
+            <BrowseWorkspace onClose={() => setBrowseWS(false)} />
+          </Box>
+        </Zoom>
       </Backdrop>
     </Box>
   );

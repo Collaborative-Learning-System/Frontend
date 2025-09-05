@@ -45,7 +45,7 @@ const App = () => {
           }
         />
         <Route
-          path="/workspace"
+          path="/workspace/:workspaceId"
           element={
             <MainLayout>
               <Workspace />
