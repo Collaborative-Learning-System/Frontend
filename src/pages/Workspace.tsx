@@ -1,4 +1,4 @@
-import {useState } from "react";
+import { useState } from "react";
 import ChatUI from "../components/ChatUI";
 import Quiz from "../components/Quiz";
 import Leaderboard from "../components/Leaderboard";
@@ -10,7 +10,6 @@ import {
   Chip,
   Tabs,
   Tab,
-  Container,
   Card,
   CardContent,
   List,
@@ -31,7 +30,6 @@ import {
   AdminPanelSettings as AdminIcon,
   School as SchoolIcon,
 } from "@mui/icons-material";
-// Update the import paths below if the files are located elsewhere, or create the missing files if they do not exist.
 import { useNavigate } from "react-router-dom";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
@@ -42,18 +40,13 @@ const modules = [
   { id: 3, name: "Business Analysis" },
 ];
 
-
-
 const Workspace = () => {
   const [selectedGroup, setSelectedGroup] = useState(modules[0].id);
   const [activeTab, setActiveTab] = useState(0);
 
-
   const navigate = useNavigate();
-
   const theme = useTheme();
   const { mode } = useThemeContext();
-
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -75,129 +68,170 @@ const Workspace = () => {
   return (
     <Box
       sx={{
+        height: "100%",
         display: "flex",
         flexDirection: "column",
-        padding: { xs: 2, md: 4 },
-        background: theme.palette.background.paper,
-        height: "100vh"
+        p: 3,
+        gap: 3,
       }}
     >
       {/* Header */}
       <Paper
-        elevation={3}
+        elevation={2}
         sx={{
-          borderRadius: "12px",
-          mb: 3,
+          borderRadius: 3,
           bgcolor:
             mode === "dark"
               ? theme.palette.background.paper
               : theme.palette.primary.main,
+          overflow: "hidden",
+          position: "relative",
+          zIndex: 1,
         }}
       >
-        <Container maxWidth="lg">
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              py: 3,
-              flexDirection: { xs: "column", md: "row" },
-              gap: { xs: 2, md: 0 },
-            }}
-          >
-            <Box>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
-              >
-                <SchoolIcon
-                  sx={{
-                    fontSize: { xs: 28, sm: 32 },
-                    color:
-                      mode === "dark" ? theme.palette.primary.main : "white",
-                  }}
-                />
-                <Typography
-                  variant="h4"
-                  color={mode === "dark" ? theme.palette.primary.main : "white"}
-                >
-                  Semester 5 Workspace
-                </Typography>
-              </Box>
-              <Typography variant="body1" sx={{ opacity: 0.9, color: "white" }}>
-                A short description of the workspace goes here.
-              </Typography>
-            </Box>
+        <Box
+          sx={{
+            p: 3,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexDirection: { xs: "column", md: "row" },
+            gap: { xs: 2, md: 0 },
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 2,
-                flexDirection: { xs: "column", sm: "row" },
-                width: { xs: "100%", md: "auto" },
+                gap: 1,
+                mb: 1,
+                flexWrap: "wrap",
               }}
             >
-              <Chip
-                icon={<AdminIcon sx={{ color: "white" }} />}
-                label="Admin"
-                color="secondary"
-                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+              <SchoolIcon
+                sx={{
+                  fontSize: { xs: 28, sm: 32 },
+                  color: mode === "dark" ? theme.palette.primary.main : "white",
+                }}
               />
-              <Chip
-                icon={<GroupIcon sx={{ color: "white" }} />}
-                label="12 Members"
-                color="secondary"
-                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
-              />
-              <Button
-                variant="outlined"
-                color="warning"
-                startIcon={<ExitIcon />}
-                onClick={() => {
-                  const confirmed = window.confirm(
-                    "Do you really want to leave the workspace?"
-                  );
-                  if (confirmed) {
-                    NotificationService.showInfo("You have left the workspace.");
-                    navigate("/landing");
-                  }
+              <Typography
+                variant="h4"
+                sx={{
+                  color: mode === "dark" ? theme.palette.primary.main : "white",
+                  fontSize: { xs: "1.75rem", sm: "2.125rem" },
                 }}
               >
-                Leave
-              </Button>
+                Semester 5 Workspace
+              </Typography>
             </Box>
+            <Typography
+              variant="body1"
+              sx={{
+                opacity: 0.9,
+                color: mode === "dark" ? "inherit" : "white",
+              }}
+            >
+              A short description of the workspace goes here.
+            </Typography>
           </Box>
-        </Container>
+
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              flexDirection: { xs: "row", sm: "row" },
+              flexWrap: "wrap",
+              justifyContent: { xs: "flex-start", md: "flex-end" },
+            }}
+          >
+            <Chip
+              icon={<AdminIcon sx={{ color: "white" }} />}
+              label="Admin"
+              color="secondary"
+              size="small"
+              sx={{
+                bgcolor: "rgba(255,255,255,0.2)",
+                color: "white",
+                "& .MuiChip-icon": { color: "white" },
+              }}
+            />
+            <Chip
+              icon={<GroupIcon sx={{ color: "white" }} />}
+              label="12 Members"
+              color="secondary"
+              size="small"
+              sx={{
+                bgcolor: "rgba(255,255,255,0.2)",
+                color: "white",
+                "& .MuiChip-icon": { color: "white" },
+              }}
+            />
+            <Button
+              variant="outlined"
+              color="warning"
+              size="small"
+              startIcon={<ExitIcon />}
+              sx={{
+                borderColor: "rgba(255,255,255,0.5)",
+                color: "white",
+                "&:hover": {
+                  borderColor: "white",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                },
+              }}
+              onClick={() => {
+                const confirmed = window.confirm(
+                  "Do you really want to leave the workspace?"
+                );
+                if (confirmed) {
+                  NotificationService.showInfo("You have left the workspace.");
+                  navigate("/landing");
+                }
+              }}
+            >
+              Leave
+            </Button>
+          </Box>
+        </Box>
       </Paper>
 
       {/* Main Content */}
-      <Container maxWidth="lg" sx={{ flex: 1, pb: 3 }}>
-        <Box
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", lg: "row" },
+          gap: 3,
+          flex: 1,
+          minHeight: 0, // Important for flex children
+        }}
+      >
+        {/* Sidebar */}
+        <Card
+          elevation={2}
           sx={{
+            width: { xs: "100%", lg: 280 },
+            height: { xs: "auto", lg: "fit-content" },
+            maxHeight: { lg: "100%" },
+            borderRadius: 3,
             display: "flex",
-            flexDirection: { xs: "column", lg: "row" },
-            gap: 3,
-            minHeight: 0,
+            flexDirection: "column",
           }}
         >
-          {/* Sidebar */}
-          <Card
-            elevation={3}
-            sx={{
-              width: { xs: "100%", lg: 270 },
-              alignSelf: { xs: "stretch", lg: "flex-start" },
-              borderRadius: 3,
-            }}
+          <CardContent
+            sx={{ p: 0, flex: 1, display: "flex", flexDirection: "column" }}
           >
-            <CardContent sx={{ p: 0 }}>
-              <Box sx={{ p: 3, pb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <GroupIcon color="primary" />
-                  <Typography variant="h6" color="primary">
-                    Groups
-                  </Typography>
-                </Box>
+            <Box sx={{ p: 3, pb: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <GroupIcon color="primary" />
+                <Typography variant="h6" color="primary" fontWeight="600">
+                  Groups
+                </Typography>
               </Box>
+            </Box>
 
+            <Box sx={{ flex: 1, overflow: "auto" }}>
               <List sx={{ px: 2, pb: 2 }}>
                 {modules.map((group) => (
                   <ListItem key={group.id} disablePadding sx={{ mb: 1 }}>
@@ -206,16 +240,23 @@ const Workspace = () => {
                       onClick={() => setSelectedGroup(group.id)}
                       sx={{
                         borderRadius: 2,
+                        minHeight: 48,
                         "&.Mui-selected": {
-                          bgcolor: "primary.light",
+                          bgcolor: "primary.main",
                           color: "primary.contrastText",
                           "&:hover": {
-                            bgcolor: "primary.light",
+                            bgcolor: "primary.dark",
                           },
+                        },
+                        "&:hover": {
+                          bgcolor:
+                            selectedGroup === group.id
+                              ? "primary.dark"
+                              : "action.hover",
                         },
                       }}
                     >
-                      <ListItemIcon>
+                      <ListItemIcon sx={{ minWidth: 40 }}>
                         <SchoolIcon
                           sx={{
                             color:
@@ -229,76 +270,111 @@ const Workspace = () => {
                         primary={group.name}
                         primaryTypographyProps={{
                           fontWeight:
-                            selectedGroup === group.id ? "bold" : "medium",
+                            selectedGroup === group.id ? "600" : "400",
+                          fontSize: "0.9rem",
                         }}
                       />
                     </ListItemButton>
                   </ListItem>
                 ))}
               </List>
+            </Box>
 
-              <Divider sx={{ mx: 2 }} />
+            <Divider sx={{ mx: 2 }} />
 
-              <Box sx={{ p: 2 }}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: "medium",
-                  }}
-                >
-                  Add Group
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-
-          {/* Main Section */}
-          <Paper
-            elevation={3}
-            sx={{
-              flex: 1,
-              borderRadius: 3,
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              minHeight: { xs: "70vh", lg: "auto" },
-            }}
-          >
-            {/* Tabs */}
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <Tabs
-                value={activeTab}
-                onChange={handleTabChange}
+            <Box sx={{ p: 2 }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<AddIcon />}
                 sx={{
-                  px: 3,
-                  "& .MuiTab-root": {
-                    textTransform: "none",
-                    fontWeight: "medium",
-                    fontSize: "1rem",
-                  },
+                  borderRadius: 2,
+                  textTransform: "none",
+                  fontWeight: "500",
+                  py: 1,
                 }}
               >
-                <Tab icon={<ChatIcon />} label="Chat" iconPosition="start" />
-                <Tab icon={<QuizIcon />} label="Quiz" iconPosition="start" />
-                <Tab
-                  icon={<LeaderboardIcon />}
-                  label="Leaderboard"
-                  iconPosition="start"
-                />
-              </Tabs>
+                Add Group
+              </Button>
             </Box>
+          </CardContent>
+        </Card>
 
-            {/* Tab Content */}
-            <Box sx={{ flex: 1, p: 3, overflow: "auto" }}>
-              {getTabContent()}
-            </Box>
-          </Paper>
-        </Box>
-      </Container>
+        {/* Main Section */}
+        <Paper
+          elevation={2}
+          sx={{
+            flex: 1,
+            borderRadius: 3,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: { xs: 500, lg: 0 },
+            overflow: "hidden",
+          }}
+        >
+          {/* Tabs */}
+          <Box
+            sx={{
+              borderBottom: 1,
+              borderColor: "divider",
+              flexShrink: 0,
+            }}
+          >
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              sx={{
+                px: 3,
+                minHeight: 48,
+                "& .MuiTab-root": {
+                  textTransform: "none",
+                  fontWeight: "500",
+                  fontSize: "0.95rem",
+                  minHeight: 48,
+                  "&:hover": {
+                    color: "primary.main",
+                  },
+                },
+                "& .MuiTabs-indicator": {
+                  height: 3,
+                  borderRadius: "3px 3px 0 0",
+                },
+              }}
+            >
+              <Tab
+                icon={<ChatIcon />}
+                label="Chat"
+                iconPosition="start"
+                sx={{ gap: 1 }}
+              />
+              <Tab
+                icon={<QuizIcon />}
+                label="Quiz"
+                iconPosition="start"
+                sx={{ gap: 1 }}
+              />
+              <Tab
+                icon={<LeaderboardIcon />}
+                label="Leaderboard"
+                iconPosition="start"
+                sx={{ gap: 1 }}
+              />
+            </Tabs>
+          </Box>
+
+          {/* Tab Content */}
+          <Box
+            sx={{
+              flex: 1,
+              p: 3,
+              overflow: "auto",
+              minHeight: 0, // Important for scrolling
+            }}
+          >
+            {getTabContent()}
+          </Box>
+        </Paper>
+      </Box>
     </Box>
   );
 };

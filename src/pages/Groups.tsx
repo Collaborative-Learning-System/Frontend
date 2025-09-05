@@ -27,7 +27,7 @@ const Groups = () => {
     <Box
       sx={{
         width: "100%",
-        height: "100vh",
+        minHeight: "100%",
         p: 4,
       }}
     >
@@ -110,7 +110,7 @@ const Groups = () => {
           sx={{
             mt: 2,
             width: "100%",
-            height: "100vh",
+            minHeight: "400px",
             background: `linear-gradient(135deg, ${alpha(
               theme.palette.primary.main,
               0.1
@@ -122,7 +122,7 @@ const Groups = () => {
           sx={{
             mt: 2,
             width: "100%",
-            height: "100vh",
+            minHeight: "400px",
             background: `linear-gradient(135deg, ${alpha(
               theme.palette.primary.main,
               0.1
