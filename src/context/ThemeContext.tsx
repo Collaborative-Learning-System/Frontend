@@ -37,24 +37,25 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
         palette: {
           mode,
           primary: {
-            main: mode === "light" ? "#083c70" : "#5da2f0ff",
-            dark: mode === "light" ? "#062951" : "#4a8acc",
-            light: mode === "light" ? "#1a5490" : "#70b2f3",
+            main: "#2563eb",      // Main blue for actions
+            light: "#60a5fa",     // Lighter blue for hover/focus
+            dark: "#1e40af",      // Darker blue for emphasis
           },
           secondary: {
-            main: mode === "light" ? "#083c70" : "#63a5f1ff",
-            dark: mode === "light" ? "#062951" : "#4f87d1",
-            light: mode === "light" ? "#1a5490" : "#7bb4f4",
-          },
-          success: {
-            main: mode === "light" ? "#4caf50" : "#66bb6a",
-            dark: mode === "light" ? "#388e3c" : "#4a9c4e",
-            light: mode === "light" ? "#66bb6a" : "#81c784",
+            main: "#2563eb",      // Use same blue for secondary
+            light: "#93c5fd",     // Even lighter blue for subtle accents
+            dark: "#1e3a8a",      // Deep blue for strong emphasis
           },
           background: {
-            default: mode === "light" ? "#f7f6f4ff" : "#181818ff",
-            paper: mode === "light" ? "#fdfbfbff" : "#1e1e1e",
+            default: mode === "light" ? "#f8fafc" : "#18181b", // Neutral gray/white
+            paper: mode === "light" ? "#ffffff" : "#23272f",   // Surface color
           },
+          text: {
+            primary: mode === "light" ? "#1e293b" : "#f1f5f9",   // Dark for light mode, light for dark mode
+            secondary: mode === "light" ? "#64748b" : "#cbd5e1", // Medium gray
+            disabled: mode === "light" ? "#94a3b8" : "#475569",  // Subtle gray
+          },
+          divider: mode === "light" ? "#e2e8f0" : "#334155",     // Border color
         },
         components: {
           MuiInputBase: {
@@ -62,9 +63,9 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
               root: {
                 "& input:-webkit-autofill": {
                   WebkitBoxShadow: `0 0 0 1000px ${
-                    mode === "light" ? "#fdfbfbff" : "#1e1e1e"
+                    mode === "light" ? "#ffffff" : "#23272f"
                   } inset`,
-                  WebkitTextFillColor: mode === "light" ? "#181818ff" : "#fff",
+                  WebkitTextFillColor: mode === "light" ? "#1e293b" : "#f1f5f9",
                   transition: "background-color 5000s ease-in-out 0s",
                 },
               },
