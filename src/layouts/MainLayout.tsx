@@ -10,7 +10,7 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!sidebarOpen);
@@ -30,10 +30,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           display: "flex",
           minHeight: "100vh",
           width: "100vw",
-          overflow: "hidden",
           position: "relative",
           bgcolor: theme.palette.background.paper,
-          marginTop: { xs: "56px", sm: "72px" },
+          paddingTop: { xs: "56px", sm: "72px" }, 
+          boxSizing: "border-box",
         }}
       >
         <SidePanel
@@ -48,6 +48,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             height: `calc(100vh - ${isMobile ? "56px" : "72px"})`,
             marginLeft: 0,
             width: "100vw",
+            boxSizing: "border-box",
             transition: !isMobile
               ? theme.transitions.create(["margin-left", "width"], {
                   easing: theme.transitions.easing.sharp,
@@ -55,15 +56,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 })
               : "none",
             position: "relative",
-            overflow: "auto",
           }}
         >
           <Box
             sx={{
               width: "100%",
+              height: "100%",
               overflowY: "auto",
               overflowX: "hidden",
               bgcolor: theme.palette.background.default,
+              boxSizing: "border-box",
             }}
           >
             {children}
@@ -72,6 +74,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </Box>
     </>
   );
+
 };
 
 export default MainLayout;
