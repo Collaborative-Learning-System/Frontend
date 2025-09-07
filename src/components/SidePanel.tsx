@@ -99,6 +99,31 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
     if (isMobile) onClose();
   };
 
+   const handleLogging = async () => {
+     const loggingData = {
+       userId: localStorage.getItem("userId"),
+       activity: "User logged out from the system",
+       timestamp: new Date().toISOString(),
+     };
+     try {
+       if (
+         !loggingData.userId ||
+         !loggingData.activity ||
+         !loggingData.timestamp
+       )
+         return;
+       const response = await axios.post(
+         `${import.meta.env.VITE_BACKEND_URL}/notification/log-activity`,
+         loggingData
+       );
+       if (response) {
+         console.log("Logging response:", response.data);
+       }
+     } catch (error) {
+       console.error("Error logging activity:", error);
+     }
+   };
+
   const handleLogout = async () => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
@@ -106,6 +131,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         `${backendUrl}/auth/logout/${userData?.userId}`
       );
       if (response.data.success) {
+           handleLogging();
         NotificationService.showSuccess("Logged out successfully");
         setTimeout(() => {
           navigate("/auth");
@@ -348,7 +374,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               sx={{
                 color: theme.palette.error.main,
               }}
-              onClick={handleLogout}
             >
               Logout
             </Typography>

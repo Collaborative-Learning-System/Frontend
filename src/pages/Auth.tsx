@@ -76,9 +76,7 @@ const AuthComponent = () => {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          // setTimeout(() => {
-          //   navigate("/landing");
-          // }, 1000);
+          handleLogging();
           navigate("/landing");
         } else {
           setError("Login failed. Please try again.");
@@ -119,7 +117,7 @@ const AuthComponent = () => {
             setSuccess("");
             setTabValue(0);
             setInfo("Log in to your account");
-          }, 3000);
+          }, 1000);
         } else {
           setError("Signup failed. Please try again.");
           console.error("Signup error:", error);
@@ -153,6 +151,27 @@ const AuthComponent = () => {
       console.error("Error sending welcome email:", error);
     }
   };
+
+  const handleLogging = async () => { 
+    const loggingData = {
+      userId: localStorage.getItem("userId"),
+      activity: "User logged in",
+      timestamp: new Date().toISOString(),
+    }
+    try {
+      if (!loggingData.userId || !loggingData.activity || !loggingData.timestamp) return;
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/notification/log-activity`,
+        loggingData
+      );
+      if (response) {
+        console.log("Logging response:", response.data);
+      }
+      
+    } catch (error) {
+      console.error("Error logging activity:", error);
+    }
+  }
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
