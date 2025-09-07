@@ -28,6 +28,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
+import { handleLogging } from "../services/LoggingService";
 
 const AuthComponent = () => {
   const theme = useTheme();
@@ -76,7 +77,7 @@ const AuthComponent = () => {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          handleLogging();
+          handleLogging(`User/${response.data.data.userId} logged in with: ${loginForm.email}`);
           navigate("/landing");
         } else {
           setError("Login failed. Please try again.");
@@ -152,26 +153,6 @@ const AuthComponent = () => {
     }
   };
 
-  const handleLogging = async () => { 
-    const loggingData = {
-      userId: localStorage.getItem("userId"),
-      activity: "User logged in",
-      timestamp: new Date().toISOString(),
-    }
-    try {
-      if (!loggingData.userId || !loggingData.activity || !loggingData.timestamp) return;
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/notification/log-activity`,
-        loggingData
-      );
-      if (response) {
-        console.log("Logging response:", response.data);
-      }
-      
-    } catch (error) {
-      console.error("Error logging activity:", error);
-    }
-  }
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

@@ -36,6 +36,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
+import { handleLogging } from "../services/LoggingService";
 
 interface WorkspaceData {
   id: string;
@@ -281,6 +282,7 @@ const Workspace = () => {
                   "Do you really want to leave the workspace?"
                 );
                 if (confirmed) {
+                  handleLogging("Left the workspace " + workspaceData.name);
                   NotificationService.showInfo("You have left the workspace.");
                   navigate("/landing");
                 }

@@ -31,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
+import {handleLogging} from "../services/LoggingService";
 
 // Define interface for workspace data
 interface Workspace {
@@ -56,6 +57,7 @@ interface CreateWorkspaceResponse {
   message?: string;
   data?: any;
 }
+
 
 const Landing = () => {
   const theme = useTheme();
@@ -131,7 +133,8 @@ const Landing = () => {
       if (data.success) {
         // Refresh workspaces list after successful creation
         await fetchWorkspaces();
-        setCreateWs(false);
+        await handleLogging(`Created a new workspace ${workspacename}`);
+        await fetchLogs();
         return { success: true, data };
       } else {
         return {
