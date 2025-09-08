@@ -30,9 +30,7 @@ import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
-import { handleLogging } from "../services/LoggingService";
 
 // Define interface for workspace data
 interface Workspace {
@@ -110,6 +108,7 @@ const Landing = () => {
       }
     } catch (error) {
       setLogs([]);
+      return { success: false, message: 'Failed to create workspace due to an error' };
     }
   };
 
@@ -126,7 +125,7 @@ const Landing = () => {
   useEffect(() => {
     fetchWorkspaces();
     setMounted(true);
-    fetchLogs();
+   // fetchLogs();
   }, []);
 
   // Format date and time
