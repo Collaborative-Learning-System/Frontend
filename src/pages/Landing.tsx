@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState, useEffect, useContext } from "react";
+import axios from "axios";
 import {
   Groups,
   Add,
@@ -39,15 +40,6 @@ interface Workspace {
   adminId: string;
   memberCount: number;
   role: string;
-}
-
-interface WorkspacesResponse {
-  success: boolean;
-  message: string;
-  data: {
-    workspaces: Workspace[];
-    totalCount: number;
-  };
 }
 
 interface CreateWorkspaceResponse {
@@ -75,24 +67,14 @@ const Landing = () => {
       setLoadingWorkspaces(true);
       setWorkspaceError(null);
       
-      const response = await fetch('http://localhost:3000/api/workspaces', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await axios.get('http://localhost:3000/api/workspaces', {
+        withCredentials: true,
       });
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: WorkspacesResponse = await response.json();
-      
-      if (data.success) {
-        setWorkspaces(data.data.workspaces);
+      if (response.data.success) {
+        setWorkspaces(response.data.data.workspaces);
       } else {
-        setWorkspaceError(data.message || 'Failed to fetch workspaces');
+        setWorkspaceError(response.data.message || 'Failed to fetch workspaces');
       }
     } catch (error) {
       console.error('Error fetching workspaces:', error);
@@ -105,31 +87,20 @@ const Landing = () => {
   // Function for creating workspace
   const handleCreateWorkspace = async (workspacename: string, description: string): Promise<CreateWorkspaceResponse> => {
     try {
-      const response = await fetch('http://localhost:3000/api/workspaces', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          workspacename,
-          description
-        }),
+      const response = await axios.post('http://localhost:3000/api/workspaces', {
+        workspacename,
+        description
+      }, {
+        withCredentials: true,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      if (data.success) {
+      if (response.data.success) {
         // Refresh workspaces list after successful creation
         await fetchWorkspaces();
         setCreateWs(false);
-        return { success: true, data };
+        return { success: true, data: response.data };
       } else {
-        return { success: false, message: data.message || 'Failed to create workspace' };
+        return { success: false, message: response.data.message || 'Failed to create workspace' };
       }
     } catch (error) {
       console.error('Error creating workspace:', error);
@@ -171,6 +142,22 @@ const Landing = () => {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  };
+
+  // Background images array for workspace cards
+  const backgroundImages = [
+    'https://e0.pxfuel.com/wallpapers/558/975/desktop-wallpaper-macbook-aesthetic-aesthetic-clouds-mac.jpg',
+    'https://wallpapercave.com/wp/wp5406285.jpg',
+    'https://wallpapers.com/images/hd/macbook-default-wjin3six05daljfh.jpg',
+    'https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG1hYyUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D',
+    'https://wallpapers.com/images/hd/4k-landscape-montana-state-america-t870yy4rc9jgyvk5.jpg'
+  ];
+
+  // Function to get random background image
+  const getRandomBackground = (index: number) => {
+    // Use workspace index and id to ensure consistent but random selection
+    const randomIndex = (index + workspaces.length) % backgroundImages.length;
+    return backgroundImages[randomIndex];
   };
 
   const mockActivities = [
@@ -272,7 +259,15 @@ const Landing = () => {
                     fontSize: { xs: '2rem', md: '3rem' },
                   }}
                 >
-                  Welcome back, {userData?.fullName || 'User'}! 👋
+                  Welcome back, {userData?.fullName || 'User'}!{' '}
+                  <span style={{ 
+                    background: 'none',
+                    WebkitTextFillColor: 'initial',
+                    backgroundClip: 'initial',
+                    WebkitBackgroundClip: 'initial'
+                  }}>
+                    👋
+                  </span>
                 </Typography>
                 <Typography
                   variant="h6"
@@ -448,44 +443,89 @@ const Landing = () => {
                         ...glassCardStyles,
                         cursor: "pointer",
                         height: '100%',
+                        position: 'relative',
+                        overflow: 'visible',
                       }}
                     >
-                      <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        {/* Header */}
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-                          <Avatar
-                            sx={{
-                              bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                              width: 50,
-                              height: 50,
-                              fontSize: '1.2rem',
-                              fontWeight: 'bold',
+                      {/* Top Section - Background with name and role */}
+                      <Box
+                        sx={{
+                          height: '120px',
+                          background: `url(${getRandomBackground(index)})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          borderRadius: '12px 12px 0 0',
+                          position: 'relative',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          p: 3,
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0, 0, 0, 0.3)',
+                            borderRadius: '12px 12px 0 0',
+                          },
+                        }}
+                      >
+                        {/* Workspace Avatar - positioned to show 3/4 in top, 1/4 in bottom */}
+                        <Avatar
+                          sx={{
+                            bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                            width: 90,
+                            height: 90,
+                            fontSize: '1.5rem',
+                            fontWeight: 'bold',
+                            position: 'absolute',
+                            left: '24px',
+                            bottom: '-20px',
+                            border: '2px solid white',
+                            zIndex: 2,
+                            boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.3)}`,
+                          }}
+                        >
+                          {getAvatarText(workspace.name)}
+                        </Avatar>
+
+                        {/* Content overlay */}
+                        <Box sx={{ position: 'relative', zIndex: 1, flex: 1, ml: 12 }}>
+                          <Typography 
+                            variant="h6" 
+                            fontWeight="bold" 
+                            sx={{ 
+                              color: 'white',
+                              mb: 0,
+                              textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
                             }}
                           >
-                            {getAvatarText(workspace.name)}
-                          </Avatar>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
-                              {workspace.name}
-                            </Typography>
-                            <Chip 
-                              label={workspace.role} 
-                              size="small" 
-                              color="primary"
-                              sx={{ 
-                                borderRadius: '8px', // Reduced from 12px
-                                fontWeight: 600,
-                                fontSize: '0.75rem',
-                              }}
-                            />
-                          </Box>
+                            {workspace.name}
+                          </Typography>
+                          <Chip 
+                            label={workspace.role} 
+                            size="small" 
+                            sx={{ 
+                              backgroundColor: alpha(theme.palette.primary.main, 0.9),
+                              color: 'white',
+                              borderRadius: '12px',
+                              fontWeight: 400,
+                              fontSize: '0.75rem',
+                              boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.3)}`,
+                            }}
+                          />
                         </Box>
+                      </Box>
 
+                      {/* Bottom Section - Description, member count, and open button */}
+                      <CardContent sx={{ p: 3, pt: 4, display: 'flex', flexDirection: 'column', flex: 1 }}>
                         {/* Description */}
                         <Typography
                           variant="body2"
                           color="text.secondary"
-                          sx={{ mb: 3, flex: 1, lineHeight: 1.6 }}
+                          sx={{ mb: 1, flex: 1, lineHeight: 1.6, minHeight: '50px' }}
                         >
                           {workspace.description || "No description available"}
                         </Typography>
@@ -513,7 +553,7 @@ const Landing = () => {
                               navigate(`/workspace/${workspace.id}`);
                             }}
                             sx={{
-                              borderRadius: '16px', // Reduced from 20px
+                              borderRadius: '16px',
                               px: 3,
                               '&:hover': {
                                 transform: 'scale(1.05)',
