@@ -36,10 +36,6 @@ const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose, onCreate
         setLoading(false);
         return;
       }
-      // Reset fields and loading before closing
-      setWorkspaceName("");
-      setDescription("");
-      setLoading(false);
       onClose();
     } catch (e) {
       setError("An error occurred.");
