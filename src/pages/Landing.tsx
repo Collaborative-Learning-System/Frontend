@@ -31,6 +31,7 @@ import BrowseWorkspace from "../components/BrowseWorkspace";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { formatDistanceToNow } from "date-fns";
+import { handleLogging } from "../services/LoggingService";
 
 // Define interface for workspace data
 interface Workspace {
@@ -67,15 +68,17 @@ const Landing = () => {
     try {
       setLoadingWorkspaces(true);
       setWorkspaceError(null);
-      
-      const response = await axios.get('http://localhost:3000/api/workspaces', {
+
+      const response = await axios.get("http://localhost:3000/api/workspaces", {
         withCredentials: true,
       });
-      
+
       if (response.data.success) {
         setWorkspaces(response.data.data.workspaces);
       } else {
-        setWorkspaceError(response.data.message || 'Failed to fetch workspaces');
+        setWorkspaceError(
+          response.data.message || "Failed to fetch workspaces"
+        );
       }
     } catch (error) {
       console.error("Error fetching workspaces:", error);
@@ -91,24 +94,57 @@ const Landing = () => {
     description: string
   ): Promise<CreateWorkspaceResponse> => {
     try {
-      const response = await axios.post('http://localhost:3000/api/workspaces', {
-        workspacename,
-        description
-      }, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/workspaces",
+        {
+          workspacename,
+          description,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.data.success) {
         // Refresh workspaces list after successful creation
         await fetchWorkspaces();
+        await handleLogging(`Created a new workspace ${workspacename}`);
+        await fetchLogs();
         setCreateWs(false);
         return { success: true, data: response.data };
       } else {
-        return { success: false, message: response.data.message || 'Failed to create workspace' };
+        return {
+          success: false,
+          message: response.data.message || "Failed to create workspace",
+        };
       }
     } catch (error) {
       setLogs([]);
-      return { success: false, message: 'Failed to create workspace due to an error' };
+      return {
+        success: false,
+        message: "Failed to create workspace due to an error",
+      };
+    }
+  };
+  const fetchLogs = async () => {
+    try {
+      if (!localStorage.getItem("userId")) {
+        console.warn("User ID not available");
+        return;
+      }
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/notification/get-logs-by-user/${localStorage.getItem("userId")}`
+      );
+
+      if (response) {
+        setLogs(response.data.data);
+      } else {
+        setLogs([]);
+      }
+    } catch (error) {
+      setLogs([]);
     }
   };
 
@@ -125,7 +161,7 @@ const Landing = () => {
   useEffect(() => {
     fetchWorkspaces();
     setMounted(true);
-   // fetchLogs();
+    fetchLogs();
   }, []);
 
   // Format date and time
@@ -151,11 +187,11 @@ const Landing = () => {
 
   // Background images array for workspace cards
   const backgroundImages = [
-    'https://e0.pxfuel.com/wallpapers/558/975/desktop-wallpaper-macbook-aesthetic-aesthetic-clouds-mac.jpg',
-    'https://wallpapercave.com/wp/wp5406285.jpg',
-    'https://wallpapers.com/images/hd/macbook-default-wjin3six05daljfh.jpg',
-    'https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG1hYyUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D',
-    'https://wallpapers.com/images/hd/4k-landscape-montana-state-america-t870yy4rc9jgyvk5.jpg'
+    "https://e0.pxfuel.com/wallpapers/558/975/desktop-wallpaper-macbook-aesthetic-aesthetic-clouds-mac.jpg",
+    "https://wallpapercave.com/wp/wp5406285.jpg",
+    "https://wallpapers.com/images/hd/macbook-default-wjin3six05daljfh.jpg",
+    "https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG1hYyUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D",
+    "https://wallpapers.com/images/hd/4k-landscape-montana-state-america-t870yy4rc9jgyvk5.jpg",
   ];
 
   // Function to get random background image
@@ -164,33 +200,6 @@ const Landing = () => {
     const randomIndex = (index + workspaces.length) % backgroundImages.length;
     return backgroundImages[randomIndex];
   };
-
-  const mockActivities = [
-    {
-      id: 1,
-      time: "2 hours ago",
-      description: "User1 created a new workspace: React Study Group",
-      type: "create",
-    },
-    {
-      id: 2,
-      time: "1 hour ago",
-      description: "User2 joined the workspace: React Study Group",
-      type: "join",
-    },
-    {
-      id: 3,
-      time: "30 minutes ago",
-      description: "User3 completed a quiz in CS301 workspace",
-      type: "quiz",
-    },
-    {
-      id: 4,
-      time: "15 minutes ago",
-      description: "User4 started a study session in ML Basics",
-      type: "study",
-    },
-  ];
 
   // Glassmorphism card styles with reduced curviness
   const glassCardStyles = {
@@ -270,13 +279,15 @@ const Landing = () => {
                     fontSize: { xs: "2rem", md: "3rem" },
                   }}
                 >
-                  Welcome back, {userData?.fullName || 'User'}!{' '}
-                  <span style={{ 
-                    background: 'none',
-                    WebkitTextFillColor: 'initial',
-                    backgroundClip: 'initial',
-                    WebkitBackgroundClip: 'initial'
-                  }}>
+                  Welcome back, {userData?.fullName || "User"}!{" "}
+                  <span
+                    style={{
+                      background: "none",
+                      WebkitTextFillColor: "initial",
+                      backgroundClip: "initial",
+                      WebkitBackgroundClip: "initial",
+                    }}
+                  >
                     👋
                   </span>
                 </Typography>
@@ -489,33 +500,33 @@ const Landing = () => {
                       sx={{
                         ...glassCardStyles,
                         cursor: "pointer",
-                        height: '100%',
-                        position: 'relative',
-                        overflow: 'visible',
+                        height: "100%",
+                        position: "relative",
+                        overflow: "visible",
                       }}
                     >
                       {/* Top Section - Background with name and role */}
                       <Box
                         sx={{
-                          height: '120px',
+                          height: "120px",
                           background: `url(${getRandomBackground(index)})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          borderRadius: '12px 12px 0 0',
-                          position: 'relative',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          borderRadius: "12px 12px 0 0",
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
                           p: 3,
-                          '&::before': {
+                          "&::before": {
                             content: '""',
-                            position: 'absolute',
+                            position: "absolute",
                             top: 0,
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            background: 'rgba(0, 0, 0, 0.3)',
-                            borderRadius: '12px 12px 0 0',
+                            background: "rgba(0, 0, 0, 0.3)",
+                            borderRadius: "12px 12px 0 0",
                           },
                         }}
                       >
@@ -525,54 +536,83 @@ const Landing = () => {
                             bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                             width: 90,
                             height: 90,
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            position: 'absolute',
-                            left: '24px',
-                            bottom: '-20px',
-                            border: '2px solid white',
+                            fontSize: "1.5rem",
+                            fontWeight: "bold",
+                            position: "absolute",
+                            left: "24px",
+                            bottom: "-20px",
+                            border: "2px solid white",
                             zIndex: 2,
-                            boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.3)}`,
+                            boxShadow: `0 4px 12px ${alpha(
+                              theme.palette.common.black,
+                              0.3
+                            )}`,
                           }}
                         >
                           {getAvatarText(workspace.name)}
                         </Avatar>
 
                         {/* Content overlay */}
-                        <Box sx={{ position: 'relative', zIndex: 1, flex: 1, ml: 12 }}>
-                          <Typography 
-                            variant="h6" 
-                            fontWeight="bold" 
-                            sx={{ 
-                              color: 'white',
+                        <Box
+                          sx={{
+                            position: "relative",
+                            zIndex: 1,
+                            flex: 1,
+                            ml: 12,
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            sx={{
+                              color: "white",
                               mb: 0,
-                              textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                              textShadow: "2px 2px 4px rgba(0,0,0,0.7)",
                             }}
                           >
                             {workspace.name}
                           </Typography>
-                          <Chip 
-                            label={workspace.role} 
-                            size="small" 
-                            sx={{ 
-                              backgroundColor: alpha(theme.palette.primary.main, 0.9),
-                              color: 'white',
-                              borderRadius: '12px',
+                          <Chip
+                            label={workspace.role}
+                            size="small"
+                            sx={{
+                              backgroundColor: alpha(
+                                theme.palette.primary.main,
+                                0.9
+                              ),
+                              color: "white",
+                              borderRadius: "12px",
                               fontWeight: 400,
-                              fontSize: '0.75rem',
-                              boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.3)}`,
+                              fontSize: "0.75rem",
+                              boxShadow: `0 2px 8px ${alpha(
+                                theme.palette.common.black,
+                                0.3
+                              )}`,
                             }}
                           />
                         </Box>
                       </Box>
 
                       {/* Bottom Section - Description, member count, and open button */}
-                      <CardContent sx={{ p: 3, pt: 4, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <CardContent
+                        sx={{
+                          p: 3,
+                          pt: 4,
+                          display: "flex",
+                          flexDirection: "column",
+                          flex: 1,
+                        }}
+                      >
                         {/* Description */}
                         <Typography
                           variant="body2"
                           color="text.secondary"
-                          sx={{ mb: 1, flex: 1, lineHeight: 1.6, minHeight: '50px' }}
+                          sx={{
+                            mb: 1,
+                            flex: 1,
+                            lineHeight: 1.6,
+                            minHeight: "50px",
+                          }}
                         >
                           {workspace.description || "No description available"}
                         </Typography>
@@ -607,7 +647,7 @@ const Landing = () => {
                               navigate(`/workspace/${workspace.id}`);
                             }}
                             sx={{
-                              borderRadius: '16px',
+                              borderRadius: "16px",
                               px: 3,
                               "&:hover": {
                                 transform: "scale(1.05)",

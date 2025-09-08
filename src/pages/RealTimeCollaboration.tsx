@@ -31,7 +31,6 @@ import {
   Share,
   People,
   Download,
-  Upload,
   FormatBold,
   FormatItalic,
   FormatUnderlined,
@@ -131,9 +130,6 @@ Feel free to edit this document and experiment with the collaborative features!`
     setShareMenuAnchor(event.currentTarget);
   };
 
-  const handleFormat = (event: React.MouseEvent<HTMLElement>) => {
-    setFormatMenuAnchor(event.currentTarget);
-  };
 
   const formatText = (type: string) => {
     const textarea = editorRef.current;

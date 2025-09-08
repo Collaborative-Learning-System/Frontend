@@ -18,11 +18,6 @@ const Groups = () => {
   const [viewDetail, setViewDetail] = React.useState(false);
   const [createQuiz, setCreateQuiz] = React.useState(false);
 
-  const Users = [
-    { id: 1, name: "John Doe", role: "WORKSPACE_ADMIN" },
-    { id: 2, name: "Jane Smith", role: "WORKSPACE_ADMIN" },
-  ];
-
   return (
     <Box
       sx={{
