@@ -36,6 +36,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
+import { useWorkspace } from "../context/WorkspaceContext";
 
 interface WorkspaceData {
   id: string;
@@ -63,6 +64,7 @@ const Workspace = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const { mode } = useThemeContext();
+  const { setWorkspaceData: setGlobalWorkspaceData } = useWorkspace();
 
   useEffect(() => {
     const fetchWorkspaceDetails = async () => {
@@ -93,6 +95,7 @@ const Workspace = () => {
 
         if (result.success) {
           setWorkspaceData(result.data);
+          setGlobalWorkspaceData(result.data); // Store in global context
           setError(null);
         } else {
           throw new Error(result.message || "Failed to fetch workspace details");
@@ -323,6 +326,14 @@ const Workspace = () => {
                 <Typography variant="h6" color="primary" fontWeight="600">
                   Groups
                 </Typography>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => navigate('/groups')}
+                  sx={{ ml: 'auto', textTransform: 'none' }}
+                >
+                  View All
+                </Button>
               </Box>
             </Box>
 

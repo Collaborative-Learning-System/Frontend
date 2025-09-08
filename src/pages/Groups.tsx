@@ -7,21 +7,19 @@ import {
   Stack,
   Typography,
   Button,
-  Backdrop,
 } from "@mui/material";
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import QuizCreation from "../components/QuizCreation";
+import { useNavigate } from "react-router-dom";
+import { useWorkspace } from "../context/WorkspaceContext";
+// import QuizCreation from "../components/QuizCreation";
+
 
 const Groups = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [viewDetail, setViewDetail] = React.useState(false);
-  const [createQuiz, setCreateQuiz] = React.useState(false);
-
-  const Users = [
-    { id: 1, name: "John Doe", role: "WORKSPACE_ADMIN" },
-    { id: 2, name: "Jane Smith", role: "WORKSPACE_ADMIN" },
-  ];
+  const { workspaceData } = useWorkspace();
 
   return (
     <Box
@@ -72,23 +70,6 @@ const Groups = () => {
           </Typography>
         </Box>
       )}
-      {/* {Users.some((user) => {
-        user.role === "WORKSPACE_ADMIN" && (
-      
-          <Box
-            sx={{
-              width: "100%",
-              mt: 2,
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button variant="contained" onClick={() => setCreateQuiz(true)}>
-              Create Quiz
-            </Button>
-          </Box>
-        )
-      })} */}
       <Box
         sx={{
           width: "100%",
@@ -98,9 +79,11 @@ const Groups = () => {
           gap: 2,
         }}
       >
-        <Button variant="contained" onClick={() => setCreateQuiz(true)}>
-          Create Quiz
-        </Button>
+        {workspaceData?.role === "admin" && (
+          <Button variant="contained" onClick={() => navigate('/quiz-creator')}>
+            Create Quiz
+          </Button>
+        )}
         <Button variant="contained">
           Leaderboard
         </Button>
@@ -154,41 +137,6 @@ const Groups = () => {
           <Grid size={9}></Grid>
         </Grid>
       </Stack>
-      <Backdrop
-        open={createQuiz}
-        onClick={() => setCreateQuiz(false)}
-        sx={{
-          zIndex: theme.zIndex.modal,
-          backgroundColor: alpha(theme.palette.background.default, 0.7),
-        }}
-      >
-        <Box
-          onClick={(e) => e.stopPropagation()}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            height: "100%",
-            p: 2,
-          }}
-        >
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: 1000,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              scrollbarWidth: "none",
-              "&::-webkit-scrollbar": {
-                display: "none",
-              },
-            }}
-          >
-            <QuizCreation onClose={() => setCreateQuiz(false)} />
-          </Box>
-        </Box>
-      </Backdrop>
     </Box>
   );
 };

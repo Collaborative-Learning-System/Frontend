@@ -8,7 +8,8 @@ import Groups from "./pages/Groups";
 import Home from "./pages/Home";
 import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
-import Profile from "./pages/Userprofile"
+import Profile from "./pages/Userprofile";
+import QuizCreator from "./pages/quiz-creator";
 
 const App = () => {
   return (
@@ -47,6 +48,10 @@ const App = () => {
               <Workspace />
             </MainLayout>
           }
+        />
+        <Route
+          path="/quiz-creator"
+          element={<QuizCreator />}
         />
         <Route
           path="/profile"

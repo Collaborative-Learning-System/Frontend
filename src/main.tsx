@@ -8,15 +8,13 @@ import CssBaseline from "@mui/material/CssBaseline";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { AppContextProvider } from "./context/AppContext.tsx";
-
+import { WorkspaceProvider } from "./context/WorkspaceContext.tsx";
 
 const theme = createTheme({
   palette: {
     mode: "light",
   },
 });
-
-import { ThemeContextProvider } from "./context/ThemeContext";
 
 
 createRoot(document.getElementById("root")!).render(
@@ -26,7 +24,9 @@ createRoot(document.getElementById("root")!).render(
         <CssBaseline />
         <ToastContainer />
         <AppContextProvider>
-          <App />
+          <WorkspaceProvider>
+            <App />
+          </WorkspaceProvider>
         </AppContextProvider>
       </ThemeProvider>
     </StrictMode>
