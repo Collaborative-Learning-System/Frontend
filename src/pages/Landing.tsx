@@ -31,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
-import {handleLogging} from "../services/LoggingService";
+import { handleLogging } from "../services/LoggingService";
 
 // Define interface for workspace data
 interface Workspace {
@@ -58,11 +58,10 @@ interface CreateWorkspaceResponse {
   data?: any;
 }
 
-
 const Landing = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   userData } = useContext(AppContext);
+  const { userData } = useContext(AppContext);
 
   const [createWs, setCreateWs] = useState(false);
   const [browseWS, setBrowseWS] = useState(false);
@@ -71,7 +70,7 @@ const Landing = () => {
   const [loadingWorkspaces, setLoadingWorkspaces] = useState(true);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [logs, setLogs] = useState<any[]>([]); 
+  const [logs, setLogs] = useState<any[]>([]);
 
   // Function to fetch workspaces
   const fetchWorkspaces = async () => {
@@ -155,11 +154,13 @@ const Landing = () => {
       if (!localStorage.getItem("userId")) {
         console.warn("User ID not available");
         return;
-      }      
+      }
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/notification/get-logs-by-user/${localStorage.getItem("userId")}`
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/notification/get-logs-by-user/${localStorage.getItem("userId")}`
       );
-      
+
       if (response) {
         setLogs(response.data.data);
       } else {
@@ -206,8 +207,6 @@ const Landing = () => {
     }
     return name.substring(0, 2).toUpperCase();
   };
-
-
 
   // Glassmorphism card styles with reduced curviness
   const glassCardStyles = {
@@ -648,12 +647,20 @@ const Landing = () => {
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {logs.length > 0 ? (
-                logs.sort((a, b) => {
-                  const dateA = new Date(a.timestamp);
-                  const dateB = new Date(b.timestamp);
-                  return dateB.getTime() - dateA.getTime();
-                }),
-                  logs.map((activity, index) => (
+                logs
+                  .sort(
+                    (a, b) =>
+                      new Date(b.timestamp).getTime() -
+                      new Date(a.timestamp).getTime()
+                  ) // newest first
+                  .filter((log) => {
+                    const logTime = new Date(log.timestamp);
+                    return (
+                      new Date().getTime() - logTime.getTime() <=
+                      5 * 60 * 60 * 1000
+                    ); // last 5 hour
+                  })
+                  .map((activity, index) => (
                     <Slide
                       in={mounted}
                       direction="up"
@@ -690,9 +697,11 @@ const Landing = () => {
                               >
                                 {activity.timestamp
                                   ? formatDistanceToNow(
-                                    new Date(activity.timestamp),
-                                    { addSuffix: true }
-                                  )
+                                      new Date(activity.timestamp),
+                                      {
+                                        addSuffix: true,
+                                      }
+                                    )
                                   : "No timestamp"}
                               </Typography>
                               <Typography
