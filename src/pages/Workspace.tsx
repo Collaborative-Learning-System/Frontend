@@ -517,6 +517,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo("You have left the workspace.");
          handleLogging("Left the workspace " + workspaceData?.name);
+
         navigate("/landing");
       } else {
         throw new Error(response.data.message || "Failed to leave workspace");
