@@ -31,8 +31,6 @@ import {
   DialogActions,
   TextField,
   Drawer,
-  AppBar,
-  Toolbar,
   useMediaQuery,
 } from "@mui/material";
 import {
@@ -52,6 +50,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
+import { handleLogging } from "../services/LoggingService";
 
 interface WorkspaceData {
   id: string;
@@ -517,6 +516,8 @@ const Workspace = () => {
 
       if (response.data.success) {
         NotificationService.showInfo("You have left the workspace.");
+         handleLogging("Left the workspace " + workspaceData?.name);
+
         navigate("/landing");
       } else {
         throw new Error(response.data.message || "Failed to leave workspace");

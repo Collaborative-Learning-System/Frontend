@@ -28,6 +28,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
+import { handleLogging } from "../services/LoggingService";
 
 const AuthComponent = () => {
   const theme = useTheme();
@@ -76,9 +77,7 @@ const AuthComponent = () => {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          // setTimeout(() => {
-          //   navigate("/landing");
-          // }, 1000);
+          handleLogging(`User/${response.data.data.userId} logged in with: ${loginForm.email}`);
           navigate("/landing");
         } else {
           setError("Login failed. Please try again.");
@@ -119,7 +118,7 @@ const AuthComponent = () => {
             setSuccess("");
             setTabValue(0);
             setInfo("Log in to your account");
-          }, 3000);
+          }, 1000);
         } else {
           setError("Signup failed. Please try again.");
           console.error("Signup error:", error);
@@ -153,6 +152,7 @@ const AuthComponent = () => {
       console.error("Error sending welcome email:", error);
     }
   };
+
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

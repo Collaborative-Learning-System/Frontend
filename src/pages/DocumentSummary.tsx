@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Box,
   Container,
@@ -6,8 +5,6 @@ import {
   Card,
   CardContent,
   Grid,
-  Alert,
-  Fade,
   useTheme,
   alpha
 } from '@mui/material';
@@ -21,7 +18,6 @@ import DocumentSummarizer from '../components/DocumentSummarizer';
 
 const DocumentSummary = () => {
   const theme = useTheme();
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const features = [
     {

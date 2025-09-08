@@ -15,6 +15,7 @@ import {
   useTheme,
   useMediaQuery,
   alpha,
+  Tooltip,
 } from "@mui/material";
 import {
   ChevronLeft,
@@ -28,6 +29,7 @@ import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import NotificationService from "../services/NotificationService";
+import { handleLogging } from "../services/LoggingService";
 
 interface SidePanelProps {
   open: boolean;
@@ -46,29 +48,58 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const drawerWidthClosed = 70;
 
   const menuItems = [
-    { text: "Home", icon: <Home />, path: "/landing" },
+    {
+      text: "Home",
+      icon: (
+        <Tooltip title="Home">
+          <Home />
+        </Tooltip>
+      ),
+      path: "/landing",
+    },
     {
       text: "Study Plans",
-      icon: <AutoFixHigh />,
+      icon: (
+        <Tooltip title="Study Plans">
+          <AutoFixHigh />
+        </Tooltip>
+      ),
       path: "/study-plans-generator",
     },
     {
       text: "Document Summary",
-      icon: <AutoAwesome />,
+      icon: (
+        <Tooltip title="Document Summary">
+          <AutoAwesome />
+        </Tooltip>
+      ),
       path: "/document-summary",
     },
     {
       text: "Real-Time Collaboration",
-      icon: <GroupWorkIcon />,
-      path: "/ai-assistant",
+      icon: (
+        <Tooltip title="Real-Time Collaboration">
+          <GroupWorkIcon />
+        </Tooltip>
+      ),
+      path: "/real-time-collaboration",
     },
-    { text: "Contact Us", icon: <ContactPhoneRounded />, path: "/contact-us" },
+    {
+      text: "Contact Us",
+      icon: (
+        <Tooltip title="Contact Us">
+          <ContactPhoneRounded />
+        </Tooltip>
+      ),
+      path: "/contact-us",
+    },
   ];
 
   const handleMenuItemClick = (path: string) => {
     navigate(path);
     if (isMobile) onClose();
   };
+
 
   const handleLogout = async () => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -77,6 +108,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         `${backendUrl}/auth/logout/${userData?.userId}`
       );
       if (response.data.success) {
+           handleLogging(`User/${userData?.userId} logged out`);
         NotificationService.showSuccess("Logged out successfully");
         setTimeout(() => {
           navigate("/auth");
@@ -232,16 +264,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             }}
             onClick={handleProfile}
           >
-            {/* <Avatar
-              sx={{
-                width: 40,
-                height: 40,
-                mr: 2,
-                //bgcolor: theme.palette.primary.main,
-              }}
-            >
-              <AccountCircle />
-            </Avatar> */}
             <Avatar
               src={""}
               sx={{
@@ -258,20 +280,12 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 .map((n) => n[0])
                 .join("")}
             </Avatar>
+
             <Box sx={{ flexGrow: 1 }}>
-              <Typography
-                variant="subtitle2"
-                fontWeight="bold"
-                // sx={{ color: theme.palette.primary.main }}
-              >
+              <Typography variant="subtitle2" fontWeight="bold">
                 {userData?.fullName}
               </Typography>
-              <Typography
-                variant="caption"
-                // sx={{ color: theme.palette.primary.main }}
-              >
-                {userData?.email}
-              </Typography>
+              <Typography variant="caption">{userData?.email}</Typography>
             </Box>
           </Box>
         ) : (
@@ -286,21 +300,23 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             }}
             onClick={handleProfile}
           >
-            <Avatar
-              src={""}
-              sx={{
-                width: 40,
-                height: 40,
-                fontSize: "1rem",
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                color: theme.palette.primary.main,
-              }}
-            >
-              {userData?.fullName
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </Avatar>
+            <Tooltip title="View Profile">
+              <Avatar
+                src={""}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  fontSize: "1rem",
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                }}
+              >
+                {userData?.fullName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </Avatar>
+            </Tooltip>
           </Box>
         )}
         <Divider sx={{ my: 1 }} />
@@ -325,7 +341,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               justifyContent: "center",
             }}
           >
-            <Logout />
+            <Tooltip title="Log Out">
+              <Logout />
+            </Tooltip>
           </ListItemIcon>
           {open && (
             <Typography
@@ -333,7 +351,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               sx={{
                 color: theme.palette.error.main,
               }}
-              onClick={handleLogout}
             >
               Logout
             </Typography>

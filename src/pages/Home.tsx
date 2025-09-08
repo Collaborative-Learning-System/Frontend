@@ -1,4 +1,3 @@
-// Remove 'use client' directive for standard React projects
 import { useNavigate } from "react-router-dom";
 import HomepageImage from "../assets/Homepageimg.png";
 //import TopNavBar from '../components/TopNavBar';

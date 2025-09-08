@@ -24,13 +24,30 @@ import {
   Person,
   AccessTime,
   TrendingUp,
-  Workspaces,
   Dashboard,
 } from "@mui/icons-material";
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+import { formatDistanceToNow } from "date-fns";
+import { handleLogging } from "../services/LoggingService";
+
+// Define interface for workspace data
+interface Workspace {
+  id: string;
+  name: string;
+  description: string;
+  adminId: string;
+  memberCount: number;
+  role: string;
+}
+
+interface CreateWorkspaceResponse {
+  success: boolean;
+  message?: string;
+  data?: any;
+}
 
 // Define interface for workspace data
 interface Workspace {
@@ -60,6 +77,8 @@ const Landing = () => {
   const [loadingWorkspaces, setLoadingWorkspaces] = useState(true);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [logs, setLogs] = useState<any[]>([]);
+
 
   // Function to fetch workspaces
   const fetchWorkspaces = async () => {
@@ -106,6 +125,9 @@ const Landing = () => {
       if (response.data.success) {
         // Refresh workspaces list after successful creation
         await fetchWorkspaces();
+        await handleLogging(`Created a new workspace ${workspacename}`);
+        await fetchLogs();
+
         setCreateWs(false);
         return { success: true, data: response.data };
       } else {
@@ -115,13 +137,36 @@ const Landing = () => {
         };
       }
     } catch (error) {
-      console.error("Error creating workspace:", error);
+
+      setLogs([]);
       return {
         success: false,
-        message: "Failed to create workspace. Please try again later.",
+        message: "Failed to create workspace due to an error",
       };
     }
   };
+  const fetchLogs = async () => {
+    try {
+      if (!localStorage.getItem("userId")) {
+        console.warn("User ID not available");
+        return;
+      }
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/notification/get-logs-by-user/${localStorage.getItem("userId")}`
+      );
+
+      if (response) {
+        setLogs(response.data.data);
+      } else {
+        setLogs([]);
+      }
+    } catch (error) {
+      setLogs([]);
+    }
+  };
+
 
   // Update current date time every minute
   useEffect(() => {
@@ -136,6 +181,8 @@ const Landing = () => {
   useEffect(() => {
     fetchWorkspaces();
     setMounted(true);
+    fetchLogs();
+
   }, []);
 
   // Format date and time
@@ -175,32 +222,30 @@ const Landing = () => {
     return backgroundImages[randomIndex];
   };
 
-  const mockActivities = [
-    {
-      id: 1,
-      time: "2 hours ago",
-      description: "User1 created a new workspace: React Study Group",
-      type: "create",
+  // Glassmorphism card styles with reduced curviness
+  const glassCardStyles = {
+    background: alpha(theme.palette.background.paper, 0.85),
+    backdropFilter: "blur(20px)",
+    borderRadius: "12px", // Reduced from 24px
+    border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+    boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.2)}`,
+      background: alpha(theme.palette.background.paper, 0.95),
+
     },
-    {
-      id: 2,
-      time: "1 hour ago",
-      description: "User1 joined the workspace: React Study Group",
-      type: "join",
-    },
-    {
-      id: 3,
-      time: "30 minutes ago",
-      description: "User1 completed a quiz in CS301 workspace",
-      type: "quiz",
-    },
-    {
-      id: 4,
-      time: "15 minutes ago",
-      description: "User1 started a study session in ML Basics",
-      type: "study",
-    },
-  ];
+  };
+
+  const glassBackdropStyles = {
+    background: `linear-gradient(135deg, 
+      ${alpha(theme.palette.primary.main, 0.1)} 0%, 
+      ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+    backdropFilter: "blur(10px)",
+    borderRadius: "12px", // Reduced from 20px
+    border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
+  };
 
   // Glassmorphism card styles with reduced curviness
   const glassCardStyles = {
@@ -706,61 +751,85 @@ const Landing = () => {
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {mockActivities.length > 0 ? (
-                mockActivities.map((activity, index) => (
-                  <Slide
-                    in={mounted}
-                    direction="up"
-                    timeout={2000 + index * 100}
-                    key={activity.id}
-                  >
-                    <Card sx={glassCardStyles}>
-                      <CardContent sx={{ py: 3, px: 4 }}>
-                        <Stack
-                          direction={{ xs: "column", sm: "row" }}
-                          spacing={3}
-                          alignItems="center"
-                        >
-                          <Avatar
-                            sx={{
-                              bgcolor: alpha(theme.palette.primary.main, 0.1),
-                              color: theme.palette.primary.main,
-                              width: 48,
-                              height: 48,
-                            }}
+              {logs.length > 0 ? (
+                logs
+                  .sort(
+                    (a, b) =>
+                      new Date(b.timestamp).getTime() -
+                      new Date(a.timestamp).getTime()
+                  ) // newest first
+                  .filter((log) => {
+                    const logTime = new Date(log.timestamp);
+                    return (
+                      new Date().getTime() - logTime.getTime() <=
+                      5 * 60 * 60 * 1000
+                    ); // last 5 hour
+                  })
+                  .map((activity, index) => (
+                    <Slide
+                      in={mounted}
+                      direction="up"
+                      timeout={2000 + index * 100}
+                      key={activity.activityId || index}
+                    >
+                      <Card sx={glassCardStyles}>
+                        <CardContent sx={{ py: 3, px: 4 }}>
+                          <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={3}
+                            alignItems="center"
                           >
-                            <AccessTime />
-                          </Avatar>
-                          <Box
-                            sx={{
-                              flex: 1,
-                              textAlign: { xs: "center", sm: "left" },
-                            }}
-                          >
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ mb: 0.5 }}
+                            <Avatar
+                              sx={{
+                                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                color: theme.palette.primary.main,
+                                width: 48,
+                                height: 48,
+                              }}
                             >
-                              {activity.time}
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              sx={{ fontWeight: 500 }}
+                              <AccessTime />
+                            </Avatar>
+                            <Box
+                              sx={{
+                                flex: 1,
+                                textAlign: { xs: "center", sm: "left" },
+                              }}
                             >
-                              {activity.description}
-                            </Typography>
-                          </Box>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </Slide>
-                ))
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{ mb: 0.5 }}
+                              >
+                                {activity.timestamp
+                                  ? formatDistanceToNow(
+                                      new Date(activity.timestamp),
+                                      {
+                                        addSuffix: true,
+                                      }
+                                    )
+                                  : "No timestamp"}
+                              </Typography>
+                              <Typography
+                                variant="body1"
+                                sx={{ fontWeight: 500 }}
+                              >
+                                {activity.activity || "No activity description"}
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        </CardContent>
+                      </Card>
+                    </Slide>
+                  ))
+
               ) : (
                 <Card sx={glassCardStyles}>
                   <CardContent sx={{ textAlign: "center", p: 4 }}>
                     <Typography variant="body1">
-                      No recent activities to display.
+                      {logs.length === 0
+                        ? "No recent activities to display."
+                        : "Loading activities..."}
+
                     </Typography>
                   </CardContent>
                 </Card>
