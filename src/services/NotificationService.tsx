@@ -10,9 +10,14 @@ const defaultOptions: ToastOptions = {
   draggable: true,
 };
 
+
 const NotificationService = {
+  
   showSuccess: (message: string, title: string = "Success") => {
-    toast.success(message, { ...defaultOptions, toastId: title });
+    toast.success(message, {
+      ...defaultOptions,
+      toastId: title,
+    });
   },
 
   showError: (message: string, title: string = "Error") => {

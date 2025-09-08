@@ -299,7 +299,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
         bgcolor: "background.paper",
         border: "1px solid",
         borderColor: "divider",
-        boxShadow: 3,
       }}
     >
       {/* Connection Status */}
@@ -378,7 +377,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
                     flexShrink: 0,
                     border: "2px solid",
                     borderColor: "background.paper",
-                    boxShadow: 2,
                   }}
                 >
                   {msg.sender === "bot"
@@ -403,7 +401,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
                     transition: "all 0.2s ease-in-out",
                     "&:hover": {
                       transform: "translateY(-1px)",
-                      boxShadow: msg.sender === "user" ? 6 : 4,
                     },
                     "&::before": {
                       content: '""',
@@ -508,7 +505,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
                 bgcolor: "primary.light",
                 borderColor: "primary.main",
                 transform: "translateY(-1px)",
-                boxShadow: 2,
               },
               transition: "all 0.2s ease-in-out",
             }}
@@ -538,7 +534,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
                 },
                 "&.Mui-focused": {
                   transform: "translateY(-1px)",
-                  boxShadow: 2,
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "primary.main",
                     borderWidth: 2,
@@ -642,12 +637,10 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
             sx={{
               bgcolor: input.trim() ? "primary.main" : "grey.300",
               color: "white",
-              boxShadow: input.trim() ? 3 : 0,
               border: "1px solid",
               borderColor: input.trim() ? "primary.main" : "grey.300",
               "&:hover": {
                 bgcolor: input.trim() ? "primary.dark" : "grey.300",
-                boxShadow: input.trim() ? 6 : 0,
                 transform: input.trim()
                   ? "translateY(-2px) scale(1.05)"
                   : "none",

@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import {
   Box,
@@ -24,7 +22,6 @@ import {
 import {
   Add,
   Delete,
-  AutoAwesome,
   Schedule
 } from '@mui/icons-material'
 

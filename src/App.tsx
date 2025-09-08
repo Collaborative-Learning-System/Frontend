@@ -9,6 +9,11 @@ import Home from "./pages/Home";
 import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
 import Profile from "./pages/Userprofile"
+import ContactForm from "./components/ContactForm";
+import ContactInfo from "./components/ContactInfo";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
+import DocumentSummary from "./pages/DocumentSummary";
 
 const App = () => {
   return (
@@ -56,6 +61,24 @@ const App = () => {
             </MainLayout>
           }
         />
+        <Route
+          path="/contact-us"
+          element={
+            <MainLayout>
+              <ContactForm />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/document-summary"
+          element={
+            <MainLayout>
+              <DocumentSummary />
+            </MainLayout>
+          }
+        />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </ThemeContextProvider>
   );

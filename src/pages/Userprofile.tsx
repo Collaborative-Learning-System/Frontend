@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Typography,
@@ -25,6 +23,7 @@ import {
   Dashboard,
   PhotoCamera,
 } from "@mui/icons-material";
+import { AppContext } from "../context/AppContext";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -45,13 +44,7 @@ export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const theme = useTheme();
 
-  const [userData, setUserData] = useState({
-    name: "Alex Johnson",
-    email: "alex.johnson@university.edu",
-    password: "********",
-    bio: "Passionate computer science student interested in AI and machine learning. Love collaborating with peers and sharing knowledge.",
-    avatar: "/placeholder.svg?height=120&width=120&text=AJ",
-  });
+  const { userData, setUserData } = useContext(AppContext);
 
   const [editData, setEditData] = useState(userData);
 
@@ -74,10 +67,10 @@ export default function UserProfile() {
     setIsEditing(false);
   };
 
-  const handleInputChange =
-    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      setEditData((prev) => ({ ...prev, [field]: event.target.value }));
-    };
+  // const handleInputChange =
+  //   (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  //     setEditData((prev) => ({ ...prev, [field]: event.target.value }));
+  //   };
 
   return (
     <Box
@@ -100,7 +93,7 @@ export default function UserProfile() {
         <Stack direction="row" spacing={3} alignItems="center">
           <Box sx={{ position: "relative" }}>
             <Avatar
-              src={userData.avatar}
+              src={""}
               sx={{
                 width: 100,
                 height: 100,
@@ -109,7 +102,7 @@ export default function UserProfile() {
                 color: theme.palette.primary.main,
               }}
             >
-              {userData.name
+              {userData?.fullName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
@@ -130,13 +123,13 @@ export default function UserProfile() {
           </Box>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h4" fontWeight="600" sx={{ mb: 1 }}>
-              {userData.name}
+              {userData?.fullName}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-              {userData.email}
+              {userData?.email}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {userData.bio}
+              {"No bio available"}
             </Typography>
           </Box>
         </Stack>
@@ -263,8 +256,8 @@ export default function UserProfile() {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    value={editData.name}
-                    onChange={handleInputChange("name")}
+                    value={editData?.fullName}
+                  //  onChange={handleInputChange("name")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -273,7 +266,7 @@ export default function UserProfile() {
                   />
                 ) : (
                   <Typography variant="body1" sx={{ ml: 4 }}>
-                    {userData.name}
+                    {userData?.fullName}
                   </Typography>
                 )}
               </Box>
@@ -296,8 +289,8 @@ export default function UserProfile() {
                     fullWidth
                     variant="outlined"
                     type="email"
-                    value={editData.email}
-                    onChange={handleInputChange("email")}
+                    value={editData?.email}
+                    //onChange={handleInputChange("email")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -306,7 +299,7 @@ export default function UserProfile() {
                   />
                 ) : (
                   <Typography variant="body1" sx={{ ml: 4 }}>
-                    {userData.email}
+                    {userData?.email}
                   </Typography>
                 )}
               </Box>
@@ -329,8 +322,8 @@ export default function UserProfile() {
                     fullWidth
                     variant="outlined"
                     type="password"
-                    value={editData.password}
-                    onChange={handleInputChange("password")}
+                    value={""}
+                    //onChange={handleInputChange("password")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -363,8 +356,8 @@ export default function UserProfile() {
                     variant="outlined"
                     multiline
                     rows={4}
-                    value={editData.bio}
-                    onChange={handleInputChange("bio")}
+                   // value={editData.bio}
+                   // onChange={handleInputChange("bio")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -373,7 +366,7 @@ export default function UserProfile() {
                   />
                 ) : (
                   <Typography variant="body1" sx={{ ml: 4, lineHeight: 1.6 }}>
-                    {userData.bio}
+                    {"No bio available"}
                   </Typography>
                 )}
               </Box>

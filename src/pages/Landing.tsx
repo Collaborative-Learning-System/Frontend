@@ -66,33 +66,42 @@ const Landing = () => {
     try {
       setLoadingWorkspaces(true);
       setWorkspaceError(null);
-      
-      const response = await axios.get('http://localhost:3000/api/workspaces', {
+
+      const response = await axios.get("http://localhost:3000/api/workspaces", {
         withCredentials: true,
       });
-      
+
       if (response.data.success) {
         setWorkspaces(response.data.data.workspaces);
       } else {
-        setWorkspaceError(response.data.message || 'Failed to fetch workspaces');
+        setWorkspaceError(
+          response.data.message || "Failed to fetch workspaces"
+        );
       }
     } catch (error) {
-      console.error('Error fetching workspaces:', error);
-      setWorkspaceError('Failed to load workspaces. Please try again later.');
+      console.error("Error fetching workspaces:", error);
+      setWorkspaceError("Failed to load workspaces. Please try again later.");
     } finally {
       setLoadingWorkspaces(false);
     }
   };
 
   // Function for creating workspace
-  const handleCreateWorkspace = async (workspacename: string, description: string): Promise<CreateWorkspaceResponse> => {
+  const handleCreateWorkspace = async (
+    workspacename: string,
+    description: string
+  ): Promise<CreateWorkspaceResponse> => {
     try {
-      const response = await axios.post('http://localhost:3000/api/workspaces', {
-        workspacename,
-        description
-      }, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/workspaces",
+        {
+          workspacename,
+          description,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.data.success) {
         // Refresh workspaces list after successful creation
@@ -100,11 +109,17 @@ const Landing = () => {
         setCreateWs(false);
         return { success: true, data: response.data };
       } else {
-        return { success: false, message: response.data.message || 'Failed to create workspace' };
+        return {
+          success: false,
+          message: response.data.message || "Failed to create workspace",
+        };
       }
     } catch (error) {
-      console.error('Error creating workspace:', error);
-      return { success: false, message: 'Failed to create workspace. Please try again later.' };
+      console.error("Error creating workspace:", error);
+      return {
+        success: false,
+        message: "Failed to create workspace. Please try again later.",
+      };
     }
   };
 
@@ -137,7 +152,7 @@ const Landing = () => {
 
   // Get avatar text from workspace name
   const getAvatarText = (name: string) => {
-    const words = name.trim().split(' ');
+    const words = name.trim().split(" ");
     if (words.length >= 2) {
       return (words[0][0] + words[1][0]).toUpperCase();
     }
@@ -146,11 +161,11 @@ const Landing = () => {
 
   // Background images array for workspace cards
   const backgroundImages = [
-    'https://e0.pxfuel.com/wallpapers/558/975/desktop-wallpaper-macbook-aesthetic-aesthetic-clouds-mac.jpg',
-    'https://wallpapercave.com/wp/wp5406285.jpg',
-    'https://wallpapers.com/images/hd/macbook-default-wjin3six05daljfh.jpg',
-    'https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG1hYyUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D',
-    'https://wallpapers.com/images/hd/4k-landscape-montana-state-america-t870yy4rc9jgyvk5.jpg'
+    "https://e0.pxfuel.com/wallpapers/558/975/desktop-wallpaper-macbook-aesthetic-aesthetic-clouds-mac.jpg",
+    "https://wallpapercave.com/wp/wp5406285.jpg",
+    "https://wallpapers.com/images/hd/macbook-default-wjin3six05daljfh.jpg",
+    "https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG1hYyUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D",
+    "https://wallpapers.com/images/hd/4k-landscape-montana-state-america-t870yy4rc9jgyvk5.jpg",
   ];
 
   // Function to get random background image
@@ -170,19 +185,19 @@ const Landing = () => {
     {
       id: 2,
       time: "1 hour ago",
-      description: "User2 joined the workspace: React Study Group",
+      description: "User1 joined the workspace: React Study Group",
       type: "join",
     },
     {
       id: 3,
       time: "30 minutes ago",
-      description: "User3 completed a quiz in CS301 workspace",
+      description: "User1 completed a quiz in CS301 workspace",
       type: "quiz",
     },
     {
       id: 4,
       time: "15 minutes ago",
-      description: "User4 started a study session in ML Basics",
+      description: "User1 started a study session in ML Basics",
       type: "study",
     },
   ];
@@ -190,13 +205,13 @@ const Landing = () => {
   // Glassmorphism card styles with reduced curviness
   const glassCardStyles = {
     background: alpha(theme.palette.background.paper, 0.85),
-    backdropFilter: 'blur(20px)',
-    borderRadius: '12px', // Reduced from 24px
+    backdropFilter: "blur(20px)",
+    borderRadius: "12px", // Reduced from 24px
     border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
     boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    '&:hover': {
-      transform: 'translateY(-8px) scale(1.02)',
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "&:hover": {
+      transform: "translateY(-8px) scale(1.02)",
       boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.2)}`,
       background: alpha(theme.palette.background.paper, 0.95),
     },
@@ -206,8 +221,8 @@ const Landing = () => {
     background: `linear-gradient(135deg, 
       ${alpha(theme.palette.primary.main, 0.1)} 0%, 
       ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
-    backdropFilter: 'blur(10px)',
-    borderRadius: '12px', // Reduced from 20px
+    backdropFilter: "blur(10px)",
+    borderRadius: "12px", // Reduced from 20px
     border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
   };
 
@@ -219,22 +234,28 @@ const Landing = () => {
           ${alpha(theme.palette.primary.main, 0.03)} 0%, 
           ${alpha(theme.palette.secondary.main, 0.02)} 50%,
           ${alpha(theme.palette.background.default, 0.95)} 100%)`,
-        position: 'relative',
-        overflow: 'hidden',
-        '&::before': {
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
           content: '""',
-          position: 'absolute',
+          position: "absolute",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          background: `radial-gradient(circle at 20% 80%, ${alpha(theme.palette.primary.main, 0.1)} 0%, transparent 50%),
-                      radial-gradient(circle at 80% 20%, ${alpha(theme.palette.secondary.main, 0.1)} 0%, transparent 50%)`,
-          pointerEvents: 'none',
+          background: `radial-gradient(circle at 20% 80%, ${alpha(
+            theme.palette.primary.main,
+            0.1
+          )} 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, ${alpha(
+                        theme.palette.secondary.main,
+                        0.1
+                      )} 0%, transparent 50%)`,
+          pointerEvents: "none",
         },
       }}
     >
-      <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1, py: 4 }}>
+      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, py: 4 }}>
         {/* Welcome Section */}
         <Fade in={mounted} timeout={800}>
           <Box
@@ -242,7 +263,7 @@ const Landing = () => {
               ...glassBackdropStyles,
               p: 4,
               mb: 4,
-              textAlign: 'center',
+              textAlign: "center",
             }}
           >
             <Slide in={mounted} direction="down" timeout={1000}>
@@ -256,23 +277,25 @@ const Landing = () => {
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     mb: 2,
-                    fontSize: { xs: '2rem', md: '3rem' },
+                    fontSize: { xs: "2rem", md: "3rem" },
                   }}
                 >
-                  Welcome back, {userData?.fullName || 'User'}!{' '}
-                  <span style={{ 
-                    background: 'none',
-                    WebkitTextFillColor: 'initial',
-                    backgroundClip: 'initial',
-                    WebkitBackgroundClip: 'initial'
-                  }}>
+                  Welcome back, {userData?.fullName || "User"}!{" "}
+                  <span
+                    style={{
+                      background: "none",
+                      WebkitTextFillColor: "initial",
+                      backgroundClip: "initial",
+                      WebkitBackgroundClip: "initial",
+                    }}
+                  >
                     👋
                   </span>
                 </Typography>
                 <Typography
                   variant="h6"
                   color="text.secondary"
-                  sx={{ 
+                  sx={{
                     fontSize: "1.2rem",
                     fontWeight: 400,
                     opacity: 0.8,
@@ -305,7 +328,10 @@ const Landing = () => {
                       bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                       mx: "auto",
                       mb: 3,
-                      boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.3)}`,
+                      boxShadow: `0 8px 24px ${alpha(
+                        theme.palette.primary.main,
+                        0.3
+                      )}`,
                     }}
                   >
                     <Add fontSize="large" />
@@ -313,8 +339,13 @@ const Landing = () => {
                   <Typography variant="h4" fontWeight="bold" gutterBottom>
                     Create Workspace
                   </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.6 }}>
-                    Start a new collaborative workspace and invite your peers to learn together
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ mb: 4, lineHeight: 1.6 }}
+                  >
+                    Start a new collaborative workspace and invite your peers to
+                    learn together
                   </Typography>
                   <Button
                     variant="contained"
@@ -322,15 +353,21 @@ const Landing = () => {
                     onClick={() => setCreateWs(true)}
                     startIcon={<Groups />}
                     sx={{
-                      borderRadius: '30px', // Reduced from 50px
+                      borderRadius: "30px", // Reduced from 50px
                       px: 4,
                       py: 1.5,
-                      fontSize: '1.1rem',
+                      fontSize: "1.1rem",
                       background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-                      boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 6px 25px ${alpha(theme.palette.primary.main, 0.5)}`,
+                      boxShadow: `0 4px 20px ${alpha(
+                        theme.palette.primary.main,
+                        0.4
+                      )}`,
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 25px ${alpha(
+                          theme.palette.primary.main,
+                          0.5
+                        )}`,
                       },
                     }}
                   >
@@ -350,7 +387,10 @@ const Landing = () => {
                       bgcolor: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
                       mx: "auto",
                       mb: 3,
-                      boxShadow: `0 8px 24px ${alpha(theme.palette.secondary.main, 0.3)}`,
+                      boxShadow: `0 8px 24px ${alpha(
+                        theme.palette.secondary.main,
+                        0.3
+                      )}`,
                     }}
                   >
                     <Groups fontSize="large" />
@@ -358,8 +398,13 @@ const Landing = () => {
                   <Typography variant="h4" fontWeight="bold" gutterBottom>
                     Join Workspace
                   </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 4, lineHeight: 1.6 }}>
-                    Connect with existing workspaces and collaborate with peers on shared learning goals
+                  <Typography
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ mb: 4, lineHeight: 1.6 }}
+                  >
+                    Connect with existing workspaces and collaborate with peers
+                    on shared learning goals
                   </Typography>
                   <Button
                     variant="contained"
@@ -368,15 +413,21 @@ const Landing = () => {
                     onClick={() => setBrowseWS(true)}
                     startIcon={<Groups />}
                     sx={{
-                      borderRadius: '30px', // Reduced from 50px
+                      borderRadius: "30px", // Reduced from 50px
                       px: 4,
                       py: 1.5,
-                      fontSize: '1.1rem',
+                      fontSize: "1.1rem",
                       background: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
-                      boxShadow: `0 4px 20px ${alpha(theme.palette.secondary.main, 0.4)}`,
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 6px 25px ${alpha(theme.palette.secondary.main, 0.5)}`,
+                      boxShadow: `0 4px 20px ${alpha(
+                        theme.palette.secondary.main,
+                        0.4
+                      )}`,
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: `0 6px 25px ${alpha(
+                          theme.palette.secondary.main,
+                          0.5
+                        )}`,
                       },
                     }}
                   >
@@ -392,9 +443,9 @@ const Landing = () => {
         <Fade in={mounted} timeout={1400}>
           <Box sx={{ mb: 6 }}>
             <Box sx={{ ...glassBackdropStyles, p: 4, mb: 4 }}>
-              <Typography 
-                variant="h4" 
-                fontWeight="bold" 
+              <Typography
+                variant="h4"
+                fontWeight="bold"
                 gutterBottom
                 sx={{
                   background: `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.primary.main})`,
@@ -403,16 +454,20 @@ const Landing = () => {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                <Dashboard sx={{ mr: 2, verticalAlign: 'middle' }} />
+                <Dashboard sx={{ mr: 2, verticalAlign: "middle" }} />
                 Your Workspaces
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{ fontSize: "1.1rem" }}
+              >
                 Continue your collaborative learning journey
               </Typography>
             </Box>
 
             {loadingWorkspaces ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 6 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
                 <CircularProgress size={60} thickness={4} />
               </Box>
             ) : workspaceError ? (
@@ -436,39 +491,43 @@ const Landing = () => {
                 }}
               >
                 {workspaces.map((workspace, index) => (
-                  <Zoom in={mounted} timeout={1600 + index * 100} key={workspace.id}>
+                  <Zoom
+                    in={mounted}
+                    timeout={1600 + index * 100}
+                    key={workspace.id}
+                  >
                     <Card
                       onClick={() => navigate(`/workspace/${workspace.id}`)}
                       sx={{
                         ...glassCardStyles,
                         cursor: "pointer",
-                        height: '100%',
-                        position: 'relative',
-                        overflow: 'visible',
+                        height: "100%",
+                        position: "relative",
+                        overflow: "visible",
                       }}
                     >
                       {/* Top Section - Background with name and role */}
                       <Box
                         sx={{
-                          height: '120px',
+                          height: "120px",
                           background: `url(${getRandomBackground(index)})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          borderRadius: '12px 12px 0 0',
-                          position: 'relative',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          borderRadius: "12px 12px 0 0",
+                          position: "relative",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
                           p: 3,
-                          '&::before': {
+                          "&::before": {
                             content: '""',
-                            position: 'absolute',
+                            position: "absolute",
                             top: 0,
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            background: 'rgba(0, 0, 0, 0.3)',
-                            borderRadius: '12px 12px 0 0',
+                            background: "rgba(0, 0, 0, 0.3)",
+                            borderRadius: "12px 12px 0 0",
                           },
                         }}
                       >
@@ -478,54 +537,83 @@ const Landing = () => {
                             bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                             width: 90,
                             height: 90,
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            position: 'absolute',
-                            left: '24px',
-                            bottom: '-20px',
-                            border: '2px solid white',
+                            fontSize: "1.5rem",
+                            fontWeight: "bold",
+                            position: "absolute",
+                            left: "24px",
+                            bottom: "-20px",
+                            border: "2px solid white",
                             zIndex: 2,
-                            boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.3)}`,
+                            boxShadow: `0 4px 12px ${alpha(
+                              theme.palette.common.black,
+                              0.3
+                            )}`,
                           }}
                         >
                           {getAvatarText(workspace.name)}
                         </Avatar>
 
                         {/* Content overlay */}
-                        <Box sx={{ position: 'relative', zIndex: 1, flex: 1, ml: 12 }}>
-                          <Typography 
-                            variant="h6" 
-                            fontWeight="bold" 
-                            sx={{ 
-                              color: 'white',
+                        <Box
+                          sx={{
+                            position: "relative",
+                            zIndex: 1,
+                            flex: 1,
+                            ml: 12,
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            sx={{
+                              color: "white",
                               mb: 0,
-                              textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                              textShadow: "2px 2px 4px rgba(0,0,0,0.7)",
                             }}
                           >
                             {workspace.name}
                           </Typography>
-                          <Chip 
-                            label={workspace.role} 
-                            size="small" 
-                            sx={{ 
-                              backgroundColor: alpha(theme.palette.primary.main, 0.9),
-                              color: 'white',
-                              borderRadius: '12px',
+                          <Chip
+                            label={workspace.role}
+                            size="small"
+                            sx={{
+                              backgroundColor: alpha(
+                                theme.palette.primary.main,
+                                0.9
+                              ),
+                              color: "white",
+                              borderRadius: "12px",
                               fontWeight: 400,
-                              fontSize: '0.75rem',
-                              boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.3)}`,
+                              fontSize: "0.75rem",
+                              boxShadow: `0 2px 8px ${alpha(
+                                theme.palette.common.black,
+                                0.3
+                              )}`,
                             }}
                           />
                         </Box>
                       </Box>
 
                       {/* Bottom Section - Description, member count, and open button */}
-                      <CardContent sx={{ p: 3, pt: 4, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <CardContent
+                        sx={{
+                          p: 3,
+                          pt: 4,
+                          display: "flex",
+                          flexDirection: "column",
+                          flex: 1,
+                        }}
+                      >
                         {/* Description */}
                         <Typography
                           variant="body2"
                           color="text.secondary"
-                          sx={{ mb: 1, flex: 1, lineHeight: 1.6, minHeight: '50px' }}
+                          sx={{
+                            mb: 1,
+                            flex: 1,
+                            lineHeight: 1.6,
+                            minHeight: "50px",
+                          }}
                         >
                           {workspace.description || "No description available"}
                         </Typography>
@@ -539,24 +627,31 @@ const Landing = () => {
                             gap: 2,
                           }}
                         >
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
                             <Person fontSize="small" color="action" />
                             <Typography variant="body2" color="text.secondary">
-                              {workspace.memberCount} member{workspace.memberCount !== 1 ? 's' : ''}
+                              {workspace.memberCount} member
+                              {workspace.memberCount !== 1 ? "s" : ""}
                             </Typography>
                           </Box>
-                          <Button 
-                            variant="outlined" 
+                          <Button
+                            variant="outlined"
                             size="small"
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/workspace/${workspace.id}`);
                             }}
                             sx={{
-                              borderRadius: '16px',
+                              borderRadius: "16px",
                               px: 3,
-                              '&:hover': {
-                                transform: 'scale(1.05)',
+                              "&:hover": {
+                                transform: "scale(1.05)",
                               },
                             }}
                           >
@@ -587,9 +682,9 @@ const Landing = () => {
         <Fade in={mounted} timeout={1800}>
           <Box sx={{ mb: 4 }}>
             <Box sx={{ ...glassBackdropStyles, p: 4, mb: 4 }}>
-              <Typography 
-                variant="h4" 
-                fontWeight="bold" 
+              <Typography
+                variant="h4"
+                fontWeight="bold"
                 gutterBottom
                 sx={{
                   background: `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.secondary.main})`,
@@ -598,10 +693,14 @@ const Landing = () => {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                <TrendingUp sx={{ mr: 2, verticalAlign: 'middle' }} />
+                <TrendingUp sx={{ mr: 2, verticalAlign: "middle" }} />
                 Recent Activities
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{ fontSize: "1.1rem" }}
+              >
                 Stay updated with the latest activities
               </Typography>
             </Box>
@@ -609,10 +708,19 @@ const Landing = () => {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {mockActivities.length > 0 ? (
                 mockActivities.map((activity, index) => (
-                  <Slide in={mounted} direction="up" timeout={2000 + index * 100} key={activity.id}>
+                  <Slide
+                    in={mounted}
+                    direction="up"
+                    timeout={2000 + index * 100}
+                    key={activity.id}
+                  >
                     <Card sx={glassCardStyles}>
                       <CardContent sx={{ py: 3, px: 4 }}>
-                        <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems="center">
+                        <Stack
+                          direction={{ xs: "column", sm: "row" }}
+                          spacing={3}
+                          alignItems="center"
+                        >
                           <Avatar
                             sx={{
                               bgcolor: alpha(theme.palette.primary.main, 0.1),
@@ -623,11 +731,23 @@ const Landing = () => {
                           >
                             <AccessTime />
                           </Avatar>
-                          <Box sx={{ flex: 1, textAlign: { xs: 'center', sm: 'left' } }}>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                          <Box
+                            sx={{
+                              flex: 1,
+                              textAlign: { xs: "center", sm: "left" },
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ mb: 0.5 }}
+                            >
                               {activity.time}
                             </Typography>
-                            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: 500 }}
+                            >
                               {activity.description}
                             </Typography>
                           </Box>
@@ -657,7 +777,7 @@ const Landing = () => {
         sx={{
           zIndex: theme.zIndex.modal,
           backgroundColor: alpha(theme.palette.background.default, 0.8),
-          backdropFilter: 'blur(8px)',
+          backdropFilter: "blur(8px)",
         }}
       >
         <Zoom in={createWs} timeout={300}>
@@ -672,7 +792,7 @@ const Landing = () => {
               p: 2,
             }}
           >
-            <WorkspaceCreation 
+            <WorkspaceCreation
               onClose={() => setCreateWs(false)}
               onCreateWorkspace={handleCreateWorkspace}
             />
@@ -687,7 +807,7 @@ const Landing = () => {
         sx={{
           zIndex: theme.zIndex.modal,
           backgroundColor: alpha(theme.palette.background.default, 0.8),
-          backdropFilter: 'blur(8px)',
+          backdropFilter: "blur(8px)",
         }}
       >
         <Zoom in={browseWS} timeout={300}>

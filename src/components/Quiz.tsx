@@ -114,7 +114,6 @@ import React, { useState } from "react";
     const Quiz: React.FC<QuizProps> = ({ groupId }) => {
       const theme = useTheme();
       const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-      const isTablet = useMediaQuery(theme.breakpoints.down("md"));
       const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
       
       // Use groupId as string key, fallback to empty array if no data found
