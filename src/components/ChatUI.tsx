@@ -9,7 +9,6 @@ import {
   Divider,
   Popper,
   ClickAwayListener,
-  CircularProgress,
   Fade,
   useTheme,
   useMediaQuery,
@@ -18,121 +17,218 @@ import {
   AttachFile as AttachFileIcon,
   Send as SendIcon,
   InsertEmoticon as InsertEmoticonIcon,
-  SmartToy as SmartToyIcon,
 } from "@mui/icons-material";
+import { io, Socket } from 'socket.io-client';
 
 interface Message {
-  id: number;
+  id: string;
   sender: "bot" | "user" | "member";
   senderName: string;
   text: string;
   time: string;
   avatar: string;
+  userId?: string;
+  createdAt?: string;
 }
 
-const initialMessages: Message[] = [
-  {
-    id: 1,
-    sender: "bot",
-    senderName: "StudyBot",
-    text: "Welcome to the group! 🎉 I'm here to help with your studies. Feel free to ask questions!",
-    time: "09:00",
-    avatar: "🤖",
-  },
-  {
-    id: 2,
-    sender: "member",
-    senderName: "Alex",
-    text: "Hi everyone! Excited to collaborate on this semester's projects.",
-    time: "09:01",
-    avatar: "👨‍💻",
-  },
-  {
-    id: 3,
-    sender: "user",
-    senderName: "You",
-    text: "Hello! Looking forward to working together 😊",
-    time: "09:02",
-    avatar: "👤",
-  },
-  {
-    id: 4,
-    sender: "member",
-    senderName: "Sarah",
-    text: "Does anyone have notes from the last lecture?",
-    time: "09:15",
-    avatar: "👤",
-  },
-];
+interface ChatUIProps {
+  groupId?: string;
+}
 
-const ChatUI: React.FC = () => {
+interface SocketMessage {
+  chatId: string;
+  userId: string;
+  username?: string;
+  text: string;
+  sentAt: string;
+  groupId: string;
+}
+
+const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiAnchorEl, setEmojiAnchorEl] = useState<HTMLElement | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Helper function to format message time
+  const formatMessageTime = (sentAt: string): string => {
+    try {
+      const messageDate = new Date(sentAt);
+      
+      // Check if date is valid
+      if (isNaN(messageDate.getTime())) {
+        console.warn('Invalid date received:', sentAt);
+        return new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+      
+      return messageDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error('Error parsing date:', error, 'Original value:', sentAt);
+      return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  };
+
+  // Initialize Socket.IO connection
+  useEffect(() => {
+    const newSocket = io('http://localhost:3000/chat', {
+      withCredentials: true,
+      transports: ['websocket', 'polling'],
+    });
+
+    setSocket(newSocket);
+
+    // Connection success event
+    newSocket.on('connection_success', (data) => {
+      console.log('Connected as:', data.userId);
+      setCurrentUserId(data.userId);
+      setIsConnected(true);
+    });
+
+    // Handle errors
+    newSocket.on('error', (err) => {
+      console.error('Socket error:', err);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
+
+  // Set up message listeners when we have currentUserId
+  useEffect(() => {
+    if (!socket || !currentUserId) return;
+
+    // Listen for new messages
+    const handleNewMessage = (message: SocketMessage) => {
+      console.log('Received message:', message);
+      console.log('sentAt value:', message.sentAt);
+      
+      const formattedMessage: Message = {
+        id: message.chatId,
+        sender: message.userId === currentUserId ? "user" : "member",
+        senderName: message.userId === currentUserId ? "You" : (message.username || "Anonymous"),
+        text: message.text,
+        time: formatMessageTime(message.sentAt),
+        avatar: message.userId === currentUserId ? "👤" : "👨‍💻",
+        userId: message.userId,
+        createdAt: message.sentAt,
+      };
+
+      setMessages(prev => {
+        // Check if message already exists to prevent duplicates
+        const messageExists = prev.some(msg => msg.id === message.chatId);
+        if (messageExists) {
+          console.log('Message already exists, skipping:', message.chatId);
+          return prev;
+        }
+        
+        // Add new message and sort all messages by timestamp
+        const updatedMessages = [...prev, formattedMessage];
+        return updatedMessages.sort((a, b) => {
+          const dateA = new Date(a.createdAt || '').getTime();
+          const dateB = new Date(b.createdAt || '').getTime();
+          
+          // Handle invalid dates by putting them at the end
+          if (isNaN(dateA) && isNaN(dateB)) return 0;
+          if (isNaN(dateA)) return 1;
+          if (isNaN(dateB)) return -1;
+          
+          return dateA - dateB; // Sort in ascending order (oldest first)
+        });
+      });
+    };
+
+    // Listen for chat history
+    const handleChatHistory = (data: { messages: SocketMessage[] }) => {
+      console.log('Chat history received:', data.messages.length, 'messages');
+      
+      // Sort messages by sentAt timestamp to ensure correct order
+      const sortedMessages = data.messages.sort((a, b) => {
+        const dateA = new Date(a.sentAt).getTime();
+        const dateB = new Date(b.sentAt).getTime();
+        
+        // Handle invalid dates by putting them at the end
+        if (isNaN(dateA) && isNaN(dateB)) return 0;
+        if (isNaN(dateA)) return 1;
+        if (isNaN(dateB)) return -1;
+        
+        return dateA - dateB; // Sort in ascending order (oldest first)
+      });
+      
+      console.log('Messages sorted by timestamp, oldest to newest');
+      
+      const formattedMessages: Message[] = sortedMessages.map((message: SocketMessage) => {
+        return {
+          id: message.chatId,
+          sender: message.userId === currentUserId ? "user" : "member",
+          senderName: message.userId === currentUserId ? "You" : (message.username || "Anonymous"),
+          text: message.text,
+          time: formatMessageTime(message.sentAt),
+          avatar: message.userId === currentUserId ? "👤" : "👨‍💻",
+          userId: message.userId,
+          createdAt: message.sentAt,
+        };
+      });
+
+      setMessages(formattedMessages);
+    };
+
+    socket.on('new_message', handleNewMessage);
+    socket.on('chat_history', handleChatHistory);
+
+    return () => {
+      socket.off('new_message', handleNewMessage);
+      socket.off('chat_history', handleChatHistory);
+    };
+  }, [socket, currentUserId]);
+
+  // Join group when groupId changes
+  useEffect(() => {
+    if (socket && groupId && isConnected) {
+      console.log('Joining group:', groupId);
+      socket.emit('join_group', { groupId });
+      
+      // Load chat history for the group
+      socket.emit('get_chat_history', { groupId, limit: 50, offset: 0 });
+    }
+  }, [socket, groupId, isConnected]);
+
+  // Reset messages when groupId changes to maintain separate chats per group
+  useEffect(() => {
+    setMessages([]);
+  }, [groupId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = () => {
-    if (input.trim() === "") return;
+    if (input.trim() === "" || !socket || !groupId) return;
 
-    const now = new Date();
-    const time = now.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
+    // Send message via Socket.IO
+    socket.emit('send_message', { 
+      groupId, 
+      text: input.trim() 
     });
 
-    setMessages((msgs) => [
-      ...msgs,
-      {
-        id: msgs.length + 1,
-        sender: "user",
-        senderName: "You",
-        text: input,
-        time,
-        avatar: "👤",
-      },
-    ]);
     setInput("");
-
-    // Simulate bot response
-    setIsTyping(true);
-    setTimeout(() => {
-      const botTime = new Date();
-      setMessages((msgs) => [
-        ...msgs,
-        {
-          id: msgs.length + 1,
-          sender: "bot",
-          senderName: "StudyBot",
-          text: generateBotResponse(),
-          time: botTime.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          avatar: "🤖",
-        },
-      ]);
-      setIsTyping(false);
-    }, 1500);
-  };
-
-  const generateBotResponse = (): string => {
-    const responses = [
-      "That's a great question! Let me help you with that. 📚",
-      "I understand what you're asking. Here's what I think... 💭",
-      "Thanks for sharing! That's really helpful for the group. 👍",
-      "Good point! Have you considered looking at the course materials? 📖",
-      "Interesting perspective! What do others think about this? 🤔",
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -154,24 +250,12 @@ const ChatUI: React.FC = () => {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const now = new Date();
-      const time = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
+    if (file && socket && groupId) {
+      // Send file message via Socket.IO
+      socket.emit('send_message', { 
+        groupId, 
+        text: `📎 Shared file: ${file.name}` 
       });
-
-      setMessages((msgs) => [
-        ...msgs,
-        {
-          id: msgs.length + 1,
-          sender: "user",
-          senderName: "You",
-          text: `📎 Shared file: ${file.name}`,
-          time,
-          avatar: "👤",
-        },
-      ]);
     }
     if (e.target) e.target.value = "";
   };
@@ -217,6 +301,22 @@ const ChatUI: React.FC = () => {
         borderColor: "divider",
       }}
     >
+      {/* Connection Status */}
+      {!isConnected && (
+        <Box
+          sx={{
+            p: 1,
+            bgcolor: "warning.light",
+            color: "warning.contrastText",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="caption">
+            Connecting to chat...
+          </Typography>
+        </Box>
+      )}
+
       {/* Messages Area */}
       <Box
         sx={{
@@ -369,46 +469,6 @@ const ChatUI: React.FC = () => {
               </Box>
             </Fade>
           ))}
-
-          {isTyping && (
-            <Fade in={isTyping}>
-              <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-                <Avatar
-                  sx={{
-                    width: { xs: 32, sm: 40 },
-                    height: { xs: 32, sm: 40 },
-                    bgcolor: "primary.light",
-                    border: "2px solid",
-                    borderColor: "background.paper",
-                  }}
-                >
-                  <SmartToyIcon fontSize="small" />
-                </Avatar>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 3,
-                    bgcolor: "background.default",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "text.secondary",
-                      fontSize: { xs: "0.8rem", sm: "0.875rem" },
-                    }}
-                  >
-                    StudyBot is typing
-                  </Typography>
-                  <CircularProgress size={16} color="primary" />
-                </Paper>
-              </Box>
-            </Fade>
-          )}
 
           <div ref={messagesEndRef} />
         </Box>

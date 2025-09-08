@@ -16,23 +16,31 @@ import { useTheme } from "@mui/material/styles";
 
 interface WorkspaceCreationProps {
   onClose: () => void;
+  onCreateWorkspace: (workspacename: string, description: string) => Promise<any>;
 }
 
-const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose }) => {
+const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose, onCreateWorkspace }) => {
   const theme = useTheme();
   const [workspaceName, setWorkspaceName] = useState("");
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-
-
-
-  const handleSubmit = () => {
-    console.log({
-      workspaceName,
-      description,
-
-    });
-    onClose();
+  const handleSubmit = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await onCreateWorkspace(workspaceName, description);
+      if (!result.success) {
+        setError(result.message || "Failed to create workspace.");
+        setLoading(false);
+        return;
+      }
+      onClose();
+    } catch (e) {
+      setError("An error occurred.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,7 +85,6 @@ const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose }) => {
 
         {/* Form */}
         <Stack spacing={3}>
-          {/* Workspace Name */}
           <TextField
             label="Workspace Name"
             variant="outlined"
@@ -88,7 +95,6 @@ const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose }) => {
             required
           />
 
-          {/* Description */}
           <TextField
             label="Description"
             variant="outlined"
@@ -100,9 +106,12 @@ const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose }) => {
             placeholder="Describe your workspace purpose and goals"
           />
 
-         
+          {error && (
+            <Typography color="error" variant="body2">
+              {error}
+            </Typography>
+          )}
 
-          {/* Action Buttons */}
           <Stack direction="row" spacing={2} sx={{ mt: 4 }}>
             <Button variant="outlined" onClick={onClose} sx={{ flex: 1 }}>
               Cancel
@@ -110,10 +119,10 @@ const WorkspaceCreation: React.FC<WorkspaceCreationProps> = ({ onClose }) => {
             <Button
               variant="contained"
               onClick={handleSubmit}
-              disabled={!workspaceName.trim()}
+              disabled={!workspaceName.trim() || loading}
               sx={{ flex: 1 }}
             >
-              Create Workspace
+              {loading ? "Creating..." : "Create Workspace"}
             </Button>
           </Stack>
         </Stack>

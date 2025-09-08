@@ -37,43 +37,25 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
         palette: {
           mode,
           primary: {
-            main: mode === "light" ? "#407cb7ff" : "#42a5f5",
-            dark: mode === "light" ? "#1565c0" : "#1e88e5",
-            light: mode === "light" ? "#42a5f5" : "#64b5f6",
+            main: "#2563eb",      // Main blue for actions
+            light: "#60a5fa",     // Lighter blue for hover/focus
+            dark: "#1e40af",      // Darker blue for emphasis
           },
           secondary: {
-            main: mode === "light" ? "#8ed33eff" : "#b2cf6eff",
-            dark: mode === "light" ? "#80bf39ff" : "#6eb027ff",
-            light: mode === "light" ? "#81bd69ff" : "#b4d893ff",
-          },
-          success: {
-            main: mode === "light" ? "#2e7d32" : "#4caf50",
-            dark: mode === "light" ? "#1b5e20" : "#388e3c",
-            light: mode === "light" ? "#4caf50" : "#66bb6a",
-          },
-          error: {
-            main: mode === "light" ? "#d32f2f" : "#f44336",
-            dark: mode === "light" ? "#c62828" : "#d32f2f",
-            light: mode === "light" ? "#f44336" : "#ef5350",
-          },
-          warning: {
-            main: mode === "light" ? "#ed6c02" : "#ff9800",
-            dark: mode === "light" ? "#e65100" : "#f57c00",
-            light: mode === "light" ? "#ff9800" : "#ffb74d",
-          },
-          info: {
-            main: mode === "light" ? "#0288d1" : "#29b6f6",
-            dark: mode === "light" ? "#01579b" : "#0277bd",
-            light: mode === "light" ? "#03a9f4" : "#4fc3f7",
+            main: "#2563eb",      // Use same blue for secondary
+            light: "#93c5fd",     // Even lighter blue for subtle accents
+            dark: "#1e3a8a",      // Deep blue for strong emphasis
           },
           background: {
-            default: mode === "light" ? "#fafafa" : "#121212",
-            paper: mode === "light" ? "#ffffff" : "#1e1e1e",
+            default: mode === "light" ? "#f8fafc" : "#18181b", // Neutral gray/white
+            paper: mode === "light" ? "#ffffff" : "#23272f",   // Surface color
           },
           text: {
-            primary: mode === "light" ? "#212121" : "#ffffff",
-            secondary: mode === "light" ? "#757575" : "#b0b0b0",
+            primary: mode === "light" ? "#1e293b" : "#f1f5f9",   // Dark for light mode, light for dark mode
+            secondary: mode === "light" ? "#64748b" : "#cbd5e1", // Medium gray
+            disabled: mode === "light" ? "#94a3b8" : "#475569",  // Subtle gray
           },
+          divider: mode === "light" ? "#e2e8f0" : "#334155",     // Border color
         },
 
         components: {
@@ -82,9 +64,9 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
               root: {
                 "& input:-webkit-autofill": {
                   WebkitBoxShadow: `0 0 0 1000px ${
-                    mode === "light" ? "#ffffff" : "#1e1e1e"
+                    mode === "light" ? "#ffffff" : "#23272f"
                   } inset`,
-                  WebkitTextFillColor: mode === "light" ? "#212121" : "#ffffff",
+                  WebkitTextFillColor: mode === "light" ? "#1e293b" : "#f1f5f9",
                   transition: "background-color 5000s ease-in-out 0s",
                 },
               },
