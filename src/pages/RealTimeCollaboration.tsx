@@ -52,8 +52,6 @@ const mockUsers = [
 
 const mockDocuments = [
   { id: 1, title: 'Project Proposal', lastModified: '2 minutes ago', collaborators: 3 },
-  { id: 2, title: 'Meeting Notes', lastModified: '1 hour ago', collaborators: 2 },
-  { id: 3, title: 'Research Paper', lastModified: '1 day ago', collaborators: 4 },
 ];
 
 interface Cursor {
@@ -78,11 +76,9 @@ const RealTimeCollaboration = () => {
   const [documentTitle, setDocumentTitle] = useState(currentDocument.title);
 
 
-
   // Initialize with some sample content
   useEffect(() => {
     setDocumentContent(`# ${currentDocument.title}
-
 Welcome to the collaborative document editor! This is where multiple users can work together in real-time.
 
 ## Features:
@@ -97,8 +93,7 @@ Welcome to the collaborative document editor! This is where multiple users can w
 2. Share the document with other users
 3. See live cursors and edits from other collaborators
 4. All changes are automatically saved
-
-Feel free to edit this document and experiment with the collaborative features!`);
+`);
   }, [currentDocument]);
 
   const handleContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -173,7 +168,6 @@ Feel free to edit this document and experiment with the collaborative features!`
       }]);
     }
   };
-
   return (
     <Box sx={{ p: 3, maxWidth: '100%', mx: 'auto' }}>
       {/* Header */}

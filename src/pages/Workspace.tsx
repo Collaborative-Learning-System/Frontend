@@ -172,7 +172,7 @@ const Workspace = () => {
 
       if (response.data.success) {
         NotificationService.showInfo(response.data.message);
-        
+        handleLogging(`${response.data.data.action === "joined" ? "Joined" : "Left"} the group ${groups.find(g => g.id === groupId)?.name || ''} in the workspace ${workspaceData?.name}`);
         // Update the groups list
         setGroups(prevGroups =>
           prevGroups.map(group =>
@@ -229,6 +229,7 @@ const Workspace = () => {
 
       if (response.data.success) {
         NotificationService.showInfo("Group created successfully");
+        handleLogging(`Created the group ${groupName.trim()} in the workspace ${workspaceData?.name}`);
         
         // Add the new group to the list and select it
         const newGroup: Group = {
