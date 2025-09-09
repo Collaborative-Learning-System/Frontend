@@ -3,106 +3,236 @@ import {
   Typography,
   Card,
   CardContent,
-  LinearProgress,
   Chip,
   Avatar,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Paper,
   Button,
-  IconButton,
   useTheme,
-} from '@mui/material';
+  alpha,
+} from "@mui/material";
 import {
-  TrendingUp,
+  Folder,
   Group,
   Quiz,
-  Assignment,
+  AccessTime,
+  History,
   Schedule,
-  MoreVert,
-  PlayArrow,
-} from '@mui/icons-material';
+  Add,
+} from "@mui/icons-material";
+import { AppContext } from "../context/AppContext";
+import { useContext } from "react";
 
 const Dashboard = () => {
   const theme = useTheme();
+  const { userData } = useContext(AppContext);
 
-  // Mock data for demonstration
   const stats = [
-    { title: 'Active Study Plans', value: '3', icon: <Assignment />, color: '#2196F3' },
-    { title: 'Completed Quizzes', value: '12', icon: <Quiz />, color: '#4CAF50' },
-    { title: 'Study Groups', value: '5', icon: <Group />, color: '#FF9800' },
-    { title: 'Study Streak', value: '7 days', icon: <TrendingUp />, color: '#9C27B0' },
+    {
+      title: "Workspaces",
+      value: "8",
+      icon: <Folder />,
+      color: "#2196F3",
+    },
+    {
+      title: "Groups Joined",
+      value: "5",
+      icon: <Group />,
+      color: "#4CAF50",
+    },
+    {
+      title: "Completed Quizzes",
+      value: "23",
+      icon: <Quiz />,
+      color: "#FF9800",
+    },
+    {
+      title: "Total Study Hours",
+      value: "147",
+      icon: <AccessTime />,
+      color: "#9C27B0",
+    },
   ];
 
-  const recentActivity = [
-    { action: 'Completed Quiz: React Basics', time: '2 hours ago', avatar: 'Q' },
-    { action: 'Joined Study Group: Data Structures', time: '5 hours ago', avatar: 'G' },
-    { action: 'Updated Study Plan: Web Development', time: '1 day ago', avatar: 'P' },
-    { action: 'Earned Badge: Quick Learner', time: '2 days ago', avatar: 'B' },
+  // Recent activities data
+  const recentActivities = [
+    {
+      action: "Completed Quiz: JavaScript Fundamentals",
+      time: "2 hours ago",
+      avatar: "Q",
+      color: "#2196F3",
+    },
+    {
+      action: "Joined Workspace: React Development",
+      time: "5 hours ago",
+      avatar: "W",
+      color: "#2196F3",
+    },
   ];
 
-  const upcomingTasks = [
-    { task: 'JavaScript Arrays Quiz', dueDate: 'Today, 3:00 PM', priority: 'high' },
-    { task: 'Complete React Chapter 5', dueDate: 'Tomorrow', priority: 'medium' },
-    { task: 'Group Project: Database Design', dueDate: 'Friday', priority: 'high' },
-    { task: 'Review Python Functions', dueDate: 'Next Week', priority: 'low' },
+  // Upcoming activities data
+  const upcomingActivities = [
+    {
+      task: "React Components Quiz",
+      dueDate: "Today, 3:00 PM",
+      type: "Quiz",
+      color: "#f44336",
+    },
+    {
+      task: "Complete Node.js Tutorial",
+      dueDate: "Tomorrow",
+      type: "Study",
+      color: "#ff9800",
+    },
   ];
 
-  const studyPlans = [
-    { name: 'Web Development Fundamentals', progress: 75, lessons: '8/12 completed' },
-    { name: 'Data Structures & Algorithms', progress: 45, lessons: '6/15 completed' },
-    { name: 'Database Management', progress: 90, lessons: '9/10 completed' },
+  // Suggested workspaces data
+  const suggestedWorkspaces = [
+    {
+      name: "Advanced React Patterns",
+      description: "Learn advanced React concepts and patterns",
+      members: 124,
+      category: "Frontend",
+    },
+    {
+      name: "Machine Learning Basics",
+      description: "Introduction to ML algorithms and concepts",
+      members: 89,
+      category: "AI/ML",
+    },
+    {
+      name: "Full Stack Development",
+      description: "Complete web development bootcamp",
+      members: 156,
+      category: "Full Stack",
+    },
   ];
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return '#f44336';
-      case 'medium': return '#ff9800';
-      case 'low': return '#4caf50';
-      default: return '#757575';
-    }
-  };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
+    <Box
+      sx={{
+        background: `linear-gradient(135deg, 
+              ${alpha(theme.palette.primary.main, 0.03)} 0%, 
+              ${alpha(theme.palette.secondary.main, 0.02)} 50%,
+              ${alpha(theme.palette.background.default, 0.95)} 100%)`,
+        p: 3,
+        minHeight: "100vh",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `radial-gradient(circle at 20% 80%, ${alpha(
+            theme.palette.primary.main,
+            0.1
+          )} 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, ${alpha(
+                        theme.palette.secondary.main,
+                        0.1
+                      )} 0%, transparent 50%)`,
+          pointerEvents: "none",
+        },
+      }}
+    >
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight="600" color="primary" gutterBottom>
-          Dashboard
+      <Box
+        sx={{
+          mb: 2,
+          p: 2,
+          background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+          backgroundClip: "text",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}
+      >
+        <Typography
+          variant="h3"
+          fontWeight="700"
+          sx={{
+            typography: { xs: "h4", sm: "h3" },
+            background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            mb: 2,
+          }}
+        >
+          Hi, {userData?.fullName || "User"}!{" "}
+          <span
+            style={{
+              background: "none",
+              WebkitTextFillColor: "initial",
+              backgroundClip: "initial",
+              WebkitBackgroundClip: "initial",
+            }}
+          >
+            👋
+          </span>
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Welcome back! Here's your learning progress overview.
+        <Typography
+          variant="h6"
+          color="text.secondary"
+          sx={{
+            fontSize: "1.2rem",
+            fontWeight: 400,
+          }}
+        >
+          Here's your learning overview.
         </Typography>
       </Box>
 
-      {/* Stats Cards */}
-      <Box sx={{ 
-        display: 'flex', 
-        flexWrap: 'wrap', 
-        gap: 3, 
-        mb: 4,
-        '& > *': { 
-          flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' }
-        }
-      }}>
+      {/* Top 4 Stats Cards */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 3,
+          mb: 4,
+          "& > *": {
+            flex: {
+              xs: "1 1 100%",
+              sm: "1 1 calc(50% - 12px)",
+              md: "1 1 calc(25% - 18px)",
+            },
+          },
+        }}
+      >
         {stats.map((stat, index) => (
-          <Card key={index} sx={{ 
-            background: `linear-gradient(135deg, ${stat.color}15, ${stat.color}05)`,
-            border: `1px solid ${stat.color}30`,
-          }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Card
+            key={index}
+            sx={{
+              background: `linear-gradient(135deg, ${stat.color}15, ${stat.color}05)`,
+              border: `1px solid ${stat.color}30`,
+              height: "120px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <CardContent sx={{ width: "100%" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Box>
-                  <Typography variant="h4" fontWeight="700" color={stat.color}>
+                  <Typography variant="h3" fontWeight="700" color={stat.color}>
                     {stat.value}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
                     {stat.title}
                   </Typography>
                 </Box>
-                <Box sx={{ color: stat.color, opacity: 0.7 }}>
+                <Box sx={{ color: stat.color, opacity: 0.7, fontSize: 40 }}>
                   {stat.icon}
                 </Box>
               </Box>
@@ -111,90 +241,57 @@ const Dashboard = () => {
         ))}
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, mb: 3 }}>
-        {/* Study Plans Progress */}
+      {/* Recent Activities and Upcoming Activities */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        {/* Recent Activities - Left Side */}
         <Box sx={{ flex: 1 }}>
-          <Card sx={{ height: '100%' }}>
+          <Card sx={{ height: "400px" }}>
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6" fontWeight="600">
-                  Active Study Plans
-                </Typography>
-                <IconButton size="small">
-                  <MoreVert />
-                </IconButton>
-              </Box>
-              <Box sx={{ space: 2 }}>
-                {studyPlans.map((plan, index) => (
-                  <Box key={index} sx={{ mb: 3 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="body2" fontWeight="500">
-                        {plan.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {plan.progress}%
-                      </Typography>
-                    </Box>
-                    <LinearProgress 
-                      variant="determinate" 
-                      value={plan.progress} 
-                      sx={{ 
-                        height: 8, 
-                        borderRadius: 4,
-                        backgroundColor: theme.palette.grey[200],
-                        '& .MuiLinearProgress-bar': {
-                          borderRadius: 4,
-                        }
-                      }}
-                    />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                      {plan.lessons}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-              <Button 
-                variant="outlined" 
-                fullWidth 
-                startIcon={<PlayArrow />}
-                sx={{ mt: 1 }}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 2,
+                }}
               >
-                Continue Learning
-              </Button>
-            </CardContent>
-          </Card>
-        </Box>
-
-        {/* Recent Activity */}
-        <Box sx={{ flex: 1 }}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <History sx={{ mr: 1, color: theme.palette.primary.main }} />
                 <Typography variant="h6" fontWeight="600">
-                  Recent Activity
+                  Recent Activities
                 </Typography>
-                <IconButton size="small">
-                  <MoreVert />
-                </IconButton>
               </Box>
-              <List sx={{ p: 0 }}>
-                {recentActivity.map((activity, index) => (
-                  <ListItem key={index} sx={{ px: 0, py: 1 }}>
+              <List sx={{ p: 0, maxHeight: "300px", overflow: "auto" }}>
+                {recentActivities.map((activity, index) => (
+                  <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
                     <ListItemAvatar>
-                      <Avatar sx={{ 
-                        width: 32, 
-                        height: 32, 
-                        fontSize: '0.875rem',
-                        bgcolor: theme.palette.primary.main 
-                      }}>
+                      <Avatar
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          fontSize: "1rem",
+                          bgcolor: activity.color,
+                        }}
+                      >
                         {activity.avatar}
                       </Avatar>
                     </ListItemAvatar>
                     <ListItemText
                       primary={activity.action}
                       secondary={activity.time}
-                      primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
-                      secondaryTypographyProps={{ variant: 'caption' }}
+                      primaryTypographyProps={{
+                        variant: "body2",
+                        fontWeight: 500,
+                      }}
+                      secondaryTypographyProps={{
+                        variant: "caption",
+                        color: "text.secondary",
+                      }}
                     />
                   </ListItem>
                 ))}
@@ -202,59 +299,159 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </Box>
+
+        {/* Upcoming Activities - Right Side */}
+        <Box sx={{ flex: 1 }}>
+          <Card sx={{ height: "400px" }}>
+            <CardContent>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <Schedule sx={{ mr: 1, color: theme.palette.secondary.main }} />
+                <Typography variant="h6" fontWeight="600">
+                  Upcoming Activities
+                </Typography>
+              </Box>
+              <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
+                {upcomingActivities.map((activity, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      p: 2,
+                      mb: 2,
+                      borderLeft: `4px solid ${activity.color}`,
+                      backgroundColor: alpha(activity.color, 0.05),
+                      borderRadius: 1,
+                      "&:hover": {
+                        backgroundColor: alpha(activity.color, 0.1),
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                      <Chip
+                        label={activity.type}
+                        size="small"
+                        sx={{
+                          bgcolor: activity.color,
+                          color: "white",
+                          fontSize: "0.75rem",
+                          height: 20,
+                        }}
+                      />
+                    </Box>
+                    <Typography
+                      variant="body2"
+                      fontWeight="500"
+                      sx={{ mb: 0.5 }}
+                    >
+                      {activity.task}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Due: {activity.dueDate}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
       </Box>
 
-      {/* Upcoming Tasks */}
+      {/* Suggested Workspaces */}
       <Card>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant="h6" fontWeight="600">
-              Upcoming Tasks
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Add sx={{ mr: 1, color: theme.palette.success.main }} />
+              <Typography variant="h6" fontWeight="600">
+                Suggested Workspaces to Join
+              </Typography>
+            </Box>
             <Button variant="text" size="small">
               View All
             </Button>
           </Box>
-          <Box sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: 2,
-            '& > *': { 
-              flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
-            }
-          }}>
-            {upcomingTasks.map((task, index) => (
-              <Paper 
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 3,
+              "& > *": {
+                flex: {
+                  xs: "1 1 100%",
+                  sm: "1 1 calc(50% - 12px)",
+                  md: "1 1 calc(25% - 18px)",
+                },
+              },
+            }}
+          >
+            {suggestedWorkspaces.map((workspace, index) => (
+              <Card
                 key={index}
-                sx={{ 
-                  p: 2, 
-                  borderLeft: `4px solid ${getPriorityColor(task.priority)}`,
-                  backgroundColor: theme.palette.background.paper,
-                  '&:hover': {
+                sx={{
+                  border: `1px solid ${theme.palette.divider}`,
+                  "&:hover": {
                     boxShadow: theme.shadows[4],
-                  }
+                    transform: "translateY(-2px)",
+                    transition: "all 0.3s ease",
+                  },
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Schedule sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-                  <Chip 
-                    label={task.priority} 
-                    size="small" 
-                    sx={{ 
-                      bgcolor: getPriorityColor(task.priority), 
-                      color: 'white', 
-                      fontSize: '0.75rem',
-                      height: 20
-                    }} 
-                  />
-                </Box>
-                <Typography variant="body2" fontWeight="500" sx={{ mb: 1 }}>
-                  {task.task}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Due: {task.dueDate}
-                </Typography>
-              </Paper>
+                <CardContent>
+                  <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
+                    {workspace.name}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    {workspace.description}
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mb: 2,
+                    }}
+                  >
+                    <Chip
+                      label={workspace.category}
+                      size="small"
+                      variant="outlined"
+                      sx={{ fontSize: "0.75rem" }}
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      {workspace.members} members
+                    </Typography>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    size="small"
+                    sx={{
+                      bgcolor: theme.palette.primary.main,
+                      "&:hover": {
+                        bgcolor: theme.palette.primary.dark,
+                      },
+                    }}
+                  >
+                    Join Workspace
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
           </Box>
         </CardContent>

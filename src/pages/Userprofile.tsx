@@ -11,6 +11,7 @@ import {
   Divider,
   IconButton,
   Alert,
+  Switch,
 } from "@mui/material";
 import {
   Person,
@@ -19,16 +20,18 @@ import {
   Save,
   Cancel,
   PhotoCamera,
-  Lock
+  Lock,
 } from "@mui/icons-material";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const theme = useTheme();
 
   const { userData, setUserData } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const [editData, setEditData] = useState(userData);
   const [error, setError] = useState("");
@@ -85,8 +88,28 @@ export default function UserProfile() {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: theme.palette.background.default,
+        background: `linear-gradient(135deg, 
+          ${alpha(theme.palette.primary.main, 0.03)} 0%, 
+          ${alpha(theme.palette.secondary.main, 0.02)} 50%,
+          ${alpha(theme.palette.background.default, 0.95)} 100%)`,
         p: 4,
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `radial-gradient(circle at 20% 80%, ${alpha(
+            theme.palette.primary.main,
+            0.1
+          )} 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, ${alpha(
+                                theme.palette.secondary.main,
+                                0.1
+                              )} 0%, transparent 50%)`,
+          pointerEvents: "none",
+        },
       }}
     >
       {/* Profile Header */}
@@ -337,19 +360,73 @@ export default function UserProfile() {
                 Reset Password
               </Typography>
             </Stack>
-            <Button variant="outlined" color="primary" disabled={isEditing} onClick={() =>
-            {
-              setSuccess("Reset Email Sent to your registered email address");
-              setTimeout(() => setSuccess(""), 3000);
-            }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              disabled={isEditing}
+              onClick={() => {
+                navigate('/reset-password')
+              }}
+            >
               Reset Password
             </Button>
           </Box>
-
         </Stack>
+      </Box>
+
+      <Box
+        sx={{
+          mb: 4,
+          p: 4,
+          bgcolor: theme.palette.background.paper,
+          borderRadius: 2,
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        }}
+      >
+        {" "}
+        <Box
+          sx={{
+            mb: 4,
+          }}
+        >
+          <Typography
+            variant="h5"
+            fontWeight="600"
+            sx={{ mb: { xs: 3, sm: 0 } }}
+          >
+            Privacy Settings
+          </Typography>
+        </Box>
+        <Divider sx={{ mb: 4 }} />
+        <Box sx={{ mb: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
+            <Typography variant="body1">
+              Track User Recent Activities
+            </Typography>
+            <Switch />
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
+            <Typography variant="body1">
+              Send Eamil Notifications for User Activities
+            </Typography>
+            <Switch />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
 }
-
-          
