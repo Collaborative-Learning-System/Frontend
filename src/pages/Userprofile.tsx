@@ -10,19 +10,19 @@ import {
   Stack,
   Divider,
   IconButton,
+  Alert,
 } from "@mui/material";
 import {
   Person,
   Email,
-  Lock,
   Edit,
   Save,
   Cancel,
   PhotoCamera,
+  Lock
 } from "@mui/icons-material";
 import { AppContext } from "../context/AppContext";
-
-
+import axios from "axios";
 
 export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -31,15 +31,49 @@ export default function UserProfile() {
   const { userData, setUserData } = useContext(AppContext);
 
   const [editData, setEditData] = useState(userData);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleEdit = () => {
     setIsEditing(true);
     setEditData(userData);
   };
 
-  const handleSave = () => {
-    setUserData(editData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      if (!editData) {
+        setError("Profile Updation Failed. Please try again later.");
+        return;
+      }
+      console.log("User Data:", userData);
+      console.log("Updating profile with data:", editData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/update-profile`,
+        {
+          userId: editData?.userId,
+          fullName: editData?.fullName,
+          email: editData?.email,
+          bio: editData?.bio,
+        }
+      );
+      if (response.status === 200) {
+        setSuccess("Profile updated successfully!");
+        setUserData(editData);
+        setIsEditing(false);
+      }
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data.message);
+      } else {
+        setError("Profile Updation Failed. Please try again later.");
+      }
+      setIsEditing(false);
+      setUserData(userData);
+    } finally {
+      setTimeout(() => {
+        setError(""), setSuccess("");
+      }, 4000);
+    }
   };
 
   const handleCancel = () => {
@@ -104,7 +138,7 @@ export default function UserProfile() {
               {userData?.email}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {"No bio available"}
+              {userData?.bio || ""}
             </Typography>
           </Box>
         </Stack>
@@ -122,12 +156,16 @@ export default function UserProfile() {
         <Box
           sx={{
             mb: 4,
-            display: "flex",
-            justifyContent: "between",
+            display: { xs: "block", sm: "flex" },
+            justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <Typography variant="h5" fontWeight="600">
+          <Typography
+            variant="h5"
+            fontWeight="600"
+            sx={{ mb: { xs: 3, sm: 0 } }}
+          >
             User Information
           </Typography>
           {!isEditing ? (
@@ -160,7 +198,20 @@ export default function UserProfile() {
         </Box>
 
         <Divider sx={{ mb: 4 }} />
+        <Box>
+          {/* Error/Success Messages */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
+        </Box>
         <Stack spacing={3}>
           {/* Name Field */}
           <Box>
@@ -180,7 +231,11 @@ export default function UserProfile() {
                 fullWidth
                 variant="outlined"
                 value={editData?.fullName}
-                //  onChange={handleInputChange("name")}
+                onChange={(e) =>
+                  setEditData((prev) =>
+                    prev ? { ...prev, fullName: e.target.value } : prev
+                  )
+                }
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -213,7 +268,11 @@ export default function UserProfile() {
                 variant="outlined"
                 type="email"
                 value={editData?.email}
-                //onChange={handleInputChange("email")}
+                onChange={(e) =>
+                  setEditData((prev) =>
+                    prev ? { ...prev, email: e.target.value } : prev
+                  )
+                }
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -223,39 +282,6 @@ export default function UserProfile() {
             ) : (
               <Typography variant="body1" sx={{ ml: 4 }}>
                 {userData?.email}
-              </Typography>
-            )}
-          </Box>
-
-          {/* Password Field */}
-          <Box>
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={{ mb: 1 }}
-            >
-              <Lock sx={{ color: theme.palette.primary.main }} />
-              <Typography variant="subtitle2" color="text.secondary">
-                Password
-              </Typography>
-            </Stack>
-            {isEditing ? (
-              <TextField
-                fullWidth
-                variant="outlined"
-                type="password"
-                value={""}
-                //onChange={handleInputChange("password")}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    bgcolor: alpha(theme.palette.primary.main, 0.05),
-                  },
-                }}
-              />
-            ) : (
-              <Typography variant="body1" sx={{ ml: 4 }}>
-                ********
               </Typography>
             )}
           </Box>
@@ -279,8 +305,12 @@ export default function UserProfile() {
                 variant="outlined"
                 multiline
                 rows={4}
-                // value={editData.bio}
-                // onChange={handleInputChange("bio")}
+                value={editData?.bio || ""}
+                onChange={(e) =>
+                  setEditData((prev) =>
+                    prev ? { ...prev, bio: e.target.value } : prev
+                  )
+                }
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -289,12 +319,37 @@ export default function UserProfile() {
               />
             ) : (
               <Typography variant="body1" sx={{ ml: 4, lineHeight: 1.6 }}>
-                {"No bio available"}
+                {userData?.bio || "No bio available"}
               </Typography>
             )}
           </Box>
+
+          {/* Password Field */}
+          <Box>
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              sx={{ mb: 2 }}
+            >
+              <Lock sx={{ color: theme.palette.primary.main }} />
+              <Typography variant="subtitle2" color="text.secondary">
+                Reset Password
+              </Typography>
+            </Stack>
+            <Button variant="outlined" color="primary" disabled={isEditing} onClick={() =>
+            {
+              setSuccess("Reset Email Sent to your registered email address");
+              setTimeout(() => setSuccess(""), 3000);
+            }}>
+              Reset Password
+            </Button>
+          </Box>
+
         </Stack>
       </Box>
     </Box>
   );
 }
+
+          

@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import QuizCreation from "../components/QuizCreation";
 
 const Groups = () => {
   const theme = useTheme();
@@ -168,20 +167,7 @@ const Groups = () => {
             p: 2,
           }}
         >
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: 1000,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              scrollbarWidth: "none",
-              "&::-webkit-scrollbar": {
-                display: "none",
-              },
-            }}
-          >
-            <QuizCreation onClose={() => setCreateQuiz(false)} />
-          </Box>
+        
         </Box>
       </Backdrop>
     </Box>
