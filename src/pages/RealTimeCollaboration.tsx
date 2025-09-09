@@ -71,7 +71,7 @@ const RealTimeCollaboration = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [lastSaved, setLastSaved] = useState(new Date());
   const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(null);
-  const [formatMenuAnchor, setFormatMenuAnchor] = useState<null | HTMLElement>(null);
+  //const [formatMenuAnchor, setFormatMenuAnchor] = useState<null | HTMLElement>(null);
   const [showDocumentDialog, setShowDocumentDialog] = useState(false);
   const [documentTitle, setDocumentTitle] = useState(currentDocument.title);
 
@@ -151,7 +151,7 @@ Welcome to the collaborative document editor! This is where multiple users can w
 
     const newContent = documentContent.substring(0, start) + formattedText + documentContent.substring(end);
     setDocumentContent(newContent);
-    setFormatMenuAnchor(null);
+    //setFormatMenuAnchor(null);
   };
 
   const addCollaborator = () => {

@@ -13,7 +13,6 @@ import {
   AccordionDetails,
   LinearProgress,
   Snackbar,
-  Alert,
   useTheme,
 } from "@mui/material";
 import {
@@ -69,7 +68,7 @@ export default function StudyPlanDisplay({
   const [expanded, setExpanded] = useState<string>("day-0");
   const [planData, setPlanData] = useState(studyPlan);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  //const [snackbarMessage, setSnackbarMessage] = useState("");
   const theme = useTheme();
 
   const handleAccordionChange =
@@ -445,13 +444,13 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
+        {/* <Alert
           onClose={() => setSnackbarOpen(false)}
           severity="success"
           sx={{ width: "100%" }}
         >
           {snackbarMessage}
-        </Alert>
+        </Alert> */}
       </Snackbar>
     </Box>
   );
