@@ -421,7 +421,7 @@ export default function UserProfile() {
             }}
           >
             <Typography variant="body1">
-              Send Email Notifications for User Activities
+              Send Email Notifications for Upcoming Activities
             </Typography>
             <Switch />
           </Box>

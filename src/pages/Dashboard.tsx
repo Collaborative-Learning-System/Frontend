@@ -144,7 +144,7 @@ const Dashboard = () => {
           sx={{ fontSize: 30, color: theme.palette.primary.main, mr: 1 }}
         />
         <Typography variant="h5" fontWeight={700} display="inline">
-          Overview
+          Dashboard Overview
         </Typography>
       </Box>
 
