@@ -22,12 +22,10 @@ import {
   Schedule,
   Add,
 } from "@mui/icons-material";
-import { AppContext } from "../context/AppContext";
-import { useContext } from "react";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
 const Dashboard = () => {
   const theme = useTheme();
-  const { userData } = useContext(AppContext);
 
   const stats = [
     {
@@ -78,7 +76,7 @@ const Dashboard = () => {
       task: "React Components Quiz",
       dueDate: "Today, 3:00 PM",
       type: "Quiz",
-      color: "#f44336",
+      color: "#4CAF50",
     },
     {
       task: "Complete Node.js Tutorial",
@@ -138,50 +136,15 @@ const Dashboard = () => {
         },
       }}
     >
-      {/* Header */}
+      {/* Header Section */}
       <Box
-        sx={{
-          mb: 2,
-          p: 2,
-          background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-          backgroundClip: "text",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
+        sx={{ mb: 3, p: 1, borderBottom: `2px solid ${theme.palette.divider}`, display: 'flex', alignItems: 'center' }}
       >
-        <Typography
-          variant="h3"
-          fontWeight="700"
-          sx={{
-            typography: { xs: "h4", sm: "h3" },
-            background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            mb: 2,
-          }}
-        >
-          Hi, {userData?.fullName || "User"}!{" "}
-          <span
-            style={{
-              background: "none",
-              WebkitTextFillColor: "initial",
-              backgroundClip: "initial",
-              WebkitBackgroundClip: "initial",
-            }}
-          >
-            👋
-          </span>
-        </Typography>
-        <Typography
-          variant="h6"
-          color="text.secondary"
-          sx={{
-            fontSize: "1.2rem",
-            fontWeight: 400,
-          }}
-        >
-          Here's your learning overview.
+        <AssessmentIcon
+          sx={{ fontSize: 30, color: theme.palette.primary.main, mr: 1 }}
+        />
+        <Typography variant="h5" fontWeight={700} display="inline">
+          Overview
         </Typography>
       </Box>
 

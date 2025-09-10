@@ -43,7 +43,33 @@ const DocumentSummary = () => {
   ];
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        py: 4,
+        background: `linear-gradient(135deg, 
+              ${alpha(theme.palette.primary.main, 0.03)} 0%, 
+              ${alpha(theme.palette.secondary.main, 0.02)} 50%,
+              ${alpha(theme.palette.background.default, 0.95)} 100%)`,
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `radial-gradient(circle at 20% 80%, ${alpha(
+            theme.palette.primary.main,
+            0.1
+          )} 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, ${alpha(
+                        theme.palette.secondary.main,
+                        0.1
+                      )} 0%, transparent 50%)`,
+          pointerEvents: "none",
+        },
+      }}
+    >
       {/* Header Section */}
       <Box sx={{ textAlign: "center", mb: 0 }}>
         <Typography
