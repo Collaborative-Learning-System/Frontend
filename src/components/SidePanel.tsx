@@ -22,8 +22,8 @@ import {
   Home,
   AutoFixHigh,
   Logout,
-  ContactPhoneRounded,
   AutoAwesome,
+  Dashboard,
 } from "@mui/icons-material";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { AppContext } from "../context/AppContext";
@@ -58,6 +58,15 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       path: "/landing",
     },
     {
+      text: "Dashboard",
+      icon: (
+        <Tooltip title="Dashboard">
+          <Dashboard />
+        </Tooltip>
+      ),
+      path: "/dashboard",
+    },
+    {
       text: "Study Plans",
       icon: (
         <Tooltip title="Study Plans">
@@ -84,15 +93,15 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       ),
       path: "/real-time-collaboration",
     },
-    {
-      text: "Contact Us",
-      icon: (
-        <Tooltip title="Contact Us">
-          <ContactPhoneRounded />
-        </Tooltip>
-      ),
-      path: "/contact-us",
-    },
+    // {
+    //   text: "Contact Us",
+    //   icon: (
+    //     <Tooltip title="Contact Us">
+    //       <ContactPhoneRounded />
+    //     </Tooltip>
+    //   ),
+    //   path: "/contact-us",
+    // },
   ];
 
   const handleMenuItemClick = (path: string) => {

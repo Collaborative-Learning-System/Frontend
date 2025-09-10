@@ -15,7 +15,13 @@ import {
   useTheme,
   IconButton,
 } from "@mui/material";
-import { Lock, ArrowBack, VisibilityOff, Visibility } from "@mui/icons-material";
+import {
+  Lock,
+  ArrowBack,
+  VisibilityOff,
+  Visibility,
+  Check,
+} from "@mui/icons-material";
 import axios from "axios";
 
 const ResetPassword = () => {
@@ -35,13 +41,13 @@ const ResetPassword = () => {
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  // Handle password reset 
+  // Handle password reset
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
     setSuccess("");
-    
+
     // Validation
     if (!newPassword.trim()) {
       setError("Password cannot be empty");
@@ -69,9 +75,11 @@ const ResetPassword = () => {
 
     try {
       const email = localStorage.getItem("resetEmail");
-      
+
       if (!email) {
-        setError("Email not found. Please go back to forgot password and try again.");
+        setError(
+          "Email not found. Please go back to forgot password and try again."
+        );
         setIsLoading(false);
         return;
       }
@@ -82,9 +90,9 @@ const ResetPassword = () => {
         return;
       }
       const response = await axios.post(`${backendUrl}/auth/reset-password`, {
-        email, newPassword,
+        email,
+        newPassword,
       });
-
 
       if (response.data.success) {
         setSuccess(
@@ -213,7 +221,26 @@ const ResetPassword = () => {
                   ),
                 }}
                 placeholder="Enter your new password"
-                helperText="Password must be at least 8 characters long, must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character"
+                helperText={
+                  <Box>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <IconButton size="small" disabled>
+                        <Check sx={{ color: "green" }} />
+                      </IconButton>
+                      <Typography variant="caption" color="green">
+                        Password must be at least 8 characters long.
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <IconButton size="small" disabled>
+                        <Check sx={{ color: "green" }} />
+                      </IconButton>
+                      <Typography variant="caption" color="green">                     
+                        Must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character"
+                      </Typography>
+                    </Box>
+                  </Box>
+                }
               />
 
               <TextField

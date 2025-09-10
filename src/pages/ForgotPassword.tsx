@@ -13,8 +13,9 @@ import {
   CircularProgress,
   Link,
   useTheme,
+  IconButton,
 } from "@mui/material";
-import { Lock, ArrowBack, Email } from "@mui/icons-material";
+import { Lock, ArrowBack, Email, Check } from "@mui/icons-material";
 import axios from "axios";
 
 const ForgotPassword = () => {
@@ -166,9 +167,18 @@ const ForgotPassword = () => {
                   ),
                 }}
                 placeholder="Enter your email"
-                helperText="This should be your previously registered email"
+                // helperText="This should be your previously registered email"
+                helperText={
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <IconButton size="small" disabled>
+                      <Check sx={{ color: "green" }} />
+                    </IconButton>
+                    <Typography variant="caption" color="green">
+                      This should be your previously registered email
+                    </Typography>
+                  </Box>
+                }
               />
-
               <Button
                 type="submit"
                 fullWidth
@@ -176,7 +186,7 @@ const ForgotPassword = () => {
                 size="large"
                 onClick={handleSendResetEmail}
                 disabled={isLoading}
-                sx={{ mt: 3, mb: 2, py: 1.5 }}
+                sx={{ mt: 2, mb: 2, py: 1.5 }}
               >
                 {isLoading ? (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

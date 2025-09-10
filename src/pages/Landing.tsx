@@ -234,31 +234,6 @@ const Landing = () => {
       transform: "translateY(-8px) scale(1.02)",
       boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.2)}`,
       background: alpha(theme.palette.background.paper, 0.95),
-
-    },
-  };
-
-  const glassBackdropStyles = {
-    background: `linear-gradient(135deg, 
-      ${alpha(theme.palette.primary.main, 0.1)} 0%, 
-      ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
-    backdropFilter: "blur(10px)",
-    borderRadius: "12px", // Reduced from 20px
-    border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
-  };
-
-  // Glassmorphism card styles with reduced curviness
-  const glassCardStyles = {
-    background: alpha(theme.palette.background.paper, 0.85),
-    backdropFilter: "blur(20px)",
-    borderRadius: "12px", // Reduced from 24px
-    border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
-    boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    "&:hover": {
-      transform: "translateY(-8px) scale(1.02)",
-      boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.2)}`,
-      background: alpha(theme.palette.background.paper, 0.95),
     },
   };
 
@@ -306,7 +281,7 @@ const Landing = () => {
           <Box
             sx={{
               ...glassBackdropStyles,
-              p: 4,
+              p: 3,
               mb: 4,
               textAlign: "center",
             }}
@@ -487,7 +462,7 @@ const Landing = () => {
         {/* Current Workspaces Section */}
         <Fade in={mounted} timeout={1400}>
           <Box sx={{ mb: 6 }}>
-            <Box sx={{ ...glassBackdropStyles, p: 4, mb: 4 }}>
+            <Box sx={{ ...glassBackdropStyles, p: 3, mb: 4 }}>
               <Typography
                 variant="h4"
                 fontWeight="bold"
@@ -726,7 +701,7 @@ const Landing = () => {
         {/* Recent Activities Section */}
         <Fade in={mounted} timeout={1800}>
           <Box sx={{ mb: 4 }}>
-            <Box sx={{ ...glassBackdropStyles, p: 4, mb: 4 }}>
+            <Box sx={{ ...glassBackdropStyles, p: 3, mb: 4 }}>
               <Typography
                 variant="h4"
                 fontWeight="bold"
@@ -762,7 +737,7 @@ const Landing = () => {
                     const logTime = new Date(log.timestamp);
                     return (
                       new Date().getTime() - logTime.getTime() <=
-                      5 * 60 * 60 * 1000
+                      24 * 60 * 60 * 1000
                     ); // last 5 hour
                   })
                   .map((activity, index) => (
@@ -773,7 +748,7 @@ const Landing = () => {
                       key={activity.activityId || index}
                     >
                       <Card sx={glassCardStyles}>
-                        <CardContent sx={{ py: 3, px: 4 }}>
+                        <CardContent sx={{ py: 2, px: 3 }}>
                           <Stack
                             direction={{ xs: "column", sm: "row" }}
                             spacing={3}

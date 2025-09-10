@@ -311,9 +311,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
             textAlign: "center",
           }}
         >
-          <Typography variant="caption">
-            Connecting to chat...
-          </Typography>
+          <Typography variant="caption">Connecting to chat...</Typography>
         </Box>
       )}
 
@@ -482,6 +480,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
           bgcolor: "grey.50",
           borderTop: "1px solid",
           borderColor: "divider",
+          backgroundColor: theme.palette.background.paper,
         }}
       >
         <input
@@ -492,7 +491,13 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
           accept="image/*,.pdf,.doc,.docx,.txt"
         />
 
-        <Box sx={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            alignItems: "flex-end",
+          }}
+        >
           <IconButton
             onClick={handleAttachment}
             sx={{

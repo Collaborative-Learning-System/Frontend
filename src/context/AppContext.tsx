@@ -16,6 +16,7 @@ interface User {
   userId: string;
   fullName: string;
   email: string;
+  bio: string;
 }
 
 export const AppContext = createContext<AppContextType>({

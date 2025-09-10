@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-
 import {
   Box,
   Container,
@@ -11,7 +9,6 @@ import {
 } from '@mui/material';
 
 export default function Footer() {
-    const navigate = useNavigate();
     const theme = useTheme();
 
   return (

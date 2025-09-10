@@ -25,6 +25,7 @@ import {
   Login,
   VisibilityOff,
   Visibility,
+  Check,
 } from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
@@ -77,7 +78,9 @@ const AuthComponent = () => {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          handleLogging(`User/${response.data.data.userId} logged in with: ${loginForm.email}`);
+          handleLogging(
+            `User/${response.data.data.userId} logged in with: ${loginForm.email}`
+          );
           navigate("/landing");
         } else {
           setError("Login failed. Please try again.");
@@ -152,7 +155,6 @@ const AuthComponent = () => {
       console.error("Error sending welcome email:", error);
     }
   };
-
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -435,6 +437,27 @@ const AuthComponent = () => {
                     ),
                   }}
                   placeholder="Create a password"
+                  helperText={
+                    <Box>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <IconButton size="small" disabled>
+                          <Check sx={{ color: "green" }} />
+                        </IconButton>
+                        <Typography variant="caption" color="green">
+                          Password must be at least 8 characters long.
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <IconButton size="small" disabled>
+                          <Check sx={{ color: "green" }} />
+                        </IconButton>
+                        <Typography variant="caption" color="green">
+                          Must include at least 1 uppercase letter, 1 lowercase
+                          letter, 1 number, and 1 special character"
+                        </Typography>
+                      </Box>
+                    </Box>
+                  }
                 />
 
                 <Button
