@@ -90,7 +90,7 @@ const App = () => {
             <Dashboard />
           </MainLayout>
         } />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password/:userId" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </ThemeContextProvider>

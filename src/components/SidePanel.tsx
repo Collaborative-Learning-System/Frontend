@@ -93,15 +93,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       ),
       path: "/real-time-collaboration",
     },
-    // {
-    //   text: "Contact Us",
-    //   icon: (
-    //     <Tooltip title="Contact Us">
-    //       <ContactPhoneRounded />
-    //     </Tooltip>
-    //   ),
-    //   path: "/contact-us",
-    // },
   ];
 
   const handleMenuItemClick = (path: string) => {
@@ -117,7 +108,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         `${backendUrl}/auth/logout/${userData?.userId}`
       );
       if (response.data.success) {
-           handleLogging(`User/${userData?.userId} logged out`);
+           handleLogging(`User logged out from the system`);
         NotificationService.showSuccess("Logged out successfully");
         setTimeout(() => {
           navigate("/auth");
@@ -129,9 +120,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
     }
   };
 
-  const handleProfile = () => {
-    navigate("/profile");
-  };
 
   const drawerContent = (
     <Box
@@ -224,8 +212,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 >
                   <ListItemIcon
                     sx={{
-                      //color: theme.palette.primary.main,
-
                       minWidth: open ? 40 : "auto",
                       justifyContent: "center",
                     }}
@@ -239,10 +225,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                       primaryTypographyProps={{
                         fontSize: "0.9rem",
                         fontWeight: isSelected ? 600 : 500,
-                        // color: isSelected
-                        //   ? theme.palette.primary.main
-                        //   : theme.palette.text.primary,
-                        //color: theme.palette.primary.main,
                       }}
                     />
                   )}
@@ -271,7 +253,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               cursor: "pointer",
               "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
-            onClick={handleProfile}
+            onClick={() => navigate("/profile")}
           >
             <Avatar
               src={""}
@@ -294,7 +276,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               <Typography variant="subtitle2" fontWeight="bold">
                 {userData?.fullName}
               </Typography>
-              <Typography variant="caption">{userData?.email}</Typography>
+              <Typography variant="caption">
+                {userData?.email}
+              </Typography>
             </Box>
           </Box>
         ) : (
@@ -307,7 +291,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               cursor: "pointer",
               "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
-            onClick={handleProfile}
+            onClick={() => navigate("/profile")}
           >
             <Tooltip title="View Profile">
               <Avatar

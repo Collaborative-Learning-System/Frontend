@@ -738,7 +738,7 @@ const Landing = () => {
                     return (
                       new Date().getTime() - logTime.getTime() <=
                       24 * 60 * 60 * 1000
-                    ); // last 5 hour
+                    ); // last 24 hour
                   })
                   .map((activity, index) => (
                     <Slide

@@ -122,11 +122,10 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
 
       if (data.success && "role" in data.data) {
         setSuccessMessage(`Successfully joined "${data.data.name}" workspace!`);
-        // Remove the joined workspace from the list or refresh the list
         handleLogging(`Joined with workspace ${data.data.name}`);
         setTimeout(() => {
           fetchWorkspaces();
-        }, 1500);
+        }, 1000);
       } else if ("message" in data.data) {
         setError(data.data.message);
       } else {

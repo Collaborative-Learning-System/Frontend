@@ -79,7 +79,7 @@ const AuthComponent = () => {
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
           handleLogging(
-            `User/${response.data.data.userId} logged in with: ${loginForm.email}`
+            `User logged in with: ${loginForm.email}`
           );
           navigate("/landing");
         } else {

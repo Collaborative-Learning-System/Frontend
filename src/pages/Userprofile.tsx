@@ -48,8 +48,6 @@ export default function UserProfile() {
         setError("Profile Updation Failed. Please try again later.");
         return;
       }
-      console.log("User Data:", userData);
-      console.log("Updating profile with data:", editData);
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/auth/update-profile`,
         {
@@ -78,6 +76,24 @@ export default function UserProfile() {
       }, 4000);
     }
   };
+
+  const handleRemoveAccount = async () => { 
+    try {
+      if (!userData?.userId) {
+        setError("Account Deletion Failed. Please try again later.");
+        return;
+      }
+      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/auth/delete-account/${userData?.userId}`)
+      if (response.data.success) { 
+        setSuccess("Account deleted successfully!");
+        setTimeout(() => {
+          navigate('/auth')
+        }, 2000);
+      }
+    } catch (error) {
+      setError("Account Deletion Failed. Please try again later.");
+    }
+  }
 
   const handleCancel = () => {
     setEditData(userData);
@@ -163,6 +179,11 @@ export default function UserProfile() {
             <Typography variant="body2" color="text.secondary">
               {userData?.bio || ""}
             </Typography>
+          </Box>
+          <Box>
+            <Button variant="outlined" color="error" onClick={handleRemoveAccount}>
+              Remove Account
+            </Button>
           </Box>
         </Stack>
       </Box>

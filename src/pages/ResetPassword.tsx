@@ -23,10 +23,12 @@ import {
   Check,
 } from "@mui/icons-material";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const ResetPassword = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { userId } = useParams<{ userId: string }>();
 
   // Form states
   const [newPassword, setNewPassword] = useState("");
@@ -74,15 +76,6 @@ const ResetPassword = () => {
     }
 
     try {
-      const email = localStorage.getItem("resetEmail");
-
-      if (!email) {
-        setError(
-          "Email not found. Please go back to forgot password and try again."
-        );
-        setIsLoading(false);
-        return;
-      }
 
       if (!newPassword.trim()) {
         setError("Password cannot be empty");
@@ -90,7 +83,7 @@ const ResetPassword = () => {
         return;
       }
       const response = await axios.post(`${backendUrl}/auth/reset-password`, {
-        email,
+        userId,
         newPassword,
       });
 
