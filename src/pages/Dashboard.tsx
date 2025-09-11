@@ -23,20 +23,48 @@ import {
   Add,
 } from "@mui/icons-material";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import { useContext, useEffect, useState } from "react";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+
+interface WorkspaceData {
+  count: number;
+  workspaces: {
+    id: string;
+    name: string;
+    description: string;
+    memberCount: number;
+    role: string;
+  }[];
+}
+
+interface GroupData {
+  count: number;
+  groups: {
+    id: string;
+    name: string;
+  }[];
+}
 
 const Dashboard = () => {
   const theme = useTheme();
+  const { userId } = useContext(AppContext);
+
+  const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(
+    null
+  );
+  const [groupData, setGroupData] = useState<GroupData | null>(null);
 
   const stats = [
     {
       title: "Workspaces",
-      value: "8",
+      value: workspaceData?.count || 0,
       icon: <Folder />,
       color: "#2196F3",
     },
     {
       title: "Groups Joined",
-      value: "5",
+      value: groupData?.count || 0,
       icon: <Group />,
       color: "#4CAF50",
     },
@@ -108,6 +136,39 @@ const Dashboard = () => {
     },
   ];
 
+  const getWorkspaceData = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/user/get-workspace-data/${userId}`
+      );
+      if (response.data.result.success) {
+        setWorkspaceData(response.data.result.data);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+    return;
+  };
+
+  const getGroupData = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/user/get-group-data/${userId}`
+      );
+      if (response.data.result.success) {
+        setGroupData(response.data.result.data);
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+    return;
+  };
+
+  useEffect(() => {
+    getWorkspaceData();
+    getGroupData();
+  }, []);
+
   return (
     <Box
       sx={{
@@ -138,7 +199,13 @@ const Dashboard = () => {
     >
       {/* Header Section */}
       <Box
-        sx={{ mb: 3, p: 1, borderBottom: `2px solid ${theme.palette.divider}`, display: 'flex', alignItems: 'center' }}
+        sx={{
+          mb: 3,
+          p: 1,
+          borderBottom: `2px solid ${theme.palette.divider}`,
+          display: "flex",
+          alignItems: "center",
+        }}
       >
         <AssessmentIcon
           sx={{ fontSize: 30, color: theme.palette.primary.main, mr: 1 }}
@@ -202,6 +269,122 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         ))}
+      </Box>
+
+      {/* Workspaces and Groups joined */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        {/* Workspaces - Left Side */}
+        <Box sx={{ flex: 1 }}>
+          <Card sx={{ height: "400px" }}>
+            <CardContent>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <History sx={{ mr: 1, color: theme.palette.primary.main }} />
+                <Typography variant="h6" fontWeight="600">
+                  Active Workspaces
+                </Typography>
+              </Box>
+              <List sx={{ p: 0, maxHeight: "300px", overflow: "auto" }}>
+                {workspaceData?.workspaces.map((workspace, index) => (
+                  <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+                    <ListItemAvatar>
+                      <Avatar
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          fontSize: "1rem",
+                          //bgcolor: theme.palette.primary.main,
+                        }}
+                      >
+                        {workspace.name.charAt(0)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={workspace.name}
+                      secondary={workspace.role}
+                      primaryTypographyProps={{
+                        variant: "body2",
+                        fontWeight: 500,
+                      }}
+                      secondaryTypographyProps={{
+                        variant: "caption",
+                        color: "text.secondary",
+                      }}
+                    />
+                    <Button variant="outlined" size="small" sx={{
+                      borderRadius: '20px',
+                      
+                    }}>
+                      {workspace.memberCount || 0} members
+                    </Button>
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Groups Joined - Right Side */}
+        <Box sx={{ flex: 1 }}>
+          <Card sx={{ height: "400px" }}>
+            <CardContent>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <Schedule sx={{ mr: 1, color: theme.palette.secondary.main }} />
+                <Typography variant="h6" fontWeight="600">
+                  Active Groups
+                </Typography>
+              </Box>
+              <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
+                {groupData?.groups.map((group, index) => (
+                  <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+                    <ListItemAvatar>
+                      <Avatar
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          fontSize: "1rem",
+                          //bgcolor: theme.palette.primary.main,
+                        }}
+                      >
+                        {group.name.charAt(0)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={group.name}
+                      //secondary={workspace.role}
+                      primaryTypographyProps={{
+                        variant: "body2",
+                        fontWeight: 500,
+                      }}
+                      secondaryTypographyProps={{
+                        variant: "caption",
+                        color: "text.secondary",
+                      }}
+                    />
+                  </ListItem>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        </Box>
       </Box>
 
       {/* Recent Activities and Upcoming Activities */}
