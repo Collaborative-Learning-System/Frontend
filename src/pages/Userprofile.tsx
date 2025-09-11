@@ -22,6 +22,8 @@ import {
   PhotoCamera,
   Lock,
 } from "@mui/icons-material";
+import InfoIcon from "@mui/icons-material/Info";
+
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -338,7 +340,7 @@ export default function UserProfile() {
               alignItems="center"
               sx={{ mb: 1 }}
             >
-              <Person sx={{ color: theme.palette.primary.main }} />
+              <InfoIcon sx={{ color: theme.palette.primary.main }} />
               <Typography variant="subtitle2" color="text.secondary">
                 Bio
               </Typography>

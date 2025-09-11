@@ -27,9 +27,6 @@ import {
 } from "@mui/icons-material";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
-import NotificationService from "../services/NotificationService";
-import { handleLogging } from "../services/LoggingService";
 
 interface SidePanelProps {
   open: boolean;
@@ -101,24 +98,24 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   };
 
 
-  const handleLogout = async () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    try {
-      const response = await axios.post(
-        `${backendUrl}/auth/logout/${userData?.userId}`
-      );
-      if (response.data.success) {
-           handleLogging(`User logged out from the system`);
-        NotificationService.showSuccess("Logged out successfully");
-        setTimeout(() => {
-          navigate("/auth");
-          logout();
-        }, 1000);
-      }
-    } catch (error) {
-      NotificationService.showError("Failed to log out");
-    }
-  };
+  // const handleLogout = async () => {
+  //   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  //   try {
+  //     const response = await axios.post(
+  //       `${backendUrl}/auth/logout/${userData?.userId}`
+  //     );
+  //     if (response.data.success) {
+  //          handleLogging(`User logged out from the system`);
+  //       NotificationService.showSuccess("Logged out successfully");
+  //       setTimeout(() => {
+  //         navigate("/auth");
+  //         logout();
+  //       }, 1000);
+  //     }
+  //   } catch (error) {
+  //     NotificationService.showError("Failed to log out");
+  //   }
+  // };
 
 
   const drawerContent = (
@@ -315,7 +312,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         <Divider sx={{ my: 1 }} />
         {/* Logout Button */}
         <ListItemButton
-          onClick={handleLogout}
+          onClick={() => logout()}
           sx={{
             borderRadius: 2,
             justifyContent: open ? "initial" : "center",

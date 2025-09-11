@@ -182,7 +182,6 @@ const Landing = () => {
     fetchWorkspaces();
     setMounted(true);
     fetchLogs();
-
   }, []);
 
   // Format date and time

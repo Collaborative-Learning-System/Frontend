@@ -2,6 +2,7 @@ import axios from "axios";
 import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { handleLogging } from "../services/LoggingService";
 
 interface AppContextType {
   userData: User | null;
@@ -50,15 +51,23 @@ export const AppContextProvider = ({
       if (data.success) {
         setUserData(data.data);
       } else {
-        toast.error(data.message);
+        toast.error("Please login again to continue");
+        navigate("/auth");
+        logout();
       }
     } catch (error: any) {
-      const refreshToken = error.response.data.data.refreshToken;
-      try {
-        await axios.post(`${backendUrl}/auth/refresh-token`, { refreshToken });
-        getUserData();
-      } catch (error) {
+      if (error.response?.status === 401) {
+        try {
+          await axios.post(`${backendUrl}/auth/refresh-token`);
+          getUserData();
+        } catch (error) {
+          navigate("/auth");
+          logout();
+        }
+      } else {
+        toast.error("Something went wrong. Please try again later.");
         navigate("/auth");
+        logout();
       }
     }
   };
@@ -69,10 +78,27 @@ export const AppContextProvider = ({
     }
   }, [userId]);
 
-  const logout = () => {
-    setUserData(null);
-    setUserId(null);
-    localStorage.removeItem("userId");
+  const logout = async () => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    try {
+      const response = await axios.post(
+        `${backendUrl}/auth/logout/${userId}`
+      );
+      if (response.data.success) {
+        handleLogging(`User logged out from the system`);
+        setTimeout(() => {
+          navigate("/auth");
+          setUserData(null);
+          setUserId(null);
+          localStorage.removeItem("userId");
+        }, 1000);
+      }
+    } catch (error) {
+      navigate("/auth");
+      setUserData(null);
+      setUserId(null);
+      localStorage.removeItem("userId");
+    }
   };
 
   return (
