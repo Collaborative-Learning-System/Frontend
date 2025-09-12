@@ -270,18 +270,20 @@ const Workspace = () => {
   };
 
   const renderGroupsList = (isInDrawer = false) => (
-    <Box sx={{ 
-      width: isInDrawer ? 280 : "100%",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column"
-    }}>
-      <Box sx={{ p: { xs: 2, sm: 3 }, pb: 2, flexShrink: 0 }}>
+    <Box
+      sx={{
+        width: isInDrawer ? 280 : "100%",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Box sx={{ p: { xs: 2, sm: 3}, pb: 2, flexShrink: 0 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <GroupIcon color="primary" />
-          <Typography 
-            variant="h6" 
-            color="primary" 
+          <Typography
+            variant="h6"
+            color="primary"
             fontWeight="600"
             sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}
           >
@@ -290,7 +292,7 @@ const Workspace = () => {
         </Box>
       </Box>
 
-      <Box sx={{ flex: 1, overflow: "auto", minHeight: 0 }}>
+      <Box sx={{ flex: 1, overflow: "auto", minHeight: 0}}>
         {groupsLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress size={24} />
@@ -348,8 +350,7 @@ const Workspace = () => {
                     primary={group.name}
                     secondary={group.isMember ? null : "Not joined"}
                     primaryTypographyProps={{
-                      fontWeight:
-                        selectedGroup === group.id ? "600" : "400",
+                      fontWeight: selectedGroup === group.id ? "600" : "400",
                       fontSize: { xs: "0.8rem", sm: "0.9rem" },
                       noWrap: true,
                     }}
@@ -369,9 +370,10 @@ const Workspace = () => {
                             handleJoinLeaveGroup(group.id);
                           }}
                           sx={{
-                            color: selectedGroup === group.id
-                              ? "primary.contrastText"
-                              : "text.secondary",
+                            color:
+                              selectedGroup === group.id
+                                ? "primary.contrastText"
+                                : "text.secondary",
                             p: { xs: 0.5, sm: 1 },
                             "&:hover": {
                               bgcolor: "rgba(0,0,0,0.1)",
@@ -416,8 +418,8 @@ const Workspace = () => {
           </List>
         ) : (
           <Box sx={{ p: { xs: 2, sm: 3 }, textAlign: "center" }}>
-            <Typography 
-              variant="body2" 
+            <Typography
+              variant="body2"
               color="text.secondary"
               sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
             >

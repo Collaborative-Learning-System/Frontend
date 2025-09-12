@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -25,7 +25,7 @@ import {
   alpha,
   Tooltip,
   Badge,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Save,
   Share,
@@ -41,17 +41,43 @@ import {
   MoreVert,
   Add,
   Circle,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 // Mock data for demonstration
 const mockUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', avatar: 'JD', color: '#1976d2', isOnline: true },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', avatar: 'JS', color: '#388e3c', isOnline: true },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', avatar: 'BJ', color: '#f57c00', isOnline: false },
+  {
+    id: 1,
+    name: "John Doe",
+    email: "john@example.com",
+    avatar: "JD",
+    color: "#1976d2",
+    isOnline: true,
+  },
+  {
+    id: 2,
+    name: "Jane Smith",
+    email: "jane@example.com",
+    avatar: "JS",
+    color: "#388e3c",
+    isOnline: true,
+  },
+  {
+    id: 3,
+    name: "Bob Johnson",
+    email: "bob@example.com",
+    avatar: "BJ",
+    color: "#f57c00",
+    isOnline: false,
+  },
 ];
 
 const mockDocuments = [
-  { id: 1, title: 'Project Proposal', lastModified: '2 minutes ago', collaborators: 3 },
+  {
+    id: 1,
+    title: "Project Proposal",
+    lastModified: "2 minutes ago",
+    collaborators: 3,
+  },
 ];
 
 interface Cursor {
@@ -64,17 +90,20 @@ interface Cursor {
 const RealTimeCollaboration = () => {
   const theme = useTheme();
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const [documentContent, setDocumentContent] = useState('');
+  const [documentContent, setDocumentContent] = useState("");
   const [currentDocument, setCurrentDocument] = useState(mockDocuments[0]);
-  const [connectedUsers, setConnectedUsers] = useState(mockUsers.filter(u => u.isOnline));
+  const [connectedUsers, setConnectedUsers] = useState(
+    mockUsers.filter((u) => u.isOnline)
+  );
   const [cursors, setCursors] = useState<Cursor[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [lastSaved, setLastSaved] = useState(new Date());
-  const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(null);
+  const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
   //const [formatMenuAnchor, setFormatMenuAnchor] = useState<null | HTMLElement>(null);
   const [showDocumentDialog, setShowDocumentDialog] = useState(false);
   const [documentTitle, setDocumentTitle] = useState(currentDocument.title);
-
 
   // Initialize with some sample content
   useEffect(() => {
@@ -96,17 +125,19 @@ Welcome to the collaborative document editor! This is where multiple users can w
 `);
   }, [currentDocument]);
 
-  const handleContentChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleContentChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     const newContent = event.target.value;
     const cursorPosition = event.target.selectionStart;
-    
+
     setDocumentContent(newContent);
     setIsEditing(true);
-    
+
     // Simulate sending cursor position to other users
     // In a real implementation, this would be sent via WebSocket
-    console.log('Cursor position:', cursorPosition);
-    
+    console.log("Cursor position:", cursorPosition);
+
     // Auto-save simulation
     setTimeout(() => {
       setIsEditing(false);
@@ -118,13 +149,12 @@ Welcome to the collaborative document editor! This is where multiple users can w
     setLastSaved(new Date());
     setIsEditing(false);
     // Implement save logic
-    console.log('Document saved');
+    console.log("Document saved");
   };
 
   const handleShare = (event: React.MouseEvent<HTMLElement>) => {
     setShareMenuAnchor(event.currentTarget);
   };
-
 
   const formatText = (type: string) => {
     const textarea = editorRef.current;
@@ -133,65 +163,105 @@ Welcome to the collaborative document editor! This is where multiple users can w
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = documentContent.substring(start, end);
-    
+
     let formattedText = selectedText;
     switch (type) {
-      case 'bold':
+      case "bold":
         formattedText = `**${selectedText}**`;
         break;
-      case 'italic':
+      case "italic":
         formattedText = `*${selectedText}*`;
         break;
-      case 'underline':
+      case "underline":
         formattedText = `<u>${selectedText}</u>`;
         break;
       default:
         break;
     }
 
-    const newContent = documentContent.substring(0, start) + formattedText + documentContent.substring(end);
+    const newContent =
+      documentContent.substring(0, start) +
+      formattedText +
+      documentContent.substring(end);
     setDocumentContent(newContent);
     //setFormatMenuAnchor(null);
   };
 
   const addCollaborator = () => {
     // Simulate adding a new collaborator
-    const offlineUsers = mockUsers.filter(u => !u.isOnline);
+    const offlineUsers = mockUsers.filter((u) => !u.isOnline);
     if (offlineUsers.length > 0) {
       const newUser = offlineUsers[0];
-      setConnectedUsers(prev => [...prev, { ...newUser, isOnline: true }]);
-      setCursors(prev => [...prev, {
-        id: newUser.id,
-        name: newUser.name,
-        color: newUser.color,
-        position: Math.floor(Math.random() * documentContent.length)
-      }]);
+      setConnectedUsers((prev) => [...prev, { ...newUser, isOnline: true }]);
+      setCursors((prev) => [
+        ...prev,
+        {
+          id: newUser.id,
+          name: newUser.name,
+          color: newUser.color,
+          position: Math.floor(Math.random() * documentContent.length),
+        },
+      ]);
     }
   };
   return (
-    <Box sx={{ p: 3, maxWidth: '100%', mx: 'auto' }}>
+    <Box
+      sx={{
+        p: 3,
+        maxWidth: "100%",
+        mx: "auto",
+        background: `linear-gradient(135deg, 
+                    ${alpha(theme.palette.primary.main, 0.03)} 0%, 
+                    ${alpha(theme.palette.secondary.main, 0.02)} 50%,
+                    ${alpha(theme.palette.background.default, 0.95)} 100%)`,
+        minHeight: "100vh",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `radial-gradient(circle at 20% 80%, ${alpha(
+            theme.palette.primary.main,
+            0.1
+          )} 0%, transparent 50%),
+                            radial-gradient(circle at 80% 20%, ${alpha(
+                              theme.palette.secondary.main,
+                              0.1
+                            )} 0%, transparent 50%)`,
+          pointerEvents: "none",
+        },
+      }}
+    >
       {/* Header */}
       <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
               {documentTitle}
             </Typography>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography variant="body2" color="text.secondary">
-                {isEditing ? 'Editing...' : `Last saved: ${lastSaved.toLocaleTimeString()}`}
+                {isEditing
+                  ? "Editing..."
+                  : `Last saved: ${lastSaved.toLocaleTimeString()}`}
               </Typography>
               {isEditing && (
                 <Chip
                   label="Saving..."
                   size="small"
                   color="primary"
-                  sx={{ fontSize: '0.7rem' }}
+                  sx={{ fontSize: "0.7rem" }}
                 />
               )}
             </Stack>
           </Box>
-          
+
           <Stack direction="row" spacing={1}>
             <Button
               variant="outlined"
@@ -215,30 +285,35 @@ Welcome to the collaborative document editor! This is where multiple users can w
         </Stack>
       </Paper>
 
-      <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3}>
+      <Stack direction={{ xs: "column", lg: "row" }} spacing={3}>
         {/* Main Editor */}
         <Box sx={{ flex: 1 }}>
-          <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
             {/* Toolbar */}
-            <Box sx={{ 
-              p: 1, 
-              borderBottom: 1, 
-              borderColor: 'divider',
-              bgcolor: alpha(theme.palette.primary.main, 0.05)
-            }}>
+            <Box
+              sx={{
+                p: 1,
+                borderBottom: 1,
+                borderColor: "divider",
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+              }}
+            >
               <Stack direction="row" spacing={1} alignItems="center">
                 <Tooltip title="Bold">
-                  <IconButton size="small" onClick={() => formatText('bold')}>
+                  <IconButton size="small" onClick={() => formatText("bold")}>
                     <FormatBold />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Italic">
-                  <IconButton size="small" onClick={() => formatText('italic')}>
+                  <IconButton size="small" onClick={() => formatText("italic")}>
                     <FormatItalic />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Underline">
-                  <IconButton size="small" onClick={() => formatText('underline')}>
+                  <IconButton
+                    size="small"
+                    onClick={() => formatText("underline")}
+                  >
                     <FormatUnderlined />
                   </IconButton>
                 </Tooltip>
@@ -268,9 +343,9 @@ Welcome to the collaborative document editor! This is where multiple users can w
             </Box>
 
             {/* Editor Area */}
-            <Box sx={{ position: 'relative' }}>
+            <Box sx={{ position: "relative" }}>
               <TextField
-             //   ref={editorRef}
+                //   ref={editorRef}
                 multiline
                 fullWidth
                 value={documentContent}
@@ -278,24 +353,24 @@ Welcome to the collaborative document editor! This is where multiple users can w
                 placeholder="Start typing your document..."
                 variant="outlined"
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { border: 'none' },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { border: "none" },
                   },
-                  '& .MuiInputBase-input': {
-                    minHeight: '400px',
-                    fontFamily: 'monospace',
-                    fontSize: '14px',
+                  "& .MuiInputBase-input": {
+                    minHeight: "400px",
+                    fontFamily: "monospace",
+                    fontSize: "14px",
                     lineHeight: 1.5,
-                  }
+                  },
                 }}
               />
-              
+
               {/* Live Cursors */}
-              {cursors.map(cursor => (
+              {cursors.map((cursor) => (
                 <Box
                   key={cursor.id}
                   sx={{
-                    position: 'absolute',
+                    position: "absolute",
                     top: Math.floor(cursor.position / 80) * 21 + 16, // Approximate line height
                     left: (cursor.position % 80) * 8.5 + 14, // Approximate character width
                     zIndex: 10,
@@ -306,19 +381,19 @@ Welcome to the collaborative document editor! This is where multiple users can w
                       width: 2,
                       height: 20,
                       bgcolor: cursor.color,
-                      animation: 'blink 1s infinite',
+                      animation: "blink 1s infinite",
                     }}
                   />
                   <Chip
                     label={cursor.name}
                     size="small"
                     sx={{
-                      position: 'absolute',
+                      position: "absolute",
                       top: -30,
                       left: -10,
                       bgcolor: cursor.color,
-                      color: 'white',
-                      fontSize: '0.7rem',
+                      color: "white",
+                      fontSize: "0.7rem",
                       height: 20,
                     }}
                   />
@@ -329,11 +404,19 @@ Welcome to the collaborative document editor! This is where multiple users can w
         </Box>
 
         {/* Sidebar */}
-        <Box sx={{ width: { xs: '100%', lg: 300 } }}>
+        <Box sx={{ width: { xs: "100%", lg: 300 } }}>
           {/* Connected Users */}
           <Paper elevation={1} sx={{ p: 2, mb: 2, borderRadius: 2 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 2 }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              >
                 <People />
                 Collaborators ({connectedUsers.length})
               </Typography>
@@ -341,23 +424,28 @@ Welcome to the collaborative document editor! This is where multiple users can w
                 <Add />
               </IconButton>
             </Stack>
-            
+
             <Stack spacing={1}>
-              {connectedUsers.map(user => (
-                <Stack key={user.id} direction="row" alignItems="center" spacing={2}>
+              {connectedUsers.map((user) => (
+                <Stack
+                  key={user.id}
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                >
                   <Badge
                     overlap="circular"
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                     badgeContent={
-                      <Circle sx={{ color: '#4caf50', fontSize: 12 }} />
+                      <Circle sx={{ color: "#4caf50", fontSize: 12 }} />
                     }
                   >
-                    <Avatar 
-                      sx={{ 
-                        bgcolor: user.color, 
-                        width: 32, 
+                    <Avatar
+                      sx={{
+                        bgcolor: user.color,
+                        width: 32,
                         height: 32,
-                        fontSize: '0.8rem'
+                        fontSize: "0.8rem",
                       }}
                     >
                       {user.avatar}
@@ -382,17 +470,20 @@ Welcome to the collaborative document editor! This is where multiple users can w
               Recent Documents
             </Typography>
             <Stack spacing={1}>
-              {mockDocuments.map(doc => (
+              {mockDocuments.map((doc) => (
                 <Box
                   key={doc.id}
                   sx={{
                     p: 1.5,
                     borderRadius: 1,
-                    cursor: 'pointer',
-                    bgcolor: doc.id === currentDocument.id ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
-                    '&:hover': {
+                    cursor: "pointer",
+                    bgcolor:
+                      doc.id === currentDocument.id
+                        ? alpha(theme.palette.primary.main, 0.1)
+                        : "transparent",
+                    "&:hover": {
                       bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    }
+                    },
                   }}
                   onClick={() => setCurrentDocument(doc)}
                 >
@@ -416,21 +507,30 @@ Welcome to the collaborative document editor! This is where multiple users can w
         onClose={() => setShareMenuAnchor(null)}
       >
         <MenuItem onClick={() => setShareMenuAnchor(null)}>
-          <ListItemIcon><Share /></ListItemIcon>
+          <ListItemIcon>
+            <Share />
+          </ListItemIcon>
           <ListItemText>Share via link</ListItemText>
         </MenuItem>
         <MenuItem onClick={() => setShareMenuAnchor(null)}>
-          <ListItemIcon><People /></ListItemIcon>
+          <ListItemIcon>
+            <People />
+          </ListItemIcon>
           <ListItemText>Invite collaborators</ListItemText>
         </MenuItem>
         <MenuItem onClick={() => setShareMenuAnchor(null)}>
-          <ListItemIcon><Download /></ListItemIcon>
+          <ListItemIcon>
+            <Download />
+          </ListItemIcon>
           <ListItemText>Export document</ListItemText>
         </MenuItem>
       </Menu>
 
       {/* Document Settings Dialog */}
-      <Dialog open={showDocumentDialog} onClose={() => setShowDocumentDialog(false)}>
+      <Dialog
+        open={showDocumentDialog}
+        onClose={() => setShowDocumentDialog(false)}
+      >
         <DialogTitle>Document Settings</DialogTitle>
         <DialogContent>
           <TextField
@@ -451,7 +551,10 @@ Welcome to the collaborative document editor! This is where multiple users can w
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowDocumentDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => setShowDocumentDialog(false)}>
+          <Button
+            variant="contained"
+            onClick={() => setShowDocumentDialog(false)}
+          >
             Save Changes
           </Button>
         </DialogActions>

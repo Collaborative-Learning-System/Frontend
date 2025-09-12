@@ -97,27 +97,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
     if (isMobile) onClose();
   };
 
-
-  // const handleLogout = async () => {
-  //   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  //   try {
-  //     const response = await axios.post(
-  //       `${backendUrl}/auth/logout/${userData?.userId}`
-  //     );
-  //     if (response.data.success) {
-  //          handleLogging(`User logged out from the system`);
-  //       NotificationService.showSuccess("Logged out successfully");
-  //       setTimeout(() => {
-  //         navigate("/auth");
-  //         logout();
-  //       }, 1000);
-  //     }
-  //   } catch (error) {
-  //     NotificationService.showError("Failed to log out");
-  //   }
-  // };
-
-
   const drawerContent = (
     <Box
       sx={{

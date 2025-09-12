@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import HomepageImage from "../assets/Homepageimg.png";
-//import TopNavBar from '../components/TopNavBar';
 import Footer from "../components/Footer";
 
 import {
@@ -110,7 +109,13 @@ export default function CollaborativeLearningHomepage() {
   ];
 
   return (
-    <Box sx={{ flexGrow: 1, bgcolor: theme.palette.background.default }}>
+    <Box
+      sx={{
+        flexGrow: 1,
+        backgroundColor: theme.palette.background.paper,
+        minHeight: "100vh",
+      }}
+    >
       <Navigation />
 
       {/* Hero Section */}
@@ -200,10 +205,9 @@ export default function CollaborativeLearningHomepage() {
 
       {/* Stats Section */}
       <Container
-        maxWidth="lg"
         sx={{ py: 0, bgcolor: theme.palette.background.paper }}
       >
-        <Grid container spacing={4} sx={{padding: 2}}>
+        <Grid container spacing={4} sx={{ padding: 2 }}>
           {stats.map((stat, index) => (
             <Grid size={{ xs: 6, md: 3 }} key={index}>
               <Box sx={{ textAlign: "center" }}>

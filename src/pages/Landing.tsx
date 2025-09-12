@@ -137,8 +137,7 @@ const Landing = () => {
         };
       }
     } catch (error) {
-
-      setLogs([]);
+      // setLogs([]);
       return {
         success: false,
         message: "Failed to create workspace due to an error",
@@ -154,7 +153,7 @@ const Landing = () => {
       const response = await axios.get(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/notification/get-logs-by-user/${localStorage.getItem("userId")}`
+        }/user/get-logs-by-user/${localStorage.getItem("userId")}`
       );
 
       if (response) {

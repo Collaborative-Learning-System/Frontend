@@ -567,6 +567,7 @@ const Quiz: React.FC<QuizProps> = ({ groupId }) => {
             ))}
           </Box>
         ) : (
+          /* No quizzes available message */
           <Fade in={true}>
             <Paper
               elevation={3}
