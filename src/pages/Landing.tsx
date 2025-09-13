@@ -247,29 +247,9 @@ const Landing = () => {
     border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
   };
 
-  // Glassmorphism card styles with reduced curviness
-  const glassCardStyles = {
-    background: alpha(theme.palette.background.paper, 0.85),
-    backdropFilter: "blur(20px)",
-    borderRadius: "12px", // Reduced from 24px
-    border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
-    boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.12)}`,
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    "&:hover": {
-      transform: "translateY(-8px) scale(1.02)",
-      boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.2)}`,
-      background: alpha(theme.palette.background.paper, 0.95),
-    },
-  };
 
-  const glassBackdropStyles = {
-    background: `linear-gradient(135deg, 
-      ${alpha(theme.palette.primary.main, 0.1)} 0%, 
-      ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
-    backdropFilter: "blur(10px)",
-    borderRadius: "12px", // Reduced from 20px
-    border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
-  };
+  
+
 
   return (
     <Box

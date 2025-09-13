@@ -20,8 +20,13 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefin
 export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(null);
 
+  const handleSetWorkspaceData = (data: WorkspaceData | null) => {
+    console.log("WorkspaceContext: Setting workspace data:", data);
+    setWorkspaceData(data);
+  };
+
   return (
-    <WorkspaceContext.Provider value={{ workspaceData, setWorkspaceData }}>
+    <WorkspaceContext.Provider value={{ workspaceData, setWorkspaceData: handleSetWorkspaceData }}>
       {children}
     </WorkspaceContext.Provider>
   );

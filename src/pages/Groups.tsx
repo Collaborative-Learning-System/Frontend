@@ -10,16 +10,9 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
-import { useWorkspace } from "../context/WorkspaceContext";
-// import QuizCreation from "../components/QuizCreation";
-
-
 const Groups = () => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const [viewDetail, setViewDetail] = React.useState(false);
-  const { workspaceData } = useWorkspace();
 
   return (
     <Box
@@ -79,11 +72,6 @@ const Groups = () => {
           gap: 2,
         }}
       >
-        {workspaceData?.role === "admin" && (
-          <Button variant="contained" onClick={() => navigate('/quiz-creator')}>
-            Create Quiz
-          </Button>
-        )}
         <Button variant="contained">
           Leaderboard
         </Button>

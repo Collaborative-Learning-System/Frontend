@@ -14,6 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
 import RealTimeCollaboration from "./pages/RealTimeCollaboration";
+import QuizTaker from "./components/QuizTaker";
 
 const App = () => {
   return (
@@ -55,7 +56,11 @@ const App = () => {
         />
         <Route
           path="/quiz-creator"
-          element={<QuizCreator />}
+          element={
+            <MainLayout>
+              <QuizCreator />
+            </MainLayout>
+          }
         />
         <Route
           path="/profile"
@@ -91,6 +96,7 @@ const App = () => {
         />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        
       </Routes>
     </ThemeContextProvider>
   );

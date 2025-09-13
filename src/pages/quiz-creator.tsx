@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import {
   Container,
   Box,
@@ -16,12 +17,13 @@ import {
   Alert,
   Snackbar,
   useTheme,
+  CircularProgress,
 } from "@mui/material"
 
 import QuizMetadata from "../components/QuizMetadata"
 import QuestionBuilder, { type Question } from "../components/QuestionBuilder"
 import QuestionList from "../components/QuestionList"
-import TopNavBar from "../components/TopNavBar"
+import { QuizService } from "../services/QuizService"
 
 
 interface QuizData {
@@ -37,11 +39,25 @@ interface QuizData {
 
 export default function QuizCreator() {
   const theme = useTheme()
+  const location = useLocation()
+  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
   const [saveDialogOpen, setSaveDialogOpen] = useState(false)
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
+  const [isPublishing, setIsPublishing] = useState(false)
+  
+  // Get groupId from navigation state
+  const groupId = location.state?.groupId
+
+  // Redirect if no groupId is provided
+  useEffect(() => {
+    if (!groupId) {
+      showSnackbar("No group selected. Please select a group first.")
+      navigate(-1) // Go back
+    }
+  }, [groupId, navigate])
 
   const [quizData, setQuizData] = useState<QuizData>({
     metadata: {
@@ -131,17 +147,37 @@ export default function QuizCreator() {
     showSnackbar("Quiz saved as draft!")
   }
 
-  const handlePublishQuiz = () => {
+  const handlePublishQuiz = async () => {
     const errors = validateQuiz()
     if (errors.length > 0) {
       showSnackbar(`Please fix the following errors: ${errors.join(", ")}`)
       return
     }
 
-    // In real app, publish to backend
-    console.log("Publishing quiz:", quizData)
-    setPublishDialogOpen(false)
-    showSnackbar("Quiz published successfully!")
+    if (!groupId) {
+      showSnackbar("No group ID available. Please try again.")
+      return
+    }
+
+    setIsPublishing(true)
+    
+    try {
+      const result = await QuizService.createCompleteQuiz(groupId, quizData.metadata, quizData.questions)
+      console.log("Quiz created successfully:", result)
+      setPublishDialogOpen(false)
+      showSnackbar("Quiz published successfully!")
+      
+      // Navigate back to the workspace after successful creation
+      setTimeout(() => {
+        navigate(-1)
+      }, 2000)
+      
+    } catch (error: any) {
+      console.error("Error publishing quiz:", error)
+      showSnackbar(error.message || "Failed to publish quiz. Please try again.")
+    } finally {
+      setIsPublishing(false)
+    }
   }
 
   const canProceedToNext = () => {
@@ -159,9 +195,19 @@ export default function QuizCreator() {
 
   return (
     <Box sx={{ bgcolor: theme.palette.background.default, minHeight: "100vh" }}>
-      <TopNavBar />
+      
 
       <Container maxWidth="lg" sx={{ py: 4, mt: 8 }}>
+        
+        {/* Show error if no groupId */}
+        {!groupId && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            No group selected. Please go back and select a group first.
+          </Alert>
+        )}
+        
+        {groupId && (
+        <Box>
         {/* Progress Stepper */}
         <Box sx={{ mb: 4, position: "relative", zIndex: 1 }}>
           <Stepper activeStep={currentStep} alternativeLabel>
@@ -298,6 +344,8 @@ export default function QuizCreator() {
             {currentStep === 2 ? "Finish" : "Next"}
           </Button>
         </Box>
+        </Box>
+        )}
       </Container>
 
       {/* Save Dialog */}
@@ -317,18 +365,35 @@ export default function QuizCreator() {
       </Dialog>
 
       {/* Publish Dialog */}
-      <Dialog open={publishDialogOpen} onClose={() => setPublishDialogOpen(false)}>
+      <Dialog open={publishDialogOpen} onClose={() => !isPublishing && setPublishDialogOpen(false)}>
         <DialogTitle>Publish Quiz</DialogTitle>
         <DialogContent>
           <Typography paragraph>
             Are you sure you want to publish this quiz? Once published, students will be able to take it.
           </Typography>
           <Alert severity="info">Make sure all questions are correct and the quiz is ready for students.</Alert>
+          
+          {isPublishing && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+              <CircularProgress size={20} />
+              <Typography variant="body2" color="text.secondary">
+                Creating quiz...
+              </Typography>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPublishDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handlePublishQuiz} variant="contained" color="primary">
-            Publish
+          <Button onClick={() => setPublishDialogOpen(false)} disabled={isPublishing}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handlePublishQuiz} 
+            variant="contained" 
+            color="primary"
+            disabled={isPublishing}
+            startIcon={isPublishing ? <CircularProgress size={16} /> : undefined}
+          >
+            {isPublishing ? 'Publishing...' : 'Publish'}
           </Button>
         </DialogActions>
       </Dialog>

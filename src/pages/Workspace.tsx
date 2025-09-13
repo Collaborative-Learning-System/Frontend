@@ -110,7 +110,10 @@ const Workspace = () => {
         );
 
         if (response.data.success) {
+          console.log("Workspace data fetched:", response.data.data);
           setWorkspaceData(response.data.data);
+          setGlobalWorkspaceData(response.data.data);
+          console.log("Global workspace data set:", response.data.data);
           setError(null);
         } else {
           throw new Error(response.data.message || "Failed to fetch workspace details");

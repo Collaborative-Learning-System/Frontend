@@ -1,5 +1,9 @@
-import React, { useState } from "react";
-    import QuizTaker from "./QuizTaker";
+import React, { useState, useEffect } from "react";
+    import QuizTakerNew from "./QuizTakerNew";
+    import { useNavigate } from "react-router-dom";
+    import { useWorkspace } from "../context/WorkspaceContext";
+    import { QuizService } from "../services/QuizService";
+    import type { QuizCompletionResponse } from "../services/QuizAttemptService";
     import {
       Box,
       Paper,
@@ -16,6 +20,9 @@ import React, { useState } from "react";
       useMediaQuery,
       Stack,
       Badge,
+      CircularProgress,
+      Alert,
+      Snackbar,
     } from "@mui/material";
     import {
       Quiz as QuizIcon,
@@ -26,18 +33,23 @@ import React, { useState } from "react";
       CheckCircle as CheckIcon,
       Star as StarIcon,
       TrendingUp as TrendingIcon,
+
+      NewReleases as NewIcon,
     } from "@mui/icons-material";
 
     interface Quiz {
-      id: number;
+      id: string;
       title: string;
       description: string;
-      difficulty: "easy" | "medium" | "hard";
-      questions: number;
+      difficulty: "EASY" | "MEDIUM" | "HARD" | "easy" | "medium" | "hard";
       timeLimit: number; // in minutes
+      instructions: string;
+      questions: number; // number of questions
       completed: boolean;
       score?: number;
       maxScore: number;
+      createdAt?: string;
+      isNew?: boolean; // for highlighting new quizzes
     }
 
     interface QuizProps {
@@ -49,36 +61,39 @@ import React, { useState } from "react";
       // Default mock data for testing - you can remove these when integrating with real API
       "default-group-1": [
         {
-          id: 1,
+          id: "1",
           title: "Network Security Basics",
           description:
             "Test your knowledge of network security fundamentals including firewalls, VPNs, and encryption",
           difficulty: "easy",
-          questions: 10,
           timeLimit: 15,
+          instructions: "Answer all questions to the best of your knowledge.",
+          questions: 10,
           completed: true,
           score: 8,
           maxScore: 10,
         },
         {
-          id: 2,
+          id: "2",
           title: "Cryptography Advanced",
           description:
             "Advanced concepts in cryptography and encryption algorithms, digital signatures, and key management",
           difficulty: "hard",
-          questions: 15,
           timeLimit: 25,
+          instructions: "This is an advanced quiz. Take your time.",
+          questions: 15,
           completed: false,
           maxScore: 15,
         },
         {
-          id: 3,
+          id: "3",
           title: "Web Application Security",
           description:
             "Common vulnerabilities and security measures for web applications including OWASP Top 10",
           difficulty: "medium",
-          questions: 12,
           timeLimit: 20,
+          instructions: "Focus on practical security measures.",
+          questions: 12,
           completed: true,
           score: 10,
           maxScore: 12,
@@ -86,24 +101,26 @@ import React, { useState } from "react";
       ],
       "default-group-2": [
         {
-          id: 4,
+          id: "4",
           title: "SDLC Fundamentals",
           description:
             "Software Development Life Cycle basics, methodologies, and best practices",
           difficulty: "easy",
-          questions: 8,
           timeLimit: 12,
+          instructions: "Cover all phases of SDLC.",
+          questions: 8,
           completed: false,
           maxScore: 8,
         },
         {
-          id: 5,
+          id: "5",
           title: "Design Patterns",
           description:
             "Common software design patterns and their applications in modern development",
           difficulty: "medium",
-          questions: 14,
           timeLimit: 22,
+          instructions: "Think about real-world applications.",
+          questions: 14,
           completed: true,
           score: 11,
           maxScore: 14,
@@ -114,17 +131,163 @@ import React, { useState } from "react";
     const Quiz: React.FC<QuizProps> = ({ groupId }) => {
       const theme = useTheme();
       const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+      const navigate = useNavigate();
+      const { workspaceData } = useWorkspace();
       const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+      const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState<string | null>(null);
+      const [snackbarOpen, setSnackbarOpen] = useState(false);
+      const [snackbarMessage, setSnackbarMessage] = useState("");
       
-      // Use groupId as string key, fallback to empty array if no data found
-      const [quizzes, setQuizzes] = useState(mockQuizzes[groupId] || []);
+      // Debug group ID
+      console.log('Quiz component - Received groupId:', groupId);
+      console.log('Quiz component - GroupId type:', typeof groupId);
+      
+      // Debug workspace data
+      console.log("Quiz Component - Workspace Data:", workspaceData);
+      
+      // Fetch quizzes when component mounts or groupId changes
+      useEffect(() => {
+        if (groupId) {
+          fetchQuizzes();
+        } else {
+          console.log('Quiz component - No groupId provided, loading demo data');
+          // Load demo data when no groupId is available
+          const fallbackQuizzes = Object.values(mockQuizzes).flat().map((quiz, index) => ({
+            ...quiz,
+            id: quiz.id ? quiz.id.toString() : `demo-${index + 1}-${Date.now()}`
+          }));
+          setQuizzes(fallbackQuizzes);
+          setLoading(false);
+          setSnackbarMessage(`Demo mode - ${fallbackQuizzes.length} quizzes loaded`);
+          setSnackbarOpen(true);
+        }
+      }, [groupId]);
 
-      const handleQuizComplete = (quizId: number, score: number) => {
-        setQuizzes((prev) =>
-          prev.map((quiz) =>
-            quiz.id === quizId ? { ...quiz, completed: true, score } : quiz
+      const fetchQuizzes = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          
+          console.log('Fetching quizzes for group:', groupId);
+          const response = await QuizService.getGroupQuizzes(groupId);
+          console.log('Raw API response:', response);
+          
+          // Transform backend data to match frontend interface
+          const transformedQuizzes: Quiz[] = response.data.map((quiz: any) => {
+            console.log('Transforming quiz:', quiz);
+            
+            // Try different possible ID field names
+            const quizId = quiz.id || quiz._id || quiz.quizId || quiz.quiz_id || `quiz-${Date.now()}-${Math.random()}`;
+            console.log('Available fields:', Object.keys(quiz));
+            console.log('Using ID:', quizId);
+            
+            const transformed = {
+              id: quizId.toString(), // Ensure it's a string
+              title: quiz.title,
+              description: quiz.description,
+              difficulty: quiz.difficulty.toLowerCase(),
+              timeLimit: quiz.timeLimit,
+              instructions: quiz.instructions,
+              questions: quiz.questions?.length || 0,
+              completed: false, // You can implement quiz completion tracking
+              maxScore: quiz.questions?.reduce((sum: number, q: any) => sum + (q.points || 1), 0) || 0,
+              createdAt: quiz.createdAt,
+              isNew: isQuizNew(quiz.createdAt)
+            };
+            console.log('Transformed quiz:', transformed);
+            return transformed;
+          });
+          
+          setQuizzes(transformedQuizzes);
+          
+          // Debug: Log the loaded quizzes
+          console.log('Loaded quizzes:', transformedQuizzes);
+          transformedQuizzes.forEach((quiz, index) => {
+            console.log(`Quiz ${index + 1} ID:`, quiz.id, 'Type:', typeof quiz.id);
+          });
+          
+          // Show success message
+          const newQuizzes = transformedQuizzes.filter(q => q.isNew).length;
+          if (newQuizzes > 0) {
+            setSnackbarMessage(`${newQuizzes} new quiz${newQuizzes > 1 ? 'es' : ''} available!`);
+          } else {
+            setSnackbarMessage(`${transformedQuizzes.length} quiz${transformedQuizzes.length !== 1 ? 'es' : ''} loaded`);
+          }
+          setSnackbarOpen(true);
+          
+        } catch (err: any) {
+          console.error('Failed to fetch quizzes:', err);
+          setError(err.message || 'Failed to load quizzes');
+          // Fallback to mock data for development
+          const fallbackQuizzes = Object.values(mockQuizzes).flat().map((quiz, index) => ({
+            ...quiz,
+            id: quiz.id ? quiz.id.toString() : `fallback-${index + 1}-${Date.now()}`
+          }));
+          setQuizzes(fallbackQuizzes);
+          
+          // Debug: Log the fallback quizzes
+          console.log('Fallback quizzes:', fallbackQuizzes);
+          fallbackQuizzes.forEach((quiz, index) => {
+            console.log(`Fallback Quiz ${index + 1} ID:`, quiz.id, 'Type:', typeof quiz.id);
+          });
+          
+          setSnackbarMessage(`Using demo data - ${fallbackQuizzes.length} quizzes loaded`);
+          setSnackbarOpen(true);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      // Check if quiz was created in the last 24 hours
+      const isQuizNew = (createdAt: string): boolean => {
+        if (!createdAt) return false;
+        const created = new Date(createdAt);
+        const now = new Date();
+        const diffInHours = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+        return diffInHours <= 24;
+      };
+
+      const handleStartQuiz = (quiz: Quiz) => {
+        console.log('Starting quiz:', quiz);
+        console.log('Quiz ID:', quiz.id);
+        console.log('Quiz ID type:', typeof quiz.id);
+        console.log('Quiz ID is truthy:', !!quiz.id);
+        
+        if (!quiz.id) {
+          console.error('Quiz ID is missing or undefined!');
+          setSnackbarMessage('Error: Quiz ID is missing. Please try again.');
+          setSnackbarOpen(true);
+          return;
+        }
+        
+        setSelectedQuiz(quiz);
+      };
+
+      const handleQuizComplete = (results: QuizCompletionResponse) => {
+        console.log('Quiz completed with results:', results);
+        
+        // Update the quiz as completed in our local state
+        setQuizzes(prevQuizzes => 
+          prevQuizzes.map(q => 
+            q.id === selectedQuiz?.id 
+              ? { ...q, completed: true, score: results.score, maxScore: results.totalQuestions }
+              : q
           )
         );
+        
+        // Show completion message
+        setSnackbarMessage(
+          `Quiz completed! You scored ${results.score}/${results.totalQuestions} (${Math.round(results.percentage)}%)`
+        );
+        setSnackbarOpen(true);
+        
+        // Go back to quiz list
+        setSelectedQuiz(null);
+      };
+
+      const handleBackToQuizzes = () => {
         setSelectedQuiz(null);
       };
 
@@ -170,12 +333,15 @@ import React, { useState } from "react";
         return "Keep Trying!";
       };
 
+      // Show QuizTaker if a quiz is selected
       if (selectedQuiz) {
+        console.log('Quiz component - Selected quiz:', selectedQuiz);
+        console.log('Quiz component - Passing quiz ID:', selectedQuiz.id);
         return (
-          <QuizTaker
-            quiz={selectedQuiz}
+          <QuizTakerNew
+            quizId={selectedQuiz.id}
             onComplete={handleQuizComplete}
-            onBack={() => setSelectedQuiz(null)}
+            onBack={handleBackToQuizzes}
           />
         );
       }
@@ -193,6 +359,32 @@ import React, { useState } from "react";
           <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 } }}>
             {/* Header with Stats */}
             <Box sx={{ mb: 4 }}>
+              {/* Action Buttons */}
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<RefreshIcon />}
+                  onClick={fetchQuizzes}
+                  disabled={loading}
+                  sx={{ color: "#083c70ff", borderColor: "#083c70ff" }}
+                >
+                  {loading ? "Refreshing..." : "Refresh"}
+                </Button>
+                
+                {workspaceData?.role === "admin" && (
+                  <Button 
+                    variant="contained" 
+                    onClick={() => navigate('/quiz-creator', { state: { groupId } })}
+                    sx={{ 
+                      bgcolor: "#083c70ff", 
+                      "&:hover": { bgcolor: "#062d52ff" } 
+                    }}
+                  >
+                    Create Quiz
+                  </Button>
+                )}
+              </Box>
+              
               <Box
                 sx={{
                   display: "flex",
@@ -294,30 +486,61 @@ import React, { useState } from "react";
               )}
             </Box>
 
+            {/* Loading State */}
+            {loading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress size={40} />
+                <Typography variant="body1" sx={{ ml: 2, alignSelf: 'center' }}>
+                  Loading quizzes...
+                </Typography>
+              </Box>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                {error}
+              </Alert>
+            )}
+
             {/* Quiz Grid */}
-            {quizzes.length > 0 ? (
+            {!loading && quizzes.length > 0 ? (
               <Box
                 sx={{
                   display: "grid",
                   gridTemplateColumns: {
                     xs: "1fr",
-                    sm: "repeat(auto-fit, minmax(300px, 1fr))",
+                    sm: "repeat(auto-fit, minmax(320px, 1fr))",
                     lg: "repeat(3, 1fr)",
                   },
                   gap: { xs: 2, sm: 3 },
                   mb: 4,
                 }}
               >
-                {quizzes.map((quiz, index) => (
-                  <Fade key={quiz.id} in={true} timeout={300 * (index + 1)}>
-                    <Card
-                      elevation={3}
+                {quizzes.map((quiz, index) => {
+                  // Debug: Log each quiz in the render
+                  console.log(`Rendering quiz ${index + 1}:`, quiz);
+                  console.log(`Quiz ${index + 1} ID:`, quiz.id, 'Type:', typeof quiz.id);
+                  
+                  return (
+                    <Fade key={quiz.id} in={true} timeout={300 * (index + 1)}>
+                      <Card
+                      elevation={quiz.isNew ? 8 : 3}
                       sx={{
                         height: "100%",
                         display: "flex",
                         flexDirection: "column",
                         transition: "all 0.3s ease-in-out",
                         position: "relative",
+                        ...(quiz.isNew && {
+                          border: '2px solid',
+                          borderColor: 'primary.main',
+                          boxShadow: theme.shadows[8],
+                          '&:hover': {
+                            transform: 'translateY(-8px)',
+                            boxShadow: theme.shadows[12],
+                          }
+                        }),
                         overflow: "visible",
                         "&:hover": {
                           transform: "translateY(-8px)",
@@ -353,40 +576,79 @@ import React, { useState } from "react";
                       )}
 
                       <CardContent sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
-                        {/* Header */}
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            mb: 2,
-                            flexWrap: "wrap",
-                            gap: 1,
-                          }}
-                        >
-                          <Typography
-                            variant="h6"
-                            component="h3"
-                            fontWeight="bold"
+                        {/* Header with New Badge */}
+                        <Box sx={{ position: 'relative', mb: 2 }}>
+                          {quiz.isNew && (
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                top: -10,
+                                left: -10,
+                                zIndex: 2,
+                              }}
+                            >
+                              <Chip
+                                icon={<NewIcon />}
+                                label="NEW"
+                                size="small"
+                                sx={{
+                                  bgcolor: 'error.main',
+                                  color: 'white',
+                                  fontWeight: 'bold',
+                                  fontSize: '0.7rem',
+                                  height: 24,
+                                  animation: 'pulse 2s infinite',
+                                  '@keyframes pulse': {
+                                    '0%': {
+                                      boxShadow: '0 0 0 0 rgba(244, 67, 54, 0.7)',
+                                    },
+                                    '70%': {
+                                      boxShadow: '0 0 0 10px rgba(244, 67, 54, 0)',
+                                    },
+                                    '100%': {
+                                      boxShadow: '0 0 0 0 rgba(244, 67, 54, 0)',
+                                    },
+                                  },
+                                }}
+                              />
+                            </Box>
+                          )}
+                          
+                          <Box
                             sx={{
-                              flex: 1,
-                              minWidth: 0,
-                              fontSize: { xs: "1rem", sm: "1.25rem" },
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              flexWrap: "wrap",
+                              gap: 1,
+                              mt: quiz.isNew ? 1 : 0,
                             }}
                           >
-                            {quiz.title}
-                          </Typography>
-                          <Chip
-                            label={quiz.difficulty.toUpperCase()}
-                            color={getDifficultyColor(quiz.difficulty) as any}
-                            size="small"
-                            icon={
-                              <span style={{ fontSize: "0.8rem" }}>
-                                {getDifficultyIcon(quiz.difficulty)}
-                              </span>
-                            }
-                            sx={{ fontWeight: "bold", flexShrink: 0 }}
-                          />
+                            <Typography
+                              variant="h6"
+                              component="h3"
+                              fontWeight="bold"
+                              sx={{
+                                flex: 1,
+                                minWidth: 0,
+                                fontSize: { xs: "1rem", sm: "1.25rem" },
+                                color: quiz.isNew ? 'primary.main' : 'text.primary',
+                              }}
+                            >
+                              {quiz.title}
+                            </Typography>
+                            <Chip
+                              label={quiz.difficulty.toUpperCase()}
+                              color={getDifficultyColor(quiz.difficulty) as any}
+                              size="small"
+                              icon={
+                                <span style={{ fontSize: "0.8rem" }}>
+                                  {getDifficultyIcon(quiz.difficulty)}
+                                </span>
+                              }
+                              sx={{ fontWeight: "bold", flexShrink: 0 }}
+                            />
+                          </Box>
                         </Box>
 
                         <Typography
@@ -525,7 +787,11 @@ import React, { useState } from "react";
                             variant="outlined"
                             fullWidth
                             startIcon={<RefreshIcon />}
-                            onClick={() => setSelectedQuiz(quiz)}
+                            onClick={() => {
+                              console.log('Retake button clicked for quiz:', quiz);
+                              console.log('Retake button - Quiz ID:', quiz.id);
+                              handleStartQuiz(quiz);
+                            }}
                             sx={{
                               borderRadius: 2,
                               textTransform: "none",
@@ -545,7 +811,11 @@ import React, { useState } from "react";
                             variant="contained"
                             fullWidth
                             startIcon={<PlayIcon />}
-                            onClick={() => setSelectedQuiz(quiz)}
+                            onClick={() => {
+                              console.log('Take Quiz button clicked for quiz:', quiz);
+                              console.log('Take Quiz button - Quiz ID:', quiz.id);
+                              handleStartQuiz(quiz);
+                            }}
                             sx={{
                               borderRadius: 2,
                               textTransform: "none",
@@ -563,9 +833,10 @@ import React, { useState } from "react";
                           </Button>
                         )}
                       </CardActions>
-                    </Card>
-                  </Fade>
-                ))}
+                      </Card>
+                    </Fade>
+                  );
+                })}
               </Box>
             ) : (
               <Fade in={true}>
@@ -578,18 +849,45 @@ import React, { useState } from "react";
                   }}
                 >
                   <QuizIcon
-                    sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+                    sx={{ fontSize: 80, color: "#083c70ff", mb: 2, opacity: 0.7 }}
                   />
-                  <Typography variant="h6" color="text.secondary" gutterBottom>
-                    No quizzes available for this group yet.
+                  <Typography variant="h5" sx={{ color: "#083c70ff", fontWeight: "bold" }} gutterBottom>
+                    No Quizzes Available Yet
                   </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    Check back later for new quizzes to test your knowledge!
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                    {workspaceData?.role === "admin" 
+                      ? "Create your first quiz to get started!"
+                      : "Check back later for new quizzes to test your knowledge!"
+                    }
                   </Typography>
+                  
+                  {workspaceData?.role === "admin" && (
+                    <Button
+                      variant="contained"
+                      startIcon={<AssignmentIcon />}
+                      onClick={() => navigate('/quiz-creator', { state: { groupId } })}
+                      sx={{ 
+                        bgcolor: "#083c70ff", 
+                        "&:hover": { bgcolor: "#062d52ff" },
+                        mt: 2
+                      }}
+                    >
+                      Create Your First Quiz
+                    </Button>
+                  )}
                 </Paper>
               </Fade>
             )}
           </Container>
+          
+          {/* Success/Info Snackbar */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={4000}
+            onClose={() => setSnackbarOpen(false)}
+            message={snackbarMessage}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          />
         </Box>
       );
     };
