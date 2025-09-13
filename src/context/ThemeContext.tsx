@@ -57,6 +57,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
           },
           divider: mode === "light" ? "#e2e8f0" : "#334155",     // Border color
         },
+
         components: {
           MuiInputBase: {
             styleOverrides: {
@@ -68,6 +69,33 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
                   WebkitTextFillColor: mode === "light" ? "#1e293b" : "#f1f5f9",
                   transition: "background-color 5000s ease-in-out 0s",
                 },
+              },
+            },
+          },
+          MuiCard: {
+            styleOverrides: {
+              root: {
+                boxShadow: "none",
+                border:
+                  mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+              },
+            },
+          },
+          MuiPaper: {
+            styleOverrides: {
+              root: {
+                boxShadow: "none",
+                border:
+                  mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+              },
+            },
+          },
+          MuiAppBar: {
+            styleOverrides: {
+              root: {
+                boxShadow: "none",
+                borderBottom:
+                  mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
               },
             },
           },

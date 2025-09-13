@@ -41,12 +41,13 @@ import React, { useState } from "react";
     }
 
     interface QuizProps {
-      groupId: number;
+      groupId: string; // Changed from number to string
     }
 
-    const mockQuizzes: { [key: number]: Quiz[] } = {
-      1: [
-        // Computer Security
+    // Updated to use string keys for the mock data
+    const mockQuizzes: { [key: string]: Quiz[] } = {
+      // Default mock data for testing - you can remove these when integrating with real API
+      "default-group-1": [
         {
           id: 1,
           title: "Network Security Basics",
@@ -83,8 +84,7 @@ import React, { useState } from "react";
           maxScore: 12,
         },
       ],
-      2: [
-        // Software Engineering
+      "default-group-2": [
         {
           id: 4,
           title: "SDLC Fundamentals",
@@ -109,27 +109,14 @@ import React, { useState } from "react";
           maxScore: 14,
         },
       ],
-      3: [
-        // Business Analysis
-        {
-          id: 6,
-          title: "Requirements Gathering",
-          description:
-            "Techniques for gathering and analyzing requirements in business analysis",
-          difficulty: "medium",
-          questions: 10,
-          timeLimit: 18,
-          completed: false,
-          maxScore: 10,
-        },
-      ],
     };
 
     const Quiz: React.FC<QuizProps> = ({ groupId }) => {
       const theme = useTheme();
       const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-      const isTablet = useMediaQuery(theme.breakpoints.down("md"));
       const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
+      
+      // Use groupId as string key, fallback to empty array if no data found
       const [quizzes, setQuizzes] = useState(mockQuizzes[groupId] || []);
 
       const handleQuizComplete = (quizId: number, score: number) => {
@@ -236,349 +223,351 @@ import React, { useState } from "react";
               </Typography>
 
               {/* Progress Stats */}
-              <Paper
-                elevation={2}
-                sx={{
-                  p: { xs: 2, sm: 3 },
-                  borderRadius: 3,
-                  bgcolor: "primary.main",
-                  color: "white",
-                  mb: 3,
-                }}
-              >
-                <Box
+              {totalQuizzes > 0 && (
+                <Paper
+                  elevation={2}
                   sx={{
-                    display: "flex",
-                    justifyContent: "space-around",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 2,
+                    p: { xs: 2, sm: 3 },
+                    borderRadius: 3,
+                    bgcolor: "primary.main",
+                    color: "white",
+                    mb: 3,
                   }}
                 >
-                  <Box sx={{ textAlign: "center", minWidth: 100 }}>
-                    <Typography variant="h4" fontWeight="bold">
-                      {completedQuizzes}
-                    </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      Completed
-                    </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-around",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 2,
+                    }}
+                  >
+                    <Box sx={{ textAlign: "center", minWidth: 100 }}>
+                      <Typography variant="h4" fontWeight="bold">
+                        {completedQuizzes}
+                      </Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        Completed
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: "center", minWidth: 100 }}>
+                      <Typography variant="h4" fontWeight="bold">
+                        {totalQuizzes}
+                      </Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        Total
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: "center", minWidth: 100 }}>
+                      <Typography variant="h4" fontWeight="bold">
+                        {Math.round(averageScore)}%
+                      </Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        Average
+                      </Typography>
+                    </Box>
                   </Box>
-                  <Box sx={{ textAlign: "center", minWidth: 100 }}>
-                    <Typography variant="h4" fontWeight="bold">
-                      {totalQuizzes}
-                    </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      Total
-                    </Typography>
-                  </Box>
-                  <Box sx={{ textAlign: "center", minWidth: 100 }}>
-                    <Typography variant="h4" fontWeight="bold">
-                      {Math.round(averageScore)}%
-                    </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      Average
-                    </Typography>
-                  </Box>
-                </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={(completedQuizzes / totalQuizzes) * 100}
-                  sx={{
-                    mt: 2,
-                    height: 8,
-                    borderRadius: 4,
-                    bgcolor: "rgba(255,255,255,0.3)",
-                    "& .MuiLinearProgress-bar": {
-                      bgcolor: "rgba(255,255,255,0.9)",
+                  <LinearProgress
+                    variant="determinate"
+                    value={(completedQuizzes / totalQuizzes) * 100}
+                    sx={{
+                      mt: 2,
+                      height: 8,
                       borderRadius: 4,
-                    },
-                  }}
-                />
-                <Typography
-                  variant="caption"
-                  sx={{ display: "block", mt: 1, opacity: 0.9 }}
-                >
-                  Progress:{" "}
-                  {Math.round((completedQuizzes / totalQuizzes) * 100)}%
-                  Complete
-                </Typography>
-              </Paper>
+                      bgcolor: "rgba(255,255,255,0.3)",
+                      "& .MuiLinearProgress-bar": {
+                        bgcolor: "rgba(255,255,255,0.9)",
+                        borderRadius: 4,
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{ display: "block", mt: 1, opacity: 0.9 }}
+                  >
+                    Progress:{" "}
+                    {Math.round((completedQuizzes / totalQuizzes) * 100)}%
+                    Complete
+                  </Typography>
+                </Paper>
+              )}
             </Box>
 
             {/* Quiz Grid */}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "repeat(auto-fit, minmax(300px, 1fr))",
-                  lg: "repeat(3, 1fr)",
-                },
-                gap: { xs: 2, sm: 3 },
-                mb: 4,
-              }}
-            >
-              {quizzes.map((quiz, index) => (
-                <Fade key={quiz.id} in={true} timeout={300 * (index + 1)}>
-                  <Card
-                    elevation={3}
-                    sx={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      transition: "all 0.3s ease-in-out",
-                      position: "relative",
-                      overflow: "visible",
-                      "&:hover": {
-                        transform: "translateY(-8px)",
-                        boxShadow: 8,
-                      },
-                      borderRadius: 3,
-                      border: quiz.completed ? "2px solid" : "1px solid",
-                      borderColor: quiz.completed ? "success.main" : "divider",
-                    }}
-                  >
-                    {quiz.completed && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: -8,
-                          right: -8,
-                          zIndex: 1,
-                        }}
-                      >
-                        <Badge>
-                          <CheckIcon
+            {quizzes.length > 0 ? (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "repeat(auto-fit, minmax(300px, 1fr))",
+                    lg: "repeat(3, 1fr)",
+                  },
+                  gap: { xs: 2, sm: 3 },
+                  mb: 4,
+                }}
+              >
+                {quizzes.map((quiz, index) => (
+                  <Fade key={quiz.id} in={true} timeout={300 * (index + 1)}>
+                    <Card
+                      elevation={3}
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        transition: "all 0.3s ease-in-out",
+                        position: "relative",
+                        overflow: "visible",
+                        "&:hover": {
+                          transform: "translateY(-8px)",
+                          boxShadow: 8,
+                        },
+                        borderRadius: 3,
+                        border: quiz.completed ? "2px solid" : "1px solid",
+                        borderColor: quiz.completed ? "success.main" : "divider",
+                      }}
+                    >
+                      {quiz.completed && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: -8,
+                            right: -8,
+                            zIndex: 1,
+                          }}
+                        >
+                          <Badge>
+                            <CheckIcon
+                              sx={{
+                                bgcolor: "success.main",
+                                color: "white",
+                                borderRadius: "50%",
+                                fontSize: 24,
+                                p: 0.5,
+                                boxShadow: 2,
+                              }}
+                            />
+                          </Badge>
+                        </Box>
+                      )}
+
+                      <CardContent sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+                        {/* Header */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            mb: 2,
+                            flexWrap: "wrap",
+                            gap: 1,
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            component="h3"
+                            fontWeight="bold"
                             sx={{
-                              bgcolor: "success.main",
-                              color: "white",
-                              borderRadius: "50%",
-                              fontSize: 24,
-                              p: 0.5,
-                              boxShadow: 2,
+                              flex: 1,
+                              minWidth: 0,
+                              fontSize: { xs: "1rem", sm: "1.25rem" },
                             }}
+                          >
+                            {quiz.title}
+                          </Typography>
+                          <Chip
+                            label={quiz.difficulty.toUpperCase()}
+                            color={getDifficultyColor(quiz.difficulty) as any}
+                            size="small"
+                            icon={
+                              <span style={{ fontSize: "0.8rem" }}>
+                                {getDifficultyIcon(quiz.difficulty)}
+                              </span>
+                            }
+                            sx={{ fontWeight: "bold", flexShrink: 0 }}
                           />
-                        </Badge>
-                      </Box>
-                    )}
+                        </Box>
 
-                    <CardContent sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
-                      {/* Header */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          mb: 2,
-                          flexWrap: "wrap",
-                          gap: 1,
-                        }}
-                      >
                         <Typography
-                          variant="h6"
-                          component="h3"
-                          fontWeight="bold"
+                          variant="body2"
+                          color="text.secondary"
                           sx={{
-                            flex: 1,
-                            minWidth: 0,
-                            fontSize: { xs: "1rem", sm: "1.25rem" },
+                            mb: 3,
+                            lineHeight: 1.5,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
                           }}
                         >
-                          {quiz.title}
+                          {quiz.description}
                         </Typography>
-                        <Chip
-                          label={quiz.difficulty.toUpperCase()}
-                          color={getDifficultyColor(quiz.difficulty) as any}
-                          size="small"
-                          icon={
-                            <span style={{ fontSize: "0.8rem" }}>
-                              {getDifficultyIcon(quiz.difficulty)}
-                            </span>
-                          }
-                          sx={{ fontWeight: "bold", flexShrink: 0 }}
-                        />
-                      </Box>
 
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          mb: 3,
-                          lineHeight: 1.5,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {quiz.description}
-                      </Typography>
-
-                      {/* Quiz metadata */}
-                      <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.5,
-                          }}
-                        >
-                          <AssignmentIcon fontSize="small" color="action" />
-                          <Typography variant="caption" color="text.secondary">
-                            {quiz.questions} questions
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.5,
-                          }}
-                        >
-                          <TimeIcon fontSize="small" color="action" />
-                          <Typography variant="caption" color="text.secondary">
-                            {quiz.timeLimit} min
-                          </Typography>
-                        </Box>
-                      </Stack>
-
-                      {/* Score display for completed quizzes */}
-                      {quiz.completed && quiz.score !== undefined && (
-                        <Paper
-                          elevation={1}
-                          sx={{
-                            p: 2,
-                            borderRadius: 2,
-                            bgcolor: "grey.50",
-                            border: "1px solid",
-                            borderColor: "divider",
-                          }}
-                        >
+                        {/* Quiz metadata */}
+                        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
                           <Box
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 1,
-                              mb: 1,
+                              gap: 0.5,
                             }}
                           >
-                            <StarIcon
-                              sx={{ color: "warning.main", fontSize: 18 }}
-                            />
-                            <Typography variant="body2" fontWeight="medium">
-                              Your Performance:
+                            <AssignmentIcon fontSize="small" color="action" />
+                            <Typography variant="caption" color="text.secondary">
+                              {quiz.questions} questions
                             </Typography>
                           </Box>
                           <Box
                             sx={{
                               display: "flex",
-                              justifyContent: "space-between",
                               alignItems: "center",
-                              mb: 1,
+                              gap: 0.5,
                             }}
                           >
-                            <Typography
-                              variant="h6"
-                              fontWeight="bold"
-                              color="primary"
-                            >
-                              {quiz.score}/{quiz.maxScore}
+                            <TimeIcon fontSize="small" color="action" />
+                            <Typography variant="caption" color="text.secondary">
+                              {quiz.timeLimit} min
                             </Typography>
-                            <Chip
-                              label={getPerformanceText(
-                                quiz.score,
-                                quiz.maxScore
-                              )}
+                          </Box>
+                        </Stack>
+
+                        {/* Score display for completed quizzes */}
+                        {quiz.completed && quiz.score !== undefined && (
+                          <Paper
+                            elevation={1}
+                            sx={{
+                              p: 2,
+                              borderRadius: 2,
+                              bgcolor: "grey.50",
+                              border: "1px solid",
+                              borderColor: "divider",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                mb: 1,
+                              }}
+                            >
+                              <StarIcon
+                                sx={{ color: "warning.main", fontSize: 18 }}
+                              />
+                              <Typography variant="body2" fontWeight="medium">
+                                Your Performance:
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 1,
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                fontWeight="bold"
+                                color="primary"
+                              >
+                                {quiz.score}/{quiz.maxScore}
+                              </Typography>
+                              <Chip
+                                label={getPerformanceText(
+                                  quiz.score,
+                                  quiz.maxScore
+                                )}
+                                color={
+                                  getScoreColor(quiz.score, quiz.maxScore) as any
+                                }
+                                size="small"
+                                icon={<TrendingIcon />}
+                              />
+                            </Box>
+                            <LinearProgress
+                              variant="determinate"
+                              value={(quiz.score / quiz.maxScore) * 100}
+                              sx={{
+                                height: 8,
+                                borderRadius: 4,
+                                bgcolor: "grey.200",
+                                "& .MuiLinearProgress-bar": {
+                                  borderRadius: 4,
+                                },
+                              }}
                               color={
                                 getScoreColor(quiz.score, quiz.maxScore) as any
                               }
-                              size="small"
-                              icon={<TrendingIcon />}
                             />
-                          </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={(quiz.score / quiz.maxScore) * 100}
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ mt: 0.5, display: "block" }}
+                            >
+                              {Math.round((quiz.score / quiz.maxScore) * 100)}% -
+                              {quiz.score >= quiz.maxScore * 0.9
+                                ? " Outstanding!"
+                                : quiz.score >= quiz.maxScore * 0.8
+                                ? " Well Done!"
+                                : quiz.score >= quiz.maxScore * 0.7
+                                ? " Good Effort!"
+                                : " Keep Practicing!"}
+                            </Typography>
+                          </Paper>
+                        )}
+                      </CardContent>
+
+                      <CardActions sx={{ p: { xs: 2, sm: 3 }, pt: 0 }}>
+                        {quiz.completed ? (
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            startIcon={<RefreshIcon />}
+                            onClick={() => setSelectedQuiz(quiz)}
                             sx={{
-                              height: 8,
-                              borderRadius: 4,
-                              bgcolor: "grey.200",
-                              "& .MuiLinearProgress-bar": {
-                                borderRadius: 4,
+                              borderRadius: 2,
+                              textTransform: "none",
+                              fontWeight: "medium",
+                              py: 1,
+                              "&:hover": {
+                                transform: "scale(1.02)",
+                                boxShadow: 2,
                               },
+                              transition: "all 0.2s ease-in-out",
                             }}
-                            color={
-                              getScoreColor(quiz.score, quiz.maxScore) as any
-                            }
-                          />
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ mt: 0.5, display: "block" }}
                           >
-                            {Math.round((quiz.score / quiz.maxScore) * 100)}% -
-                            {quiz.score >= quiz.maxScore * 0.9
-                              ? " Outstanding!"
-                              : quiz.score >= quiz.maxScore * 0.8
-                              ? " Well Done!"
-                              : quiz.score >= quiz.maxScore * 0.7
-                              ? " Good Effort!"
-                              : " Keep Practicing!"}
-                          </Typography>
-                        </Paper>
-                      )}
-                    </CardContent>
-
-                    <CardActions sx={{ p: { xs: 2, sm: 3 }, pt: 0 }}>
-                      {quiz.completed ? (
-                        <Button
-                          variant="outlined"
-                          fullWidth
-                          startIcon={<RefreshIcon />}
-                          onClick={() => setSelectedQuiz(quiz)}
-                          sx={{
-                            borderRadius: 2,
-                            textTransform: "none",
-                            fontWeight: "medium",
-                            py: 1,
-                            "&:hover": {
-                              transform: "scale(1.02)",
-                              boxShadow: 2,
-                            },
-                            transition: "all 0.2s ease-in-out",
-                          }}
-                        >
-                          Retake Quiz
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          startIcon={<PlayIcon />}
-                          onClick={() => setSelectedQuiz(quiz)}
-                          sx={{
-                            borderRadius: 2,
-                            textTransform: "none",
-                            fontWeight: "medium",
-                            py: 1,
-                            boxShadow: 3,
-                            "&:hover": {
-                              transform: "scale(1.02)",
-                              boxShadow: 6,
-                            },
-                            transition: "all 0.2s ease-in-out",
-                          }}
-                        >
-                          Take Quiz
-                        </Button>
-                      )}
-                    </CardActions>
-                  </Card>
-                </Fade>
-              ))}
-            </Box>
-
-            {quizzes.length === 0 && (
+                            Retake Quiz
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            startIcon={<PlayIcon />}
+                            onClick={() => setSelectedQuiz(quiz)}
+                            sx={{
+                              borderRadius: 2,
+                              textTransform: "none",
+                              fontWeight: "medium",
+                              py: 1,
+                              boxShadow: 3,
+                              "&:hover": {
+                                transform: "scale(1.02)",
+                                boxShadow: 6,
+                              },
+                              transition: "all 0.2s ease-in-out",
+                            }}
+                          >
+                            Take Quiz
+                          </Button>
+                        )}
+                      </CardActions>
+                    </Card>
+                  </Fade>
+                ))}
+              </Box>
+            ) : (
               <Fade in={true}>
                 <Paper
                   elevation={3}

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 interface AppContextType {
@@ -8,6 +9,7 @@ interface AppContextType {
   getUserData: () => Promise<void>;
   userId: string | null;
   setUserId: React.Dispatch<React.SetStateAction<string | null>>;
+  logout: () => void;
 }
 
 interface User {
@@ -19,9 +21,10 @@ interface User {
 export const AppContext = createContext<AppContextType>({
   userData: null,
   setUserData: () => {},
-  getUserData: async () => { },
+  getUserData: async () => {},
   userId: "",
-  setUserId: () => { },
+  setUserId: () => {},
+  logout: () => {},
 });
 
 export const AppContextProvider = ({
@@ -32,12 +35,14 @@ export const AppContextProvider = ({
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   axios.defaults.withCredentials = true;
 
-  const [userData, setUserData] = useState<User | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
+  const [userData, setUserData] = useState<User | null>(null);
+  const [userId, setUserId] = useState<string | null>(
+    localStorage.getItem("userId")
+  );
   const getUserData = async () => {
     try {
-      // fetch user
       const { data } = await axios.get(
         `${backendUrl}/auth/get-user-data/${userId}`
       );
@@ -47,7 +52,13 @@ export const AppContextProvider = ({
         toast.error(data.message);
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || error.message);
+      const refreshToken = error.response.data.data.refreshToken;
+      try {
+        await axios.post(`${backendUrl}/auth/refresh-token`, { refreshToken });
+        getUserData();
+      } catch (error) {
+        navigate("/auth");
+      }
     }
   };
 
@@ -57,8 +68,23 @@ export const AppContextProvider = ({
     }
   }, [userId]);
 
+  const logout = () => {
+    setUserData(null);
+    setUserId(null);
+    localStorage.removeItem("userId");
+  };
+
   return (
-    <AppContext.Provider value={{ userData, setUserData, getUserData, userId, setUserId }}>
+    <AppContext.Provider
+      value={{
+        userData,
+        setUserData,
+        getUserData,
+        userId,
+        setUserId,
+        logout,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );

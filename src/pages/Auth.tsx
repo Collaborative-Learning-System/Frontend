@@ -7,7 +7,6 @@ import {
   TextField,
   Button,
   Typography,
-  Container,
   Avatar,
   Alert,
   Tabs,
@@ -16,6 +15,7 @@ import {
   CircularProgress,
   Link,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import {
   Person,
@@ -23,9 +23,12 @@ import {
   Lock,
   PersonAdd,
   Login,
+  VisibilityOff,
+  Visibility,
 } from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
+import { handleLogging } from "../services/LoggingService";
 
 const AuthComponent = () => {
   const theme = useTheme();
@@ -34,6 +37,8 @@ const AuthComponent = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
 
   const [loginForm, setLoginForm] = useState({
     email: "",
@@ -60,33 +65,29 @@ const AuthComponent = () => {
     setIsLoading(true);
 
     try {
-       setInfo("");
+      setInfo("");
       await new Promise((resolve) => setTimeout(resolve, 1500));
-     
+
       if (loginForm.email && loginForm.password) {
-        console.log(loginForm)
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, loginForm,
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
+          loginForm
         );
-        // need to handle response for HTTP status code
         if (response) {
           setUserId(response.data.data.userId);
+          localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          console.log("response", response)
-          setTimeout(() => {
-            navigate("/landing");
-          }, 1000);
+          handleLogging(`User/${response.data.data.userId} logged in with: ${loginForm.email}`);
+          navigate("/landing");
         } else {
           setError("Login failed. Please try again.");
-          console.error("Login errorrrr:", response);
         }
       } else {
         setError("Please fill in all fields");
       }
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
-        const { message, statusCode, error: errType } = err.response.data;
-        setError(message);
-        console.error(`Error ${statusCode}: ${errType}`);
+        setError(err.response.data.message);
       } else {
         setError("Login failed. Please try again.");
       }
@@ -106,38 +107,52 @@ const AuthComponent = () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       if (signupForm.fullName && signupForm.email && signupForm.password) {
-        console.log(signupForm);
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/auth/signup`,
           signupForm
         );
         if (response) {
+          sendWelcomeEmail(signupForm.email, signupForm.fullName);
           setSuccess(response.data.message);
           setTimeout(() => {
             setSuccess("");
             setTabValue(0);
             setInfo("Log in to your account");
-          }, 3000);
-          
+          }, 1000);
         } else {
-         setError("Signup failed. Please try again.");
+          setError("Signup failed. Please try again.");
           console.error("Signup error:", error);
         }
       } else {
         setError("Please fill in all fields");
       }
     } catch (err) {
-       if (axios.isAxiosError(err) && err.response) {
-         const { message, statusCode, error: errType } = err.response.data;
-         setError(message);
-         console.error(`Error ${statusCode}: ${errType}`);
-       } else {
-         setError("Signup failed. Please try again.");
-       }
+      if (axios.isAxiosError(err) && err.response) {
+        const { message, statusCode, error: errType } = err.response.data;
+        setError(message);
+        console.error(`Error ${statusCode}: ${errType}`);
+      } else {
+        setError("Signup failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
+
+  const sendWelcomeEmail = async (email: string, fullName: string) => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/notification/welcome-email`,
+        {
+          email,
+          fullName,
+        }
+      );
+    } catch (error) {
+      console.error("Error sending welcome email:", error);
+    }
+  };
+
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -154,51 +169,60 @@ const AuthComponent = () => {
         background: theme.palette.background.default,
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         p: 2,
+        backgroundImage: `url('${
+          theme.palette.mode === "light" ? "/welcome.png" : "/welcome_dark.png"
+        }')`,
+        backgroundSize: "fit",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
       }}
     >
-      <Container maxWidth="sm">
-        {/* Header */}
-        <Box sx={{ textAlign: "center", mb: 4 }}>
-          <Avatar
-            sx={{
-              width: 64,
-              height: 64,
-              mx: "auto",
-              mb: 2,
-            }}
-          >
-            {isLogin ? (
-              <Login
-                sx={{
-                  fontSize: 32,
-                  color: theme.palette.primary.main,
-                  bgcolor: "transparent",
-                }}
-              />
-            ) : (
-              <PersonAdd
-                sx={{ fontSize: 32, color: theme.palette.primary.main }}
-              />
-            )}
-          </Avatar>
-          <Typography
-            variant="h3"
-            component="h1"
-            gutterBottom
-            color={theme.palette.primary.main}
-            sx={{ fontWeight: "bold" }}
-          >
-            {isLogin ? "Welcome Back" : "Create Account"}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {isLogin ? "Sign in to your account" : "Sign up to get started"}
-          </Typography>
-        </Box>
-
+      <Box sx={{ width: "100%", maxWidth: "500px", ml: 4 }}>
         {/* Form Card */}
-        <Card sx={{ boxShadow: theme.shadows[8] }}>
+        <Card>
+          {/* Header */}
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Avatar
+              sx={{
+                width: 64,
+                height: 64,
+                mx: "auto",
+                mb: 2,
+                bgcolor: theme.palette.primary.main,
+              }}
+            >
+              {isLogin ? (
+                <Login
+                  sx={{
+                    fontSize: 32,
+                    color: "white",
+                  }}
+                />
+              ) : (
+                <PersonAdd
+                  sx={{
+                    fontSize: 32,
+                    color: "white",
+                  }}
+                />
+              )}
+            </Avatar>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              color={theme.palette.primary.main}
+              sx={{ fontWeight: "bold" }}
+            >
+              {isLogin ? "Welcome Back" : "Create Account"}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {isLogin ? "Sign in to your account" : "Sign up to get started"}
+            </Typography>
+          </Box>
+
           <CardContent sx={{ p: 4 }}>
             {/* Tabs for Login/Signup */}
             <Tabs
@@ -263,7 +287,7 @@ const AuthComponent = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type="password"
+                  type={showLoginPassword ? "text" : "password"}
                   variant="outlined"
                   margin="normal"
                   required
@@ -278,9 +302,37 @@ const AuthComponent = () => {
                         <Lock color="action" />
                       </InputAdornment>
                     ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            setShowLoginPassword(!showLoginPassword)
+                          }
+                          edge="end"
+                          aria-label="toggle password visibility"
+                        >
+                          {showLoginPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
                   }}
                   placeholder="Enter your password"
                 />
+
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  sx={{ mt: 1 }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <Link onClick={() => navigate("/forgot-password")}>
+                    Forgot password?
+                  </Link>
+                </Typography>
 
                 <Button
                   type="submit"
@@ -349,7 +401,7 @@ const AuthComponent = () => {
                 <TextField
                   fullWidth
                   label="Password"
-                  type="password"
+                  type={showSignupPassword ? "text" : "password"}
                   variant="outlined"
                   margin="normal"
                   required
@@ -362,6 +414,23 @@ const AuthComponent = () => {
                     startAdornment: (
                       <InputAdornment position="start">
                         <Lock color="action" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            setShowSignupPassword(!showSignupPassword)
+                          }
+                          edge="end"
+                          aria-label="toggle password visibility"
+                        >
+                          {showSignupPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
                       </InputAdornment>
                     ),
                   }}
@@ -409,7 +478,7 @@ const AuthComponent = () => {
             </Box>
           </CardContent>
         </Card>
-      </Container>
+      </Box>
     </Box>
   );
 };

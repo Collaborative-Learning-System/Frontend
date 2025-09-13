@@ -66,7 +66,7 @@ export default function ContactUsPage() {
       {/* Header */}
       <AppBar
         position="static"
-        sx={{ bgcolor: theme.palette.background.paper, boxShadow: 1 }}
+        sx={{ bgcolor: theme.palette.background.paper }}
       >
         <Toolbar>
           <IconButton

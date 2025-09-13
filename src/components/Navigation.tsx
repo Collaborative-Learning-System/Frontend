@@ -13,17 +13,25 @@ import { DarkMode, LightMode } from "@mui/icons-material";
 import { useThemeContext } from "../context/ThemeContext";
 
 export default function Navigation() {
-   const { mode, toggleTheme } = useThemeContext();
+  const { mode, toggleTheme } = useThemeContext();
   const navigate = useNavigate();
   const theme = useTheme();
-  
 
   return (
-    <AppBar
-      position="fixed"
-      sx={{ bgcolor: theme.palette.background.default, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}
-    >
+    <AppBar position="fixed" sx={{ bgcolor: theme.palette.background.default }}>
       <Toolbar>
+        <Box
+          component="img"
+          src="/EduCollab.png"
+          alt="EduCollab Logo"
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            objectFit: "cover",
+            mr: 2,
+          }}
+        />
         <Typography
           variant="h5"
           component="div"
@@ -36,15 +44,7 @@ export default function Navigation() {
           EduCollab
         </Typography>
 
-        {/* <Box sx={{ display: "flex", gap: 2 }}>
-          <Button
-            onClick={() => navigate("/contact-us")}
-            sx={{ color: theme.palette.primary.main }}
-          >
-            Contact
-          </Button>
-        </Box> */}
-
+       
         <Box sx={{ ml: 2, gap: 3, display: "flex", alignItems: "center" }}>
           <Tooltip
             title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}

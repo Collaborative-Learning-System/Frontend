@@ -43,7 +43,6 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
       sx={{
         zIndex: (theme) => theme.zIndex.drawer - 1,
         bgcolor: theme.palette.background.paper,
-        boxShadow: theme.shadows[1],
       }}
     >
       <Toolbar
@@ -64,13 +63,16 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
                   edge="start"
                   sx={{ mr: 1 }}
                 >
-                  <MenuIcon />
+                  <MenuIcon sx={{ color: theme.palette.primary.main }} />
                 </IconButton>
               </Tooltip>
               <Box>
                 <Typography
                   variant="h5"
-                  sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+                  sx={{
+                    fontWeight: "bold",
+                    color: theme.palette.primary.main,
+                      }}
                 >
                   EduCollab
                 </Typography>
@@ -78,7 +80,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
             </Box>
           )}
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <Tooltip
             title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
           >
@@ -93,7 +95,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
           <Tooltip title="Notifications">
             <IconButton size="large" sx={{ color: theme.palette.primary.main }}>
               <Notifications />
-              <CartBadge badgeContent={2} color="warning" overlap="circular" />
+              <CartBadge badgeContent={2} color="error" overlap="circular" />
             </IconButton>
           </Tooltip>
         </Box>

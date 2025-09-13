@@ -1,4 +1,4 @@
-import React, { use, useContext } from "react";
+import React, { useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
@@ -14,18 +14,22 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  alpha,
+  Tooltip,
 } from "@mui/material";
 import {
   ChevronLeft,
   Home,
   AutoFixHigh,
-  SmartToy,
   Logout,
-  AccountCircle,
+  ContactPhoneRounded,
+  AutoAwesome,
 } from "@mui/icons-material";
+import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import NotificationService from "../services/NotificationService";
+import { handleLogging } from "../services/LoggingService";
 
 interface SidePanelProps {
   open: boolean;
@@ -38,19 +42,57 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-  const { userData, setUserData, setUserId } = useContext(AppContext);
+  const { userData,logout } = useContext(AppContext);
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
 
   const menuItems = [
-    { text: "Home", icon: <Home />, path: "/landing" },
+    {
+      text: "Home",
+      icon: (
+        <Tooltip title="Home">
+          <Home />
+        </Tooltip>
+      ),
+      path: "/landing",
+    },
     {
       text: "Study Plans",
-      icon: <AutoFixHigh />,
+      icon: (
+        <Tooltip title="Study Plans">
+          <AutoFixHigh />
+        </Tooltip>
+      ),
       path: "/study-plans-generator",
     },
-    { text: "AI Assistant", icon: <SmartToy />, path: "/ai-assistant" },
+    {
+      text: "Document Summary",
+      icon: (
+        <Tooltip title="Document Summary">
+          <AutoAwesome />
+        </Tooltip>
+      ),
+      path: "/document-summary",
+    },
+    {
+      text: "Real-Time Collaboration",
+      icon: (
+        <Tooltip title="Real-Time Collaboration">
+          <GroupWorkIcon />
+        </Tooltip>
+      ),
+      path: "/real-time-collaboration",
+    },
+    {
+      text: "Contact Us",
+      icon: (
+        <Tooltip title="Contact Us">
+          <ContactPhoneRounded />
+        </Tooltip>
+      ),
+      path: "/contact-us",
+    },
   ];
 
   const handleMenuItemClick = (path: string) => {
@@ -58,19 +100,19 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
     if (isMobile) onClose();
   };
 
+
   const handleLogout = async () => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     try {
       const response = await axios.post(
         `${backendUrl}/auth/logout/${userData?.userId}`
       );
-      console.log("response", response);
       if (response.data.success) {
+           handleLogging(`User/${userData?.userId} logged out`);
         NotificationService.showSuccess("Logged out successfully");
         setTimeout(() => {
           navigate("/auth");
-          setUserData(null);
-          setUserId("");
+          logout();
         }, 1000);
       }
     } catch (error) {
@@ -110,8 +152,19 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       >
         {open ? (
           <>
+            <Box
+              component="img"
+              src="/EduCollab.png"
+              alt="EduCollab Logo"
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                objectFit: "cover",
+              }}
+            />
             <Typography
-              variant="h6"
+              variant="h5"
               sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
             >
               EduCollab
@@ -121,21 +174,18 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             </IconButton>
           </>
         ) : (
-          <IconButton
+          <Box
+            component="img"
+            src="/EduCollab.png"
+            alt="EduCollab Logo"
             onClick={onToggle}
-            size="small"
             sx={{
-              color: theme.palette.primary.main,
-              fontSize: "1.2rem",
-              fontWeight: "bold",
               width: 40,
               height: 40,
-              border: `2px solid ${theme.palette.primary.main}`,
-              borderRadius: "8px",
+              borderRadius: 12,
+              objectFit: "cover",
             }}
-          >
-            E
-          </IconButton>
+          />
         )}
       </Box>
 
@@ -215,29 +265,27 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             onClick={handleProfile}
           >
             <Avatar
+              src={""}
               sx={{
                 width: 40,
                 height: 40,
+                fontSize: "1rem",
                 mr: 2,
-                //bgcolor: theme.palette.primary.main,
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
               }}
             >
-              <AccountCircle />
+              {userData?.fullName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
             </Avatar>
+
             <Box sx={{ flexGrow: 1 }}>
-              <Typography
-                variant="subtitle2"
-                fontWeight="bold"
-                // sx={{ color: theme.palette.primary.main }}
-              >
+              <Typography variant="subtitle2" fontWeight="bold">
                 {userData?.fullName}
               </Typography>
-              <Typography
-                variant="caption"
-                // sx={{ color: theme.palette.primary.main }}
-              >
-                {userData?.email}
-              </Typography>
+              <Typography variant="caption">{userData?.email}</Typography>
             </Box>
           </Box>
         ) : (
@@ -252,15 +300,23 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             }}
             onClick={handleProfile}
           >
-            <Avatar
-              sx={{
-                width: 32,
-                height: 32,
-                bgcolor: theme.palette.primary.main,
-              }}
-            >
-              <AccountCircle />
-            </Avatar>
+            <Tooltip title="View Profile">
+              <Avatar
+                src={""}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  fontSize: "1rem",
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                }}
+              >
+                {userData?.fullName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </Avatar>
+            </Tooltip>
           </Box>
         )}
         <Divider sx={{ my: 1 }} />
@@ -285,7 +341,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               justifyContent: "center",
             }}
           >
-            <Logout />
+            <Tooltip title="Log Out">
+              <Logout />
+            </Tooltip>
           </ListItemIcon>
           {open && (
             <Typography
@@ -293,7 +351,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               sx={{
                 color: theme.palette.error.main,
               }}
-              onClick={handleLogout}
             >
               Logout
             </Typography>
@@ -324,7 +381,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
           }),
           overflowX: "hidden",
           border: "none",
-          boxShadow: theme.shadows[2],
         },
       }}
     >

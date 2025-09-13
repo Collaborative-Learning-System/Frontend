@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles"; // Added ThemeProvider and createTheme import
 import { ThemeContextProvider } from "./context/ThemeContext";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
@@ -10,6 +9,11 @@ import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
 import Profile from "./pages/Userprofile";
 import QuizCreator from "./pages/quiz-creator";
+import ContactForm from "./components/ContactForm";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
+import DocumentSummary from "./pages/DocumentSummary";
+import RealTimeCollaboration from "./pages/RealTimeCollaboration";
 
 const App = () => {
   return (
@@ -61,6 +65,32 @@ const App = () => {
             </MainLayout>
           }
         />
+        <Route
+          path="/contact-us"
+          element={
+            <MainLayout>
+              <ContactForm />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/document-summary"
+          element={
+            <MainLayout>
+              <DocumentSummary />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/real-time-collaboration"
+          element={
+            <MainLayout>
+              <RealTimeCollaboration />
+            </MainLayout>
+          }
+        />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </ThemeContextProvider>
   );
