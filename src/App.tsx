@@ -7,13 +7,15 @@ import Groups from "./pages/Groups";
 import Home from "./pages/Home";
 import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
-import Profile from "./pages/Userprofile"
+import Profile from "./pages/Userprofile";
 import ContactForm from "./components/ContactForm";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
 import RealTimeCollaboration from "./pages/RealTimeCollaboration";
 import Dashboard from "./pages/Dashboard";
+import CollaborativeDocumentEditor from "./pages/CollaborativeDocumentEditor";
+
 
 const App = () => {
   return (
@@ -85,11 +87,22 @@ const App = () => {
             </MainLayout>
           }
         />
-        <Route path="/dashboard" element={
-          <MainLayout>
-            <Dashboard />
-          </MainLayout>
-        } />
+        <Route
+          path="/documents/:docId"
+          element={
+            <MainLayout>
+              <CollaborativeDocumentEditor />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <MainLayout>
+              <Dashboard />
+            </MainLayout>
+          }
+        />
         <Route path="/reset-password/:userId" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>

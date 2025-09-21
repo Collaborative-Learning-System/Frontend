@@ -1,576 +1,432 @@
-import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
+  Container,
   Paper,
-  TextField,
   Button,
-  Avatar,
-  Chip,
   Stack,
-  Divider,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
   useTheme,
   alpha,
-  Tooltip,
-  Badge,
+  Card,
+  CardContent,
+  IconButton,
+  Avatar,
+  AvatarGroup,
+  Chip,
+  Divider,
 } from "@mui/material";
 import {
-  Save,
-  Share,
-  People,
-  Download,
-  FormatBold,
-  FormatItalic,
-  FormatUnderlined,
-  FormatListBulleted,
-  FormatListNumbered,
-  Undo,
-  Redo,
-  MoreVert,
   Add,
-  Circle,
+  Description,
+  People,
+  MoreVert,
+  AccessTime,
+  FiberManualRecord,
 } from "@mui/icons-material";
+import ArticleIcon from "@mui/icons-material/Article";
+import { useNavigate } from "react-router-dom";
 
-// Mock data for demonstration
-const mockUsers = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    avatar: "JD",
-    color: "#1976d2",
-    isOnline: true,
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    avatar: "JS",
-    color: "#388e3c",
-    isOnline: true,
-  },
-  {
-    id: 3,
-    name: "Bob Johnson",
-    email: "bob@example.com",
-    avatar: "BJ",
-    color: "#f57c00",
-    isOnline: false,
-  },
-];
-
+// Mock documents data
 const mockDocuments = [
   {
-    id: 1,
-    title: "Project Proposal",
-    lastModified: "2 minutes ago",
+    id: "doc1",
+    title: "Project Proposal - AI Learning Platform",
+    lastModified: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     collaborators: 3,
+    isActive: true,
+    content: `<h1>AI Learning Platform Project Proposal</h1>
+    <p>This document outlines our vision for creating an innovative AI-powered learning platform that revolutionizes education.</p>
+    <h2>Project Overview</h2>
+    <p>Our platform aims to provide personalized learning experiences through advanced artificial intelligence algorithms.</p>
+    <h3>Key Features</h3>
+    <ul>
+      <li>Adaptive learning paths</li>
+      <li>Real-time progress tracking</li>
+      <li>Intelligent content recommendations</li>
+      <li>Collaborative learning tools</li>
+    </ul>
+    <p>This initiative represents a significant step forward in educational technology.</p>`,
+  },
+  {
+    id: "doc2",
+    title: "Meeting Notes - Sprint Planning",
+    lastModified: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+    collaborators: 2,
+    isActive: true,
+    content: `<h1>Sprint Planning Meeting - Week 12</h1>
+    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+    <p><strong>Attendees:</strong> Development Team</p>
+    <h2>Sprint Goals</h2>
+    <ul>
+      <li>Complete user authentication module</li>
+      <li>Implement collaborative document editing</li>
+      <li>Fix reported UI bugs</li>
+    </ul>
+    <h2>Action Items</h2>
+    <p>Team members have been assigned specific tasks for the upcoming sprint cycle.</p>`,
+  },
+  {
+    id: "doc3",
+    title: "Research Paper - Educational Technology",
+    lastModified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+    collaborators: 5,
+    isActive: false,
+    content: `<h1>The Impact of Technology on Modern Education</h1>
+    <h2>Abstract</h2>
+    <p>This research paper examines the transformative role of technology in contemporary educational systems and its implications for future learning paradigms.</p>
+    <h2>Introduction</h2>
+    <p>Educational technology has become an integral part of modern teaching methodologies, fundamentally changing how students learn and educators teach.</p>
+    <blockquote>
+      <p>"Technology is best when it brings people together." - Matt Mullenweg</p>
+    </blockquote>
+    <p>Our research focuses on the measurable impacts of digital tools in educational environments.</p>`,
+  },
+  {
+    id: "doc4",
+    title: "User Interface Design Guidelines",
+    lastModified: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    collaborators: 4,
+    isActive: false,
+    content: `<h1>UI Design Guidelines v2.0</h1>
+    <p>This document establishes the design standards and best practices for our application's user interface.</p>
+    <h2>Design Principles</h2>
+    <ol>
+      <li><strong>Simplicity:</strong> Keep interfaces clean and intuitive</li>
+      <li><strong>Consistency:</strong> Maintain uniform design patterns</li>
+      <li><strong>Accessibility:</strong> Ensure usability for all users</li>
+    </ol>
+    <h2>Color Palette</h2>
+    <p>Our primary colors should convey professionalism while maintaining visual appeal.</p>
+    <h3>Typography</h3>
+    <p>Use consistent font families and sizing throughout the application.</p>`,
   },
 ];
 
-interface Cursor {
-  id: number;
-  name: string;
-  color: string;
-  position: number;
-}
-
-const RealTimeCollaboration = () => {
+export default function RealTimeCollaboration() {
   const theme = useTheme();
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const [documentContent, setDocumentContent] = useState("");
-  const [currentDocument, setCurrentDocument] = useState(mockDocuments[0]);
-  const [connectedUsers, setConnectedUsers] = useState(
-    mockUsers.filter((u) => u.isOnline)
-  );
-  const [cursors, setCursors] = useState<Cursor[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [lastSaved, setLastSaved] = useState(new Date());
-  const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(
-    null
-  );
-  //const [formatMenuAnchor, setFormatMenuAnchor] = useState<null | HTMLElement>(null);
-  const [showDocumentDialog, setShowDocumentDialog] = useState(false);
-  const [documentTitle, setDocumentTitle] = useState(currentDocument.title);
+  const navigate = useNavigate();
 
-  // Initialize with some sample content
-  useEffect(() => {
-    setDocumentContent(`# ${currentDocument.title}
-Welcome to the collaborative document editor! This is where multiple users can work together in real-time.
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
 
-## Features:
-- Real-time collaborative editing
-- Live cursor tracking
-- Document versioning
-- User presence indicators
-- Auto-save functionality
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
 
-## Getting Started:
-1. Start typing to see real-time collaboration in action
-2. Share the document with other users
-3. See live cursors and edits from other collaborators
-4. All changes are automatically saved
-`);
-  }, [currentDocument]);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
 
-  const handleContentChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const newContent = event.target.value;
-    const cursorPosition = event.target.selectionStart;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
 
-    setDocumentContent(newContent);
-    setIsEditing(true);
-
-    // Simulate sending cursor position to other users
-    // In a real implementation, this would be sent via WebSocket
-    console.log("Cursor position:", cursorPosition);
-
-    // Auto-save simulation
-    setTimeout(() => {
-      setIsEditing(false);
-      setLastSaved(new Date());
-    }, 1500);
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    return `${diffInWeeks}w ago`;
   };
 
-  const handleSave = () => {
-    setLastSaved(new Date());
-    setIsEditing(false);
-    // Implement save logic
-    console.log("Document saved");
+  const handleCreateDocument = () => {
+    const newDocId = `doc${Date.now()}`;
+    const newDocumentData = {
+      documentId: newDocId,
+      documentTitle: "Untitled Document",
+      content: null, // New document has no content
+      readOnly: false,
+      isNew: true,
+    };
+
+    navigate(`/documents/${newDocId}`, { state: newDocumentData });
   };
 
-  const handleShare = (event: React.MouseEvent<HTMLElement>) => {
-    setShareMenuAnchor(event.currentTarget);
-  };
+  const handleSelectDocument = (docId: string) => {
+    const selectedDoc = mockDocuments.find((doc) => doc.id === docId);
 
-  const formatText = (type: string) => {
-    const textarea = editorRef.current;
-    if (!textarea) return;
+    if (selectedDoc) {
+      const documentData = {
+        documentId: selectedDoc.id,
+        documentTitle: selectedDoc.title,
+        content: selectedDoc.content,
+        readOnly: false,
+        isNew: false,
+        lastModified: selectedDoc.lastModified,
+        collaborators: selectedDoc.collaborators,
+      };
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = documentContent.substring(start, end);
-
-    let formattedText = selectedText;
-    switch (type) {
-      case "bold":
-        formattedText = `**${selectedText}**`;
-        break;
-      case "italic":
-        formattedText = `*${selectedText}*`;
-        break;
-      case "underline":
-        formattedText = `<u>${selectedText}</u>`;
-        break;
-      default:
-        break;
-    }
-
-    const newContent =
-      documentContent.substring(0, start) +
-      formattedText +
-      documentContent.substring(end);
-    setDocumentContent(newContent);
-    //setFormatMenuAnchor(null);
-  };
-
-  const addCollaborator = () => {
-    // Simulate adding a new collaborator
-    const offlineUsers = mockUsers.filter((u) => !u.isOnline);
-    if (offlineUsers.length > 0) {
-      const newUser = offlineUsers[0];
-      setConnectedUsers((prev) => [...prev, { ...newUser, isOnline: true }]);
-      setCursors((prev) => [
-        ...prev,
-        {
-          id: newUser.id,
-          name: newUser.name,
-          color: newUser.color,
-          position: Math.floor(Math.random() * documentContent.length),
-        },
-      ]);
+      navigate(`/documents/${docId}`, { state: documentData });
     }
   };
+
   return (
     <Box
       sx={{
-        p: 3,
-        maxWidth: "100%",
-        mx: "auto",
-        background: `linear-gradient(135deg, 
-                    ${alpha(theme.palette.primary.main, 0.03)} 0%, 
-                    ${alpha(theme.palette.secondary.main, 0.02)} 50%,
-                    ${alpha(theme.palette.background.default, 0.95)} 100%)`,
         minHeight: "100vh",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `radial-gradient(circle at 20% 80%, ${alpha(
-            theme.palette.primary.main,
-            0.1
-          )} 0%, transparent 50%),
-                            radial-gradient(circle at 80% 20%, ${alpha(
-                              theme.palette.secondary.main,
-                              0.1
-                            )} 0%, transparent 50%)`,
-          pointerEvents: "none",
-        },
+        backgroundColor: theme.palette.background.default,
       }}
     >
-      {/* Header */}
-      <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
-              {documentTitle}
-            </Typography>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <Typography variant="body2" color="text.secondary">
-                {isEditing
-                  ? "Editing..."
-                  : `Last saved: ${lastSaved.toLocaleTimeString()}`}
-              </Typography>
-              {isEditing && (
-                <Chip
-                  label="Saving..."
-                  size="small"
-                  color="primary"
-                  sx={{ fontSize: "0.7rem" }}
-                />
-              )}
-            </Stack>
-          </Box>
-
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="outlined"
-              startIcon={<Save />}
-              onClick={handleSave}
-              disabled={!isEditing}
-            >
-              Save
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<Share />}
-              onClick={handleShare}
-            >
-              Share
-            </Button>
-            <IconButton onClick={() => setShowDocumentDialog(true)}>
-              <MoreVert />
-            </IconButton>
-          </Stack>
-        </Stack>
-      </Paper>
-
-      <Stack direction={{ xs: "column", lg: "row" }} spacing={3}>
-        {/* Main Editor */}
-        <Box sx={{ flex: 1 }}>
-          <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-            {/* Toolbar */}
-            <Box
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Header */}
+        <Box sx={{ mb: 4 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              mb: 1,
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <ArticleIcon
+              sx={{ fontSize: 30, color: theme.palette.primary.main }}
+            />
+            <Typography
+              variant="h5"
+              component="h1"
               sx={{
-                p: 1,
-                borderBottom: 1,
-                borderColor: "divider",
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                fontWeight: "bold",
+                textAlign: "center",
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Tooltip title="Bold">
-                  <IconButton size="small" onClick={() => formatText("bold")}>
-                    <FormatBold />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Italic">
-                  <IconButton size="small" onClick={() => formatText("italic")}>
-                    <FormatItalic />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Underline">
-                  <IconButton
-                    size="small"
-                    onClick={() => formatText("underline")}
-                  >
-                    <FormatUnderlined />
-                  </IconButton>
-                </Tooltip>
-                <Divider orientation="vertical" flexItem />
-                <Tooltip title="Bullet List">
-                  <IconButton size="small">
-                    <FormatListBulleted />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Numbered List">
-                  <IconButton size="small">
-                    <FormatListNumbered />
-                  </IconButton>
-                </Tooltip>
-                <Divider orientation="vertical" flexItem />
-                <Tooltip title="Undo">
-                  <IconButton size="small">
-                    <Undo />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Redo">
-                  <IconButton size="small">
-                    <Redo />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Box>
+              Real-Time Collaborative Documents
+            </Typography>
+          </Box>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+              maxWidth: 600,
+              textAlign: "center",
+              mx: "auto",
+            }}
+          >
+            Create, edit, and collaborate on documents in real-time with your
+            team members
+          </Typography>
 
-            {/* Editor Area */}
-            <Box sx={{ position: "relative" }}>
-              <TextField
-                //   ref={editorRef}
-                multiline
-                fullWidth
-                value={documentContent}
-                onChange={handleContentChange}
-                placeholder="Start typing your document..."
-                variant="outlined"
+          <Divider sx={{ my: 2 }} />
+        </Box>
+
+        {/* Action Bar */}
+        <Paper
+          elevation={1}
+          sx={{
+            p: 2,
+            mb: 4,
+            background: `linear-gradient(135deg, ${alpha(
+              theme.palette.primary.main,
+              0.05
+            )} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            alignItems="center"
+            justifyContent="space-between"
+            spacing={2}
+          >
+            <Typography variant="h6" sx={{ fontWeight: "medium" }}>
+              Your Documents
+            </Typography>
+            <Stack direction="row" spacing={2}>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={handleCreateDocument}
                 sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { border: "none" },
-                  },
-                  "& .MuiInputBase-input": {
-                    minHeight: "400px",
-                    fontFamily: "monospace",
-                    fontSize: "14px",
-                    lineHeight: 1.5,
-                  },
+                  bgcolor: theme.palette.primary.main,
+                  "&:hover": { bgcolor: theme.palette.primary.dark },
                 }}
-              />
+              >
+                New Document
+              </Button>
+              {/* <Button variant="outlined" startIcon={<Folder />}>
+                Import
+              </Button> */}
+            </Stack>
+          </Stack>
+        </Paper>
 
-              {/* Live Cursors */}
-              {cursors.map((cursor) => (
-                <Box
-                  key={cursor.id}
-                  sx={{
-                    position: "absolute",
-                    top: Math.floor(cursor.position / 80) * 21 + 16, // Approximate line height
-                    left: (cursor.position % 80) * 8.5 + 14, // Approximate character width
-                    zIndex: 10,
-                  }}
+        {/* Documents Grid */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, 1fr)",
+              lg: "repeat(3, 1fr)",
+            },
+            gap: 3,
+          }}
+        >
+          {mockDocuments.map((document) => (
+            <Card
+              key={document.id}
+              sx={{
+                height: "100%",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                },
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              }}
+              onClick={() => handleSelectDocument(document.id)}
+            >
+              <CardContent
+                sx={{
+                  p: 3,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                {/* Document Header */}
+                <Stack
+                  direction="row"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  sx={{ mb: 2 }}
                 >
                   <Box
                     sx={{
-                      width: 2,
-                      height: 20,
-                      bgcolor: cursor.color,
-                      animation: "blink 1s infinite",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      flex: 1,
                     }}
-                  />
-                  <Chip
-                    label={cursor.name}
-                    size="small"
-                    sx={{
-                      position: "absolute",
-                      top: -30,
-                      left: -10,
-                      bgcolor: cursor.color,
-                      color: "white",
-                      fontSize: "0.7rem",
-                      height: 20,
-                    }}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </Paper>
-        </Box>
-
-        {/* Sidebar */}
-        <Box sx={{ width: { xs: "100%", lg: 300 } }}>
-          {/* Connected Users */}
-          <Paper elevation={1} sx={{ p: 2, mb: 2, borderRadius: 2 }}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 2 }}
-            >
-              <Typography
-                variant="h6"
-                sx={{ display: "flex", alignItems: "center", gap: 1 }}
-              >
-                <People />
-                Collaborators ({connectedUsers.length})
-              </Typography>
-              <IconButton size="small" onClick={addCollaborator}>
-                <Add />
-              </IconButton>
-            </Stack>
-
-            <Stack spacing={1}>
-              {connectedUsers.map((user) => (
-                <Stack
-                  key={user.id}
-                  direction="row"
-                  alignItems="center"
-                  spacing={2}
-                >
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    badgeContent={
-                      <Circle sx={{ color: "#4caf50", fontSize: 12 }} />
-                    }
                   >
-                    <Avatar
+                    <Description
+                      sx={{ color: theme.palette.primary.main, fontSize: 28 }}
+                    />
+                    <Box sx={{ flex: 1 }}>
+                      {document.isActive && (
+                        <Chip
+                          icon={<FiberManualRecord sx={{ fontSize: 12 }} />}
+                          label="Live"
+                          size="small"
+                          color="success"
+                          sx={{ mb: 1, fontSize: "0.7rem", height: 20 }}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+                  <IconButton size="small" sx={{ mt: -1, mr: -1 }}>
+                    <MoreVert />
+                  </IconButton>
+                </Stack>
+
+                {/* Document Title */}
+                <Typography
+                  variant="h6"
+                  sx={{
+                    mb: 2,
+                    fontWeight: "medium",
+                    color: theme.palette.text.primary,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {document.title}
+                </Typography>
+
+                {/* Document Info */}
+                <Box sx={{ mt: "auto" }}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    sx={{ mb: 2 }}
+                  >
+                    <AccessTime
+                      sx={{ fontSize: 16, color: "text.secondary" }}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary" }}
+                    >
+                      {formatTimeAgo(document.lastModified)}
+                    </Typography>
+                  </Stack>
+
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <People sx={{ fontSize: 16, color: "text.secondary" }} />
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        {document.collaborators} collaborator
+                        {document.collaborators !== 1 ? "s" : ""}
+                      </Typography>
+                    </Box>
+
+                    <AvatarGroup
+                      max={3}
                       sx={{
-                        bgcolor: user.color,
-                        width: 32,
-                        height: 32,
-                        fontSize: "0.8rem",
+                        "& .MuiAvatar-root": {
+                          width: 24,
+                          height: 24,
+                          fontSize: 12,
+                        },
                       }}
                     >
-                      {user.avatar}
-                    </Avatar>
-                  </Badge>
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {user.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" noWrap>
-                      {user.email}
-                    </Typography>
-                  </Box>
-                </Stack>
-              ))}
-            </Stack>
-          </Paper>
-
-          {/* Document History */}
-          <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Recent Documents
-            </Typography>
-            <Stack spacing={1}>
-              {mockDocuments.map((doc) => (
-                <Box
-                  key={doc.id}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 1,
-                    cursor: "pointer",
-                    bgcolor:
-                      doc.id === currentDocument.id
-                        ? alpha(theme.palette.primary.main, 0.1)
-                        : "transparent",
-                    "&:hover": {
-                      bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    },
-                  }}
-                  onClick={() => setCurrentDocument(doc)}
-                >
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {doc.title}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {doc.lastModified} • {doc.collaborators} collaborators
-                  </Typography>
+                      {Array.from(
+                        { length: Math.min(document.collaborators, 3) },
+                        (_, i) => (
+                          <Avatar
+                            key={i}
+                            sx={{ bgcolor: `hsl(${i * 120}, 60%, 50%)` }}
+                          >
+                            {String.fromCharCode(65 + i)}
+                          </Avatar>
+                        )
+                      )}
+                    </AvatarGroup>
+                  </Stack>
                 </Box>
-              ))}
-            </Stack>
-          </Paper>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Empty State */}
+          {mockDocuments.length === 0 && (
+            <Paper
+              sx={{
+                p: 8,
+                textAlign: "center",
+                bgcolor: alpha(theme.palette.primary.main, 0.02),
+                gridColumn: "1 / -1",
+              }}
+            >
+              <Description
+                sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+              />
+              <Typography variant="h5" gutterBottom>
+                No documents yet
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{ color: "text.secondary", mb: 3 }}
+              >
+                Create your first collaborative document to get started
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={handleCreateDocument}
+                size="large"
+              >
+                Create New Document
+              </Button>
+            </Paper>
+          )}
         </Box>
-      </Stack>
-
-      {/* Share Menu */}
-      <Menu
-        anchorEl={shareMenuAnchor}
-        open={Boolean(shareMenuAnchor)}
-        onClose={() => setShareMenuAnchor(null)}
-      >
-        <MenuItem onClick={() => setShareMenuAnchor(null)}>
-          <ListItemIcon>
-            <Share />
-          </ListItemIcon>
-          <ListItemText>Share via link</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => setShareMenuAnchor(null)}>
-          <ListItemIcon>
-            <People />
-          </ListItemIcon>
-          <ListItemText>Invite collaborators</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => setShareMenuAnchor(null)}>
-          <ListItemIcon>
-            <Download />
-          </ListItemIcon>
-          <ListItemText>Export document</ListItemText>
-        </MenuItem>
-      </Menu>
-
-      {/* Document Settings Dialog */}
-      <Dialog
-        open={showDocumentDialog}
-        onClose={() => setShowDocumentDialog(false)}
-      >
-        <DialogTitle>Document Settings</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            label="Document Title"
-            value={documentTitle}
-            onChange={(e) => setDocumentTitle(e.target.value)}
-            sx={{ mb: 2, mt: 1 }}
-          />
-          <FormControl fullWidth>
-            <InputLabel>Access Level</InputLabel>
-            <Select value="edit" label="Access Level">
-              <MenuItem value="view">View Only</MenuItem>
-              <MenuItem value="comment">Can Comment</MenuItem>
-              <MenuItem value="edit">Can Edit</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowDocumentDialog(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={() => setShowDocumentDialog(false)}
-          >
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* CSS for cursor animation */}
-      <style>
-        {`
-          @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-          }
-        `}
-      </style>
+      </Container>
     </Box>
   );
-};
-
-export default RealTimeCollaboration;
+}
