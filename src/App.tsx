@@ -14,7 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
 import RealTimeCollaboration from "./pages/RealTimeCollaboration";
-import QuizTaker from "./components/QuizTaker";
+
 
 const App = () => {
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Paper,
@@ -37,14 +37,16 @@ import {
   Warning as WarningIcon,
   Save as SaveIcon,
   Refresh as RefreshIcon,
+  Star as StarIcon,
 } from "@mui/icons-material";
+import QuizResults from "./QuizResults";
 import { QuizAttemptService } from "../services/QuizAttemptService";
 import type { 
   QuizDetails, 
   Question, 
   QuizAttemptResponse, 
   QuizCompletionResponse,
-  AnswerSubmission 
+  AnswerSubmission
 } from "../services/QuizAttemptService";
 
 interface QuizTakerProps {
@@ -55,7 +57,8 @@ interface QuizTakerProps {
 
 interface UserAnswer {
   questionId: string;
-  answer: string;
+  answer: string; 
+  selectedOptionId?: string; 
   saved: boolean;
 }
 
@@ -63,7 +66,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Quiz state
+
   const [quiz, setQuiz] = useState<QuizDetails | null>(null);
   const [attempt, setAttempt] = useState<QuizAttemptResponse | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -71,8 +74,9 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   const [timeLeft, setTimeLeft] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [results, setResults] = useState<QuizCompletionResponse | null>(null);
+  const [showDetailedResults, setShowDetailedResults] = useState(false);
 
-  // UI state
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showWarning, setShowWarning] = useState(false);
@@ -80,12 +84,16 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   const [saving, setSaving] = useState(false);
   const [autoSaveEnabled] = useState(true);
 
-  // Initialize quiz
+  
+  const initializingRef = useRef<boolean>(false);
+  const initializedRef = useRef<boolean>(false);
+
+ 
   useEffect(() => {
     initializeQuiz();
   }, [quizId]);
 
-  // Timer effect
+ 
   useEffect(() => {
     if (timeLeft > 0 && !quizCompleted && attempt) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -95,49 +103,52 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
     }
   }, [timeLeft, quizCompleted, attempt]);
 
-  // Warning effect
+  
   useEffect(() => {
     if (timeLeft <= 300 && timeLeft > 0 && !showWarning) {
       setShowWarning(true);
     }
   }, [timeLeft, showWarning]);
 
-  // Auto-save effect
+  
   useEffect(() => {
     if (autoSaveEnabled && attempt) {
       const interval = setInterval(() => {
         saveCurrentAnswer();
-      }, 30000); // Auto-save every 30 seconds
+      }, 30000); 
 
       return () => clearInterval(interval);
     }
   }, [autoSaveEnabled, attempt, currentQuestion]);
 
   const initializeQuiz = async () => {
+    
+    if (initializingRef.current || initializedRef.current) {
+      console.log('Quiz initialization already in progress or completed - skipping');
+      return;
+    }
+
     try {
+      initializingRef.current = true;
       setLoading(true);
       setError(null);
 
-      // Debug: Check if quizId is properly passed
-      console.log('QuizTakerNew - Initializing quiz with ID:', quizId);
-      console.log('QuizTakerNew - Quiz ID type:', typeof quizId);
-      console.log('QuizTakerNew - Quiz ID is truthy:', !!quizId);
       
       if (!quizId || quizId === 'undefined' || quizId.trim() === '') {
         throw new Error(`Quiz ID is required. Received: ${quizId} (type: ${typeof quizId})`);
       }
 
-      // Get quiz details
+      
       const quizDetails = await QuizAttemptService.getQuizDetails(quizId);
       
-      // Validate quiz data
+      
       if (!quizDetails || !quizDetails.questions || !Array.isArray(quizDetails.questions)) {
         throw new Error('Invalid quiz data: missing questions');
       }
       
       setQuiz(quizDetails);
 
-      // Initialize user answers array
+     
       const initialAnswers: UserAnswer[] = quizDetails.questions.map(q => ({
         questionId: q.id,
         answer: '',
@@ -145,18 +156,23 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
       }));
       setUserAnswers(initialAnswers);
 
-      // Start quiz attempt
+    
       const attemptResponse = await QuizAttemptService.startQuizAttempt(quizId);
+      
       setAttempt(attemptResponse);
 
-      // Set timer
+    
       setTimeLeft(quizDetails.timeLimit * 60);
 
       setLoading(false);
+      initializedRef.current = true;
+      
     } catch (err: any) {
       console.error('Failed to initialize quiz:', err);
       setError(err.message || 'Failed to load quiz');
       setLoading(false);
+    } finally {
+      initializingRef.current = false;
     }
   };
 
@@ -172,7 +188,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
     return "primary";
   };
 
-  const handleAnswerChange = (answer: string) => {
+  const handleAnswerChange = (answer: string, optionId?: string) => {
     const updatedAnswers = [...userAnswers];
     const questionIndex = updatedAnswers.findIndex(
       a => a.questionId === quiz?.questions[currentQuestion]?.id
@@ -182,6 +198,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
       updatedAnswers[questionIndex] = {
         ...updatedAnswers[questionIndex],
         answer,
+        selectedOptionId: optionId, 
         saved: false
       };
       setUserAnswers(updatedAnswers);
@@ -190,6 +207,8 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
 
   const saveCurrentAnswer = useCallback(async () => {
     if (!attempt || !quiz || saving) return;
+
+   
 
     const currentAnswer = userAnswers.find(
       a => a.questionId === quiz.questions[currentQuestion]?.id
@@ -201,15 +220,34 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
 
     try {
       setSaving(true);
+      
+      
+      const actualAttemptId = attempt.attemptId || (attempt as any).id;
+      if (!actualAttemptId) {
+        
+        throw new Error('Attempt ID is missing. Please restart the quiz.');
+      }
+
       const answerData: AnswerSubmission = {
-        attemptId: attempt.attemptId,
-        questionId: currentAnswer.questionId,
-        answer: currentAnswer.answer
+        attemptId: actualAttemptId,
+        questionId: currentAnswer.questionId
       };
 
-      await QuizAttemptService.saveAnswer(answerData);
+      
+      const currentQuestion_obj = quiz.questions[currentQuestion];
+      
+      
+      if ((currentQuestion_obj.questionType === 'MCQ' || currentQuestion_obj.questionType === 'TRUE_FALSE') && currentAnswer.selectedOptionId) {
+        answerData.selectedOptionId = currentAnswer.selectedOptionId;
+        
+      } else {
+        answerData.userAnswer = currentAnswer.answer;
+        
+      }
 
-      // Mark as saved
+      const response = await QuizAttemptService.saveAnswer(answerData);
+      console.log('✅ Save response:', response);
+
       const updatedAnswers = [...userAnswers];
       const answerIndex = updatedAnswers.findIndex(
         a => a.questionId === currentAnswer.questionId
@@ -240,53 +278,63 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   };
 
   const handleSubmitQuiz = async () => {
-    console.log('🚀 SUBMIT BUTTON CLICKED - handleSubmitQuiz called');
-    console.log('Attempt object:', attempt);
     
-    // Show immediate feedback
-    alert('Quiz submission started...');
+    
+    
     
     if (!attempt) {
-      console.error('No attempt object found');
-      alert('Error: Quiz attempt not found. Please restart the quiz.');
+     
       setError('Quiz attempt not found. Please restart the quiz.');
+      return;
+    }
+
+   
+    const actualAttemptId = attempt.attemptId || (attempt as any).id;
+    if (!actualAttemptId) {
+      
+      setError('Attempt ID is missing. Please restart the quiz.');
       return;
     }
 
     try {
       setLoading(true);
-      console.log('Starting quiz submission process...');
       
-      // Save current answer first
+      
+      
       await saveCurrentAnswer();
-      console.log('Current answer saved');
-
-      // Complete the quiz
-      console.log('Completing quiz with attempt ID:', attempt.attemptId);
-      const completionResults = await QuizAttemptService.completeQuiz(attempt.attemptId);
-      console.log('Quiz completion results:', completionResults);
+      
+     
+      const completionResults = await QuizAttemptService.completeQuiz(actualAttemptId);
+      
+      console.log('✅ Results structure check:', {
+        hasResults: !!completionResults.results,
+        resultsType: typeof completionResults.results,
+        isArray: Array.isArray(completionResults.results),
+        resultsLength: completionResults.results ? completionResults.results.length : 'N/A'
+      });
       
       setResults(completionResults);
       setQuizCompleted(true);
-      
-      // Show success feedback
-      alert('Quiz completed successfully! Check results below.');
-      console.log('🎉 Quiz completed successfully');
+    
       
       onComplete(completionResults);
     } catch (err: any) {
-      console.error('Failed to submit quiz:', err);
+      
       setError(err.message || 'Failed to submit quiz');
+      alert(`Error submitting quiz: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleAutoSubmit = async () => {
+   
+    
     try {
       await handleSubmitQuiz();
     } catch (err) {
-      console.error('Auto-submit failed:', err);
+      
+      alert(`Auto-submit failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   };
 
@@ -324,7 +372,10 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
         <FormControl component="fieldset" fullWidth>
           <RadioGroup
             value={currentAnswer?.answer || ""}
-            onChange={(e) => handleAnswerChange(e.target.value)}
+            onChange={(e) => {
+              const selectedOption = question.options?.find(opt => opt.optionText === e.target.value);
+              handleAnswerChange(e.target.value, selectedOption?.id);
+            }}
           >
             <Stack spacing={2}>
               {question.options.map((option, index) => (
@@ -401,7 +452,10 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
         <FormControl component="fieldset" fullWidth>
           <RadioGroup
             value={currentAnswer?.answer || ""}
-            onChange={(e) => handleAnswerChange(e.target.value)}
+            onChange={(e) => {
+              const selectedOption = question.options?.find(opt => opt.optionText === e.target.value);
+              handleAnswerChange(e.target.value, selectedOption?.id);
+            }}
           >
             <Stack spacing={2}>
               {['True', 'False'].map((option) => (
@@ -513,6 +567,19 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
 
   // Quiz completed state
   if (quizCompleted && results) {
+    // Show detailed results if requested
+    if (showDetailedResults && quiz) {
+      const userId = localStorage.getItem('userId') || '';
+      return (
+        <QuizResults
+          quizId={quiz.id}
+          quizTitle={quiz.title}
+          userId={userId}
+          onBack={() => setShowDetailedResults(false)}
+        />
+      );
+    }
+
     const percentage = Math.round(results.percentage);
     const isExcellent = percentage >= 90;
     const isGood = percentage >= 70;
@@ -613,22 +680,38 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                 />
               </Box>
 
-              <Button
-                variant="contained"
-                fullWidth
-                startIcon={<ArrowBackIcon />}
-                onClick={onBack}
-                size="large"
-                sx={{
-                  mt: 2,
-                  borderRadius: 3,
-                  py: 1.5,
-                  fontSize: "1.1rem",
-                  textTransform: "none",
-                }}
-              >
-                Back to Quizzes
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<StarIcon />}
+                  onClick={() => setShowDetailedResults(true)}
+                  size="large"
+                  sx={{
+                    borderRadius: 3,
+                    py: 1.5,
+                    fontSize: "1.1rem",
+                    textTransform: "none",
+                  }}
+                >
+                  View Detailed Results
+                </Button>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  startIcon={<ArrowBackIcon />}
+                  onClick={onBack}
+                  size="large"
+                  sx={{
+                    borderRadius: 3,
+                    py: 1.5,
+                    fontSize: "1.1rem",
+                    textTransform: "none",
+                  }}
+                >
+                  Back to Quizzes
+                </Button>
+              </Box>
             </CardContent>
           </Card>
         </Fade>

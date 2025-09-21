@@ -51,7 +51,7 @@ export default function QuizCreator() {
   // Get groupId from navigation state
   const groupId = location.state?.groupId
 
-  // Redirect if no groupId is provided
+  
   useEffect(() => {
     if (!groupId) {
       showSnackbar("No group selected. Please select a group first.")
@@ -119,9 +119,7 @@ export default function QuizCreator() {
       errors.push("Quiz title is required")
     }
 
-    // if (!quizData.metadata.subject) {
-    //   errors.push("Subject is required")
-    // }
+    
 
     if (!quizData.metadata.difficulty) {
       errors.push("Difficulty level is required")
@@ -141,10 +139,9 @@ export default function QuizCreator() {
       return
     }
 
-    // In real app, save to backend
-    console.log("Saving quiz:", quizData)
+
     setSaveDialogOpen(false)
-    showSnackbar("Quiz saved as draft!")
+  showSnackbar("Quiz saved as draft!")
   }
 
   const handlePublishQuiz = async () => {
@@ -163,7 +160,6 @@ export default function QuizCreator() {
     
     try {
       const result = await QuizService.createCompleteQuiz(groupId, quizData.metadata, quizData.questions)
-      console.log("Quiz created successfully:", result)
       setPublishDialogOpen(false)
       showSnackbar("Quiz published successfully!")
       
@@ -330,9 +326,8 @@ export default function QuizCreator() {
           <Button
             onClick={() => {
               if (currentStep === 2) {
-                // Handle finish action - you can add your finish logic here
-                console.log("Quiz finished!", quizData)
-                setPublishDialogOpen(true) // Open publish dialog when finished
+                
+                setPublishDialogOpen(true) 
               } else {
                 setCurrentStep(Math.min(2, currentStep + 1))
               }

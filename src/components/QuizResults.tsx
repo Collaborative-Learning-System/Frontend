@@ -17,20 +17,15 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Tabs,
-  Tab,
 
 } from '@mui/material';
 import {
-  EmojiEvents as TrophyIcon,
   History as HistoryIcon,
-  Leaderboard as LeaderboardIcon,
   ArrowBack as ArrowBackIcon,
   Refresh as RefreshIcon,
-  EmojiEvents as AwardIcon,
 } from '@mui/icons-material';
 import { QuizAttemptService } from '../services/QuizAttemptService';
-import type { UserAttempts, LeaderboardEntry } from '../services/QuizAttemptService';
+import type { UserAttempts } from '../services/QuizAttemptService';
 
 interface QuizResultsProps {
   quizId: string;
@@ -39,30 +34,6 @@ interface QuizResultsProps {
   onBack: () => void;
 }
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-const TabPanel: React.FC<TabPanelProps> = ({ children, value, index, ...other }) => {
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`quiz-results-tabpanel-${index}`}
-      aria-labelledby={`quiz-results-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-};
-
 const QuizResults: React.FC<QuizResultsProps> = ({ 
   quizId, 
   quizTitle, 
@@ -70,9 +41,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
   onBack 
 }) => {
 
-  const [tabValue, setTabValue] = useState(0);
   const [userAttempts, setUserAttempts] = useState<UserAttempts | null>(null);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,23 +54,14 @@ const QuizResults: React.FC<QuizResultsProps> = ({
       setLoading(true);
       setError(null);
 
-      const [attemptsData, leaderboardData] = await Promise.all([
-        QuizAttemptService.getUserQuizAttempts(userId, quizId),
-        QuizAttemptService.getQuizLeaderboard(quizId),
-      ]);
-
+      const attemptsData = await QuizAttemptService.getUserQuizAttempts(userId, quizId);
       setUserAttempts(attemptsData);
-      setLeaderboard(leaderboardData);
     } catch (err: any) {
       console.error('Failed to fetch quiz results:', err);
       setError(err.message || 'Failed to load quiz results');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
   };
 
   const formatDate = (dateString: string) => {
@@ -114,29 +74,10 @@ const QuizResults: React.FC<QuizResultsProps> = ({
     });
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const getScoreColor = (percentage: number) => {
     if (percentage >= 90) return 'success';
     if (percentage >= 70) return 'warning';
     return 'error';
-  };
-
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <TrophyIcon sx={{ color: '#FFD700' }} />;
-      case 2:
-        return <AwardIcon sx={{ color: '#C0C0C0' }} />;
-      case 3:
-        return <AwardIcon sx={{ color: '#CD7F32' }} />;
-      default:
-        return <span>{rank}</span>;
-    }
   };
 
   if (loading) {
@@ -238,38 +179,18 @@ const QuizResults: React.FC<QuizResultsProps> = ({
         </Box>
       )}
 
-      {/* Tabs */}
+      {/* My Attempts */}
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          variant="fullWidth"
-          sx={{
-            bgcolor: 'grey.50',
-            '& .MuiTab-root': {
-              fontWeight: 'medium',
-              textTransform: 'none',
-            },
-          }}
-        >
-          <Tab
-            icon={<HistoryIcon />}
-            iconPosition="start"
-            label="My Attempts"
-            id="quiz-results-tab-0"
-            aria-controls="quiz-results-tabpanel-0"
-          />
-          <Tab
-            icon={<LeaderboardIcon />}
-            iconPosition="start"
-            label="Leaderboard"
-            id="quiz-results-tab-1"
-            aria-controls="quiz-results-tabpanel-1"
-          />
-        </Tabs>
+        <Box sx={{ p: 3, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <HistoryIcon color="primary" />
+            <Typography variant="h6" fontWeight="medium">
+              My Quiz Attempts
+            </Typography>
+          </Box>
+        </Box>
 
-        <TabPanel value={tabValue} index={0}>
-          {/* User Attempts */}
+        <Box sx={{ p: 0 }}>
           {userAttempts && userAttempts.attempts.length > 0 ? (
             <TableContainer>
               <Table>
@@ -278,7 +199,6 @@ const QuizResults: React.FC<QuizResultsProps> = ({
                     <TableCell><strong>Attempt</strong></TableCell>
                     <TableCell><strong>Score</strong></TableCell>
                     <TableCell><strong>Percentage</strong></TableCell>
-                    <TableCell><strong>Time Taken</strong></TableCell>
                     <TableCell><strong>Date</strong></TableCell>
                   </TableRow>
                 </TableHead>
@@ -292,7 +212,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
-                          {attempt.score}/{attempt.totalQuestions}
+                          {attempt.score}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -302,11 +222,6 @@ const QuizResults: React.FC<QuizResultsProps> = ({
                           size="small"
                           variant="outlined"
                         />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {formatTime(attempt.timeTaken)}
-                        </Typography>
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" color="text.secondary">
@@ -329,93 +244,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
               </Typography>
             </Box>
           )}
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={1}>
-          {/* Leaderboard */}
-          {leaderboard.length > 0 ? (
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell><strong>Rank</strong></TableCell>
-                    <TableCell><strong>User</strong></TableCell>
-                    <TableCell><strong>Score</strong></TableCell>
-                    <TableCell><strong>Percentage</strong></TableCell>
-                    <TableCell><strong>Time</strong></TableCell>
-                    <TableCell><strong>Date</strong></TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {leaderboard.map((entry) => (
-                    <TableRow 
-                      key={`${entry.userId}-${entry.completedAt}`} 
-                      hover
-                      sx={{
-                        bgcolor: entry.userId === userId ? 'primary.50' : 'inherit',
-                      }}
-                    >
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          {getRankIcon(entry.rank)}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography 
-                          variant="body2" 
-                          fontWeight={entry.userId === userId ? 'bold' : 'normal'}
-                        >
-                          {entry.userName}
-                          {entry.userId === userId && (
-                            <Chip 
-                              label="You" 
-                              size="small" 
-                              color="primary" 
-                              sx={{ ml: 1 }} 
-                            />
-                          )}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {entry.score}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={`${Math.round(entry.percentage)}%`}
-                          color={getScoreColor(entry.percentage) as any}
-                          size="small"
-                          variant={entry.userId === userId ? 'filled' : 'outlined'}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {formatTime(entry.timeTaken)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" color="text.secondary">
-                          {formatDate(entry.completedAt)}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Box sx={{ textAlign: 'center', py: 6 }}>
-              <LeaderboardIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
-                No results yet
-              </Typography>
-              <Typography variant="body2" color="text.disabled">
-                Complete the quiz to see the leaderboard
-              </Typography>
-            </Box>
-          )}
-        </TabPanel>
+        </Box>
       </Paper>
     </Container>
   );
