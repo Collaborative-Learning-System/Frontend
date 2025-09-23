@@ -15,7 +15,7 @@ import DocumentSummary from "./pages/DocumentSummary";
 import RealTimeCollaboration from "./pages/RealTimeCollaboration";
 import Dashboard from "./pages/Dashboard";
 import CollaborativeDocumentEditor from "./pages/CollaborativeDocumentEditor";
-
+import { PrivateRoute } from "./Routes/ProtectedRoutes";
 
 const App = () => {
   return (
@@ -91,7 +91,9 @@ const App = () => {
           path="/documents/:docId"
           element={
             <MainLayout>
-              <CollaborativeDocumentEditor />
+              <PrivateRoute>
+                <CollaborativeDocumentEditor />
+              </PrivateRoute>
             </MainLayout>
           }
         />

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Box,
   Card,
@@ -55,6 +55,7 @@ const AuthComponent = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [info, setInfo] = useState("");
+  const [searchParams] = useSearchParams();
 
   const isLogin = tabValue === 0;
 
@@ -78,10 +79,9 @@ const AuthComponent = () => {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          handleLogging(
-            `User logged in with: ${loginForm.email}`
-          );
-          navigate("/landing");
+          handleLogging(`User logged in with: ${loginForm.email}`);
+          const redirect = searchParams.get("redirect");
+          navigate(redirect || "/landing");
         } else {
           setError("Login failed. Please try again.");
         }

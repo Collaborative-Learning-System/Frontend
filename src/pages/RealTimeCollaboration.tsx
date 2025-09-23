@@ -14,6 +14,7 @@ import {
   AvatarGroup,
   Chip,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import {
   Add,
@@ -25,6 +26,11 @@ import {
 } from "@mui/icons-material";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
+import { use, useContext, useEffect, useState } from "react";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { formatDistanceToNow } from "date-fns";
 
 // Mock documents data
 const mockDocuments = [
@@ -47,113 +53,122 @@ const mockDocuments = [
     </ul>
     <p>This initiative represents a significant step forward in educational technology.</p>`,
   },
-  {
-    id: "doc2",
-    title: "Meeting Notes - Sprint Planning",
-    lastModified: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    collaborators: 2,
-    isActive: true,
-    content: `<h1>Sprint Planning Meeting - Week 12</h1>
-    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-    <p><strong>Attendees:</strong> Development Team</p>
-    <h2>Sprint Goals</h2>
-    <ul>
-      <li>Complete user authentication module</li>
-      <li>Implement collaborative document editing</li>
-      <li>Fix reported UI bugs</li>
-    </ul>
-    <h2>Action Items</h2>
-    <p>Team members have been assigned specific tasks for the upcoming sprint cycle.</p>`,
-  },
-  {
-    id: "doc3",
-    title: "Research Paper - Educational Technology",
-    lastModified: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    collaborators: 5,
-    isActive: false,
-    content: `<h1>The Impact of Technology on Modern Education</h1>
-    <h2>Abstract</h2>
-    <p>This research paper examines the transformative role of technology in contemporary educational systems and its implications for future learning paradigms.</p>
-    <h2>Introduction</h2>
-    <p>Educational technology has become an integral part of modern teaching methodologies, fundamentally changing how students learn and educators teach.</p>
-    <blockquote>
-      <p>"Technology is best when it brings people together." - Matt Mullenweg</p>
-    </blockquote>
-    <p>Our research focuses on the measurable impacts of digital tools in educational environments.</p>`,
-  },
-  {
-    id: "doc4",
-    title: "User Interface Design Guidelines",
-    lastModified: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-    collaborators: 4,
-    isActive: false,
-    content: `<h1>UI Design Guidelines v2.0</h1>
-    <p>This document establishes the design standards and best practices for our application's user interface.</p>
-    <h2>Design Principles</h2>
-    <ol>
-      <li><strong>Simplicity:</strong> Keep interfaces clean and intuitive</li>
-      <li><strong>Consistency:</strong> Maintain uniform design patterns</li>
-      <li><strong>Accessibility:</strong> Ensure usability for all users</li>
-    </ol>
-    <h2>Color Palette</h2>
-    <p>Our primary colors should convey professionalism while maintaining visual appeal.</p>
-    <h3>Typography</h3>
-    <p>Use consistent font families and sizing throughout the application.</p>`,
-  },
 ];
+
+interface Documents {
+  documentId: string;
+  documentTitle: string;
+  createdAt: Date;
+  role: string;
+  collaboratorCount: number;
+}
 
 export default function RealTimeCollaboration() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { userId } = useContext(AppContext);
+  const [isCreatingDocument, setIsCreatingDocument] = useState(false);
+  const [documents, setDocuments] = useState<Documents[]>([]);
 
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60)
-    );
+  // const formatTimeAgo = (date: Date) => {
+  //   const now = new Date();
+  //   const diffInMinutes = Math.floor(
+  //     (now.getTime() - date.getTime()) / (1000 * 60)
+  //   );
 
-    if (diffInMinutes < 1) return "Just now";
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  //   if (diffInMinutes < 1) return "Just now";
+  //   if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
 
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
+  //   const diffInHours = Math.floor(diffInMinutes / 60);
+  //   if (diffInHours < 24) return `${diffInHours}h ago`;
 
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays}d ago`;
+  //   const diffInDays = Math.floor(diffInHours / 24);
+  //   if (diffInDays < 7) return `${diffInDays}d ago`;
 
-    const diffInWeeks = Math.floor(diffInDays / 7);
-    return `${diffInWeeks}w ago`;
+  //   const diffInWeeks = Math.floor(diffInDays / 7);
+  //   return `${diffInWeeks}w ago`;
+  // };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const fetchDocuments = async () => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL_WS
+        }/documents/get-documents/${userId}`
+      );
+      if (response.data.success) {
+        console.log(response.data.data);
+        setDocuments(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    }
   };
 
-  const handleCreateDocument = () => {
-    const newDocId = `doc${Date.now()}`;
-    const newDocumentData = {
-      documentId: newDocId,
-      documentTitle: "Untitled Document",
-      content: null, // New document has no content
-      readOnly: false,
-      isNew: true,
-    };
+  const handleCreateDocument = async () => {
+    if (isCreatingDocument) return; // Prevent multiple clicks
 
-    navigate(`/documents/${newDocId}`, { state: newDocumentData });
+    setIsCreatingDocument(true);
+    try {
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_BACKEND_URL_WS
+        }/documents/create-document/${userId}`
+      );
+      if (response.data.success) {
+        console.log("response from create doc:", response.data);
+        const newDocId = response.data.document.docId;
+        const title = response.data.document.title;
+        const newDocumentData = {
+          documentId: newDocId,
+          documentTitle: title,
+          content: null,
+          readOnly: false,
+          isNew: true,
+        };
+
+        const socket = io(`${import.meta.env.VITE_SOCKET_URL}`, {
+          transports: ["websocket"],
+        });
+        socket.on("connect", () => {
+          console.log("user/", userId, " connected with socket id:", socket.id);
+        });
+        socket.emit("joinDoc", { docId: newDocId, userId: userId });
+        navigate(`/documents/${newDocId}`, { state: newDocumentData });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsCreatingDocument(false);
+    }
   };
 
   const handleSelectDocument = (docId: string) => {
-    const selectedDoc = mockDocuments.find((doc) => doc.id === docId);
+    const selectedDoc = documents.find((doc) => doc.documentId === docId);
+    console.log("test1");
+    const socket = io(`${import.meta.env.VITE_SOCKET_URL}`, {
+      transports: ["websocket"],
+    });
+    // Handle connection
+    socket.on("connect", () => {
+      console.log("Connected with socket id:", socket.id);
 
-    if (selectedDoc) {
-      const documentData = {
-        documentId: selectedDoc.id,
-        documentTitle: selectedDoc.title,
-        content: selectedDoc.content,
-        readOnly: false,
-        isNew: false,
-        lastModified: selectedDoc.lastModified,
-        collaborators: selectedDoc.collaborators,
-      };
-
-      navigate(`/documents/${docId}`, { state: documentData });
-    }
+      // join a document
+      socket.emit("joinDoc", { docId: selectedDoc?.documentId, userId: userId });
+      if (selectedDoc) {
+        const documentData = {
+          documentId: selectedDoc.documentId,
+          documentTitle: selectedDoc.documentTitle,
+          readOnly: false,
+          isNew: false,
+        };
+        navigate(`/documents/${docId}`, { state: documentData });
+      }
+    });
   };
 
   return (
@@ -229,14 +244,17 @@ export default function RealTimeCollaboration() {
             <Stack direction="row" spacing={2}>
               <Button
                 variant="contained"
-                startIcon={<Add />}
+                startIcon={
+                  isCreatingDocument ? <CircularProgress size={20} /> : <Add />
+                }
                 onClick={handleCreateDocument}
+                disabled={isCreatingDocument}
                 sx={{
                   bgcolor: theme.palette.primary.main,
                   "&:hover": { bgcolor: theme.palette.primary.dark },
                 }}
               >
-                New Document
+                {isCreatingDocument ? "Creating..." : "New Document"}
               </Button>
               {/* <Button variant="outlined" startIcon={<Folder />}>
                 Import
@@ -257,9 +275,9 @@ export default function RealTimeCollaboration() {
             gap: 3,
           }}
         >
-          {mockDocuments.map((document) => (
+          {documents.map((document) => (
             <Card
-              key={document.id}
+              key={document.documentId}
               sx={{
                 height: "100%",
                 cursor: "pointer",
@@ -269,7 +287,7 @@ export default function RealTimeCollaboration() {
                 },
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
               }}
-              onClick={() => handleSelectDocument(document.id)}
+              onClick={() => handleSelectDocument(document.documentId)}
             >
               <CardContent
                 sx={{
@@ -289,6 +307,7 @@ export default function RealTimeCollaboration() {
                   <Box
                     sx={{
                       display: "flex",
+                      justifyContent: "space-between",
                       alignItems: "center",
                       gap: 1,
                       flex: 1,
@@ -297,21 +316,13 @@ export default function RealTimeCollaboration() {
                     <Description
                       sx={{ color: theme.palette.primary.main, fontSize: 28 }}
                     />
-                    <Box sx={{ flex: 1 }}>
-                      {document.isActive && (
-                        <Chip
-                          icon={<FiberManualRecord sx={{ fontSize: 12 }} />}
-                          label="Live"
-                          size="small"
-                          color="success"
-                          sx={{ mb: 1, fontSize: "0.7rem", height: 20 }}
-                        />
-                      )}
-                    </Box>
+                    <Chip
+                      label={document.role}
+                      size="small"
+                      color="success"
+                      sx={{ mb: 1, fontSize: "0.7rem", height: 20 }}
+                    />
                   </Box>
-                  <IconButton size="small" sx={{ mt: -1, mr: -1 }}>
-                    <MoreVert />
-                  </IconButton>
                 </Stack>
 
                 {/* Document Title */}
@@ -327,7 +338,7 @@ export default function RealTimeCollaboration() {
                     overflow: "hidden",
                   }}
                 >
-                  {document.title}
+                  {document.documentTitle}
                 </Typography>
 
                 {/* Document Info */}
@@ -345,7 +356,12 @@ export default function RealTimeCollaboration() {
                       variant="body2"
                       sx={{ color: "text.secondary" }}
                     >
-                      {formatTimeAgo(document.lastModified)}
+                      created{" "}
+                      {document.createdAt
+                        ? formatDistanceToNow(new Date(document.createdAt), {
+                            addSuffix: true,
+                          })
+                        : "No timestamp"}
                     </Typography>
                   </Stack>
 
@@ -360,12 +376,12 @@ export default function RealTimeCollaboration() {
                         variant="body2"
                         sx={{ color: "text.secondary" }}
                       >
-                        {document.collaborators} collaborator
-                        {document.collaborators !== 1 ? "s" : ""}
+                        {document.collaboratorCount} collaborator
+                        {document.collaboratorCount !== 1 ? "s" : ""}
                       </Typography>
                     </Box>
 
-                    <AvatarGroup
+                    {/* <AvatarGroup
                       max={3}
                       sx={{
                         "& .MuiAvatar-root": {
@@ -386,7 +402,7 @@ export default function RealTimeCollaboration() {
                           </Avatar>
                         )
                       )}
-                    </AvatarGroup>
+                    </AvatarGroup> */}
                   </Stack>
                 </Box>
               </CardContent>
@@ -417,11 +433,16 @@ export default function RealTimeCollaboration() {
               </Typography>
               <Button
                 variant="contained"
-                startIcon={<Add />}
+                startIcon={
+                  isCreatingDocument ? <CircularProgress size={20} /> : <Add />
+                }
                 onClick={handleCreateDocument}
+                disabled={isCreatingDocument}
                 size="large"
               >
-                Create New Document
+                {isCreatingDocument
+                  ? "Creating Document..."
+                  : "Create New Document"}
               </Button>
             </Paper>
           )}

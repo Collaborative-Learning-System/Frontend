@@ -18,6 +18,14 @@ import {
   alpha,
   Stack,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
 } from "@mui/material";
 import {
   Save,
@@ -25,38 +33,19 @@ import {
   Download,
   MoreVert,
   Edit as EditIcon,
+  Delete,
+  PersonAdd,
 } from "@mui/icons-material";
 import EditorToolbar from "../components/RealTimeCollaboration/EditorToolbar";
 import CollaboratorsList from "../components/RealTimeCollaboration/CollaboratorsList";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
-// Mock collaborators data
-const mockCollaborators = [
-  {
-    id: "user1",
-    name: "John Doe",
-    color: "#FF6B6B",
-    isActive: true,
-  },
-  {
-    id: "user2",
-    name: "Jane Smith",
-    color: "#4ECDC4",
-    isActive: true,
-  },
-  {
-    id: "user3",
-    name: "Mike Johnson",
-    color: "#45B7D1",
-    isActive: false,
-  },
-  {
-    id: "current",
-    name: "You",
-    color: "#96CEB4",
-    isActive: true,
-  },
-];
+interface Collaborator {
+  id: string;
+  name: string;
+  role: string;
+}
 
 export default function CollaborativeDocumentEditor() {
   const theme = useTheme();
@@ -65,9 +54,14 @@ export default function CollaborativeDocumentEditor() {
 
   const [title, setTitle] = useState(documentTitle || "Untitled Document");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [collaborators, setCollaborators] = useState(mockCollaborators);
   const [wordCount, setWordCount] = useState(0);
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Share modal state
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailList, setEmailList] = useState<string[]>([]);
 
   const editor = useEditor({
     extensions: [
@@ -103,6 +97,26 @@ export default function CollaborativeDocumentEditor() {
     },
   });
 
+  const fetchCollaborators = async () => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL_WS
+        }/collaborators/get-collaborators/${documentId}`
+      );
+      if (response) {
+        console.log(response);
+        setCollaborators(response.data.data.collaborators);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCollaborators();
+  }, []);
+
   // Update editor content when the content prop changes
   useEffect(() => {
     if (editor && content !== undefined) {
@@ -126,8 +140,7 @@ export default function CollaborativeDocumentEditor() {
   };
 
   const handleShareDocument = () => {
-    console.log("Sharing document:", { documentId, title });
-    // Here you would implement sharing functionality
+    setShareModalOpen(true);
   };
 
   const handleDownloadDocument = () => {
@@ -154,6 +167,44 @@ export default function CollaborativeDocumentEditor() {
     handleSaveDocument();
   };
 
+  // Email collaboration functions
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleAddEmail = () => {
+    if (emailInput.trim() && validateEmail(emailInput.trim())) {
+      if (!emailList.includes(emailInput.trim())) {
+        setEmailList([...emailList, emailInput.trim()]);
+        setEmailInput("");
+      }
+    }
+  };
+
+  const handleRemoveEmail = (emailToRemove: string) => {
+    setEmailList(emailList.filter((email) => email !== emailToRemove));
+  };
+
+  const handleShareWithEmails = async () => {
+    console.log("Sharing document with emails:", emailList);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/notification/share-document/${documentId}`,
+        { emails: emailList }
+      );
+      if (response.data.success) {
+        console.log("Document shared successfully:", response.data);
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setShareModalOpen(false);
+      setEmailList([]);
+      setEmailInput("");
+    }
+  };
+
   const formatLastSaved = (date: Date | null) => {
     if (!date) return "Never";
     const now = new Date();
@@ -166,20 +217,6 @@ export default function CollaborativeDocumentEditor() {
     if (hours < 24) return `${hours}h ago`;
     return date.toLocaleDateString();
   };
-
-  useEffect(() => {
-    // Simulate real-time collaborator updates
-    const interval = setInterval(() => {
-      setCollaborators((prev) =>
-        prev.map((collab) => ({
-          ...collab,
-          isActive: Math.random() > 0.3, // Random activity simulation
-        }))
-      );
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   if (!editor) {
     return (
@@ -426,6 +463,105 @@ export default function CollaborativeDocumentEditor() {
           </Box>
         </Paper>
       </Box>
+
+      {/* Share Modal */}
+      <Dialog
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Stack direction="row" alignItems="center" gap={1}>
+            <PersonAdd />
+            <Typography variant="h6">Share Document</Typography>
+          </Stack>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+            Add collaborators by entering their email addresses
+          </Typography>
+
+          <Stack spacing={2}>
+            <Stack direction="row" spacing={1} alignItems="flex-end">
+              <TextField
+                label="Email Address"
+                variant="outlined"
+                size="small"
+                fullWidth
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddEmail()}
+                error={
+                  emailInput.trim() !== "" && !validateEmail(emailInput.trim())
+                }
+                helperText={
+                  emailInput.trim() !== "" && !validateEmail(emailInput.trim())
+                    ? "Please enter a valid email address"
+                    : ""
+                }
+              />
+              <Button
+                variant="contained"
+                onClick={handleAddEmail}
+                disabled={
+                  !emailInput.trim() ||
+                  !validateEmail(emailInput.trim()) ||
+                  emailList.includes(emailInput.trim())
+                }
+                size="small"
+              >
+                Add
+              </Button>
+            </Stack>
+
+            {emailList.length > 0 && (
+              <Box>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ mb: 1, fontWeight: "medium" }}
+                >
+                  Collaborators to add ({emailList.length}):
+                </Typography>
+                <List dense>
+                  {emailList.map((email, index) => (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        borderRadius: 1,
+                        mb: 0.5,
+                      }}
+                    >
+                      <ListItemText primary={email} />
+                      <ListItemSecondaryAction>
+                        <IconButton
+                          edge="end"
+                          aria-label="remove"
+                          onClick={() => handleRemoveEmail(email)}
+                          size="small"
+                        >
+                          <Delete />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShareModalOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleShareWithEmails}
+            variant="contained"
+            disabled={emailList.length === 0}
+          >
+            Share Document
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
