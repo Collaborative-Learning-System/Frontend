@@ -51,6 +51,7 @@ import { useNavigate } from "react-router-dom";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
 import { handleLogging } from "../services/LoggingService";
+import RealTimeCollaboration from "./RealTimeCollaboration";
 
 interface WorkspaceData {
   id: string;
@@ -273,7 +274,7 @@ const Workspace = () => {
     <Box
       sx={{
         width: isInDrawer ? 280 : "100%",
-        height: "100vh",
+        height: isInDrawer ? "100vh" : "100%",
         display: "flex",
         flexDirection: "column",
       }}
@@ -570,12 +571,14 @@ const Workspace = () => {
   return (
     <Box
       sx={{
-        height: "100%",
+        height: "100vh",
+        maxHeight: "100vh", 
         display: "flex",
         flexDirection: "column",
         p: { xs: 1.5, sm: 2, md: 3 },
         gap: { xs: 2, sm: 3 },
         overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
       {/* Header */}
@@ -713,6 +716,7 @@ const Workspace = () => {
           gap: { xs: 2, md: 3 },
           flex: 1,
           minHeight: 0,
+          maxHeight: "100%",
           overflow: "hidden",
         }}
       >
@@ -722,8 +726,8 @@ const Workspace = () => {
             elevation={2}
             sx={{
               width: { md: 300, lg: 320 },
-              height: "fit-content",
-              maxHeight: "calc(100vh - 200px)",
+              height: "100%",
+              maxHeight: "100%",
               borderRadius: 3,
               display: "flex",
               flexDirection: "column",
@@ -772,7 +776,8 @@ const Workspace = () => {
             borderRadius: 3,
             display: "flex",
             flexDirection: "column",
-            minHeight: { xs: "60vh", md: "calc(100vh - 250px)" },
+            height: "100%",
+            maxHeight: "100%",
             overflow: "hidden",
           }}
         >

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Highlight from "@tiptap/extension-highlight";
@@ -38,8 +38,11 @@ import {
 } from "@mui/icons-material";
 import EditorToolbar from "../components/RealTimeCollaboration/EditorToolbar";
 import CollaboratorsList from "../components/RealTimeCollaboration/CollaboratorsList";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import axios from "axios";
+import { io } from "socket.io-client";
+import { AppContext } from "../context/AppContext";
+
 
 interface Collaborator {
   id: string;
@@ -50,7 +53,11 @@ interface Collaborator {
 export default function CollaborativeDocumentEditor() {
   const theme = useTheme();
   const location = useLocation();
+  const { userId } = useContext(AppContext);
   const { documentId, documentTitle, content, readOnly } = location.state || {};
+  const docId = useParams();
+
+  const [documentData, setDocumentData] = useState<any>(null);
 
   const [title, setTitle] = useState(documentTitle || "Untitled Document");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -99,13 +106,14 @@ export default function CollaborativeDocumentEditor() {
 
   const fetchCollaborators = async () => {
     try {
+      console.log("Document Data in fCollab: ", docId.docId);
       const response = await axios.get(
         `${
           import.meta.env.VITE_BACKEND_URL_WS
-        }/collaborators/get-collaborators/${documentId}`
+        }/collaborators/get-collaborators/${docId.docId}`
       );
       if (response) {
-        console.log(response);
+        console.log("Collaborators: ", response.data.data.collaborators);
         setCollaborators(response.data.data.collaborators);
       }
     } catch (error) {
@@ -113,7 +121,36 @@ export default function CollaborativeDocumentEditor() {
     }
   };
 
+  const fetchDocData = async () => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL_WS
+        }/documents/get-document-data/${docId.docId}`
+      );
+
+      if (response) {
+        console.log(" Document Data: ", response.data.data);
+        setDocumentData(response.data.data);  
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
   useEffect(() => {
+    const socket = io(`${import.meta.env.VITE_SOCKET_URL}`, {
+      transports: ["websocket"],
+    });
+    // Handle connection
+    socket.on("connect", () => {
+      console.log("Connected with socket id:", socket.id);
+      // join a document
+      socket.emit("joinDoc", { docId: docId.docId, userId: userId });
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchDocData();
     fetchCollaborators();
   }, []);
 
@@ -190,14 +227,16 @@ export default function CollaborativeDocumentEditor() {
     console.log("Sharing document with emails:", emailList);
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/notification/share-document/${documentId}`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/notification/share-document/${documentId}`,
         { emails: emailList }
       );
       if (response.data.success) {
         console.log("Document shared successfully:", response.data);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setShareModalOpen(false);
       setEmailList([]);

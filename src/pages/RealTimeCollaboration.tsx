@@ -149,26 +149,16 @@ export default function RealTimeCollaboration() {
 
   const handleSelectDocument = (docId: string) => {
     const selectedDoc = documents.find((doc) => doc.documentId === docId);
-    console.log("test1");
-    const socket = io(`${import.meta.env.VITE_SOCKET_URL}`, {
-      transports: ["websocket"],
-    });
-    // Handle connection
-    socket.on("connect", () => {
-      console.log("Connected with socket id:", socket.id);
-
-      // join a document
-      socket.emit("joinDoc", { docId: selectedDoc?.documentId, userId: userId });
-      if (selectedDoc) {
-        const documentData = {
-          documentId: selectedDoc.documentId,
-          documentTitle: selectedDoc.documentTitle,
-          readOnly: false,
-          isNew: false,
-        };
-        navigate(`/documents/${docId}`, { state: documentData });
-      }
-    });
+    if(!selectedDoc) return;
+    if (selectedDoc) {
+      const documentData = {
+        documentId: selectedDoc.documentId,
+        documentTitle: selectedDoc.documentTitle,
+        readOnly: false,
+        isNew: false,
+      };
+      navigate(`/documents/${docId}`, { state: documentData });
+    }
   };
 
   return (
