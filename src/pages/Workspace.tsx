@@ -47,11 +47,12 @@ import {
   Close as CloseIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
+import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
 import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
 import { handleLogging } from "../services/LoggingService";
-import RealTimeCollaboration from "./RealTimeCollaboration";
+import RealTimeCollaboration from "../components/RealTimeCollaboration/RealTimeCollaboration";
 
 interface WorkspaceData {
   id: string;
@@ -73,7 +74,9 @@ interface Group {
 const Workspace = () => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(null);
+  const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(
+    null
+  );
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [groupsLoading, setGroupsLoading] = useState(false);
@@ -90,7 +93,7 @@ const Workspace = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const { mode } = useThemeContext();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     const fetchWorkspaceDetails = async () => {
@@ -112,10 +115,16 @@ const Workspace = () => {
           setWorkspaceData(response.data.data);
           setError(null);
         } else {
-          throw new Error(response.data.message || "Failed to fetch workspace details");
+          throw new Error(
+            response.data.message || "Failed to fetch workspace details"
+          );
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch workspace details");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch workspace details"
+        );
         console.error("Error fetching workspace details:", err);
       } finally {
         setLoading(false);
@@ -139,7 +148,9 @@ const Workspace = () => {
         if (response.data.success) {
           setGroups(response.data.data.groups);
           // Set the first joined group as selected, or first group if none joined
-          const joinedGroups = response.data.data.groups.filter((group: Group) => group.isMember);
+          const joinedGroups = response.data.data.groups.filter(
+            (group: Group) => group.isMember
+          );
           if (joinedGroups.length > 0) {
             setSelectedGroup(joinedGroups[0].id);
           } else if (response.data.data.groups.length > 0) {
@@ -163,8 +174,8 @@ const Workspace = () => {
 
   const handleJoinLeaveGroup = async (groupId: string) => {
     try {
-      setJoiningGroups(prev => new Set(prev).add(groupId));
-      
+      setJoiningGroups((prev) => new Set(prev).add(groupId));
+
       const response = await axios.post(
         "http://localhost:3000/api/workspaces/groups/join-leave",
         { groupId },
@@ -173,10 +184,16 @@ const Workspace = () => {
 
       if (response.data.success) {
         NotificationService.showInfo(response.data.message);
-        handleLogging(`${response.data.data.action === "joined" ? "Joined" : "Left"} the group ${groups.find(g => g.id === groupId)?.name || ''} in the workspace ${workspaceData?.name}`);
+        handleLogging(
+          `${
+            response.data.data.action === "joined" ? "Joined" : "Left"
+          } the group ${
+            groups.find((g) => g.id === groupId)?.name || ""
+          } in the workspace ${workspaceData?.name}`
+        );
         // Update the groups list
-        setGroups(prevGroups =>
-          prevGroups.map(group =>
+        setGroups((prevGroups) =>
+          prevGroups.map((group) =>
             group.id === groupId
               ? { ...group, isMember: response.data.data.action === "joined" }
               : group
@@ -185,8 +202,8 @@ const Workspace = () => {
 
         // If user left the currently selected group, switch to first available joined group
         if (response.data.data.action === "left" && selectedGroup === groupId) {
-          const remainingJoinedGroups = groups.filter(group => 
-            group.id !== groupId && group.isMember
+          const remainingJoinedGroups = groups.filter(
+            (group) => group.id !== groupId && group.isMember
           );
           if (remainingJoinedGroups.length > 0) {
             setSelectedGroup(remainingJoinedGroups[0].id);
@@ -198,11 +215,12 @@ const Workspace = () => {
         throw new Error(response.data.message || "Failed to join/leave group");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to join/leave group";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to join/leave group";
       NotificationService.showError(errorMessage);
       console.error("Error joining/leaving group:", err);
     } finally {
-      setJoiningGroups(prev => {
+      setJoiningGroups((prev) => {
         const newSet = new Set(prev);
         newSet.delete(groupId);
         return newSet;
@@ -218,7 +236,7 @@ const Workspace = () => {
 
     try {
       setCreatingGroup(true);
-      
+
       const response = await axios.post(
         `http://localhost:3000/api/workspaces/${workspaceId}/groups`,
         {
@@ -230,8 +248,12 @@ const Workspace = () => {
 
       if (response.data.success) {
         NotificationService.showInfo("Group created successfully");
-        handleLogging(`Created the group ${groupName.trim()} in the workspace ${workspaceData?.name}`);
-        
+        handleLogging(
+          `Created the group ${groupName.trim()} in the workspace ${
+            workspaceData?.name
+          }`
+        );
+
         // Add the new group to the list and select it
         const newGroup: Group = {
           id: response.data.data.id,
@@ -240,10 +262,10 @@ const Workspace = () => {
           workspaceId: response.data.data.workspaceId,
           isMember: response.data.data.isMember,
         };
-        
-        setGroups(prevGroups => [...prevGroups, newGroup]);
+
+        setGroups((prevGroups) => [...prevGroups, newGroup]);
         setSelectedGroup(newGroup.id);
-        
+
         // Close dialog and reset form
         setCreateGroupOpen(false);
         setGroupName("");
@@ -252,7 +274,8 @@ const Workspace = () => {
         throw new Error(response.data.message || "Failed to create group");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to create group";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to create group";
       NotificationService.showError(errorMessage);
       console.error("Error creating group:", err);
     } finally {
@@ -279,7 +302,7 @@ const Workspace = () => {
         flexDirection: "column",
       }}
     >
-      <Box sx={{ p: { xs: 2, sm: 3}, pb: 2, flexShrink: 0 }}>
+      <Box sx={{ p: { xs: 2, sm: 3 }, pb: 2, flexShrink: 0 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <GroupIcon color="primary" />
           <Typography
@@ -293,7 +316,7 @@ const Workspace = () => {
         </Box>
       </Box>
 
-      <Box sx={{ flex: 1, overflow: "auto", minHeight: 0}}>
+      <Box sx={{ flex: 1, overflow: "auto", minHeight: 0 }}>
         {groupsLoading ? (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress size={24} />
@@ -484,7 +507,7 @@ const Workspace = () => {
         </Box>
       );
     }
-    
+
     switch (activeTab) {
       case 0:
         return <ChatUI groupId={selectedGroup} />;
@@ -492,6 +515,8 @@ const Workspace = () => {
         return <Quiz groupId={selectedGroup} />;
       case 2:
         return <Leaderboard groupId={selectedGroup} />;
+      case 3:
+        return <RealTimeCollaboration groupId={selectedGroup} />;
       default:
         return <ChatUI groupId={selectedGroup} />;
     }
@@ -501,7 +526,7 @@ const Workspace = () => {
     const confirmed = window.confirm(
       "Do you really want to leave the workspace?"
     );
-    
+
     if (!confirmed) return;
 
     if (!workspaceId) {
@@ -511,7 +536,7 @@ const Workspace = () => {
 
     try {
       setIsLeaving(true);
-      
+
       const response = await axios.post(
         "http://localhost:3000/api/workspaces/leave",
         { workspaceId: workspaceId },
@@ -520,14 +545,15 @@ const Workspace = () => {
 
       if (response.data.success) {
         NotificationService.showInfo("You have left the workspace.");
-         handleLogging("Left the workspace " + workspaceData?.name);
+        handleLogging("Left the workspace " + workspaceData?.name);
 
         navigate("/landing");
       } else {
         throw new Error(response.data.message || "Failed to leave workspace");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to leave workspace";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to leave workspace";
       NotificationService.showError(errorMessage);
       console.error("Error leaving workspace:", err);
     } finally {
@@ -572,7 +598,7 @@ const Workspace = () => {
     <Box
       sx={{
         height: "100vh",
-        maxHeight: "100vh", 
+        maxHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         p: { xs: 1.5, sm: 2, md: 3 },
@@ -735,10 +761,10 @@ const Workspace = () => {
             }}
           >
             <CardContent
-              sx={{ 
-                p: 0, 
-                flex: 1, 
-                display: "flex", 
+              sx={{
+                p: 0,
+                flex: 1,
+                display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
               }}
@@ -758,9 +784,9 @@ const Workspace = () => {
             keepMounted: true,
           }}
           sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
+            display: { xs: "block", md: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: 280,
             },
           }}
@@ -795,18 +821,15 @@ const Workspace = () => {
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <IconButton
-                  onClick={handleDrawerToggle}
-                  sx={{ mr: 1 }}
-                >
+                <IconButton onClick={handleDrawerToggle} sx={{ mr: 1 }}>
                   <MenuIcon />
                 </IconButton>
                 <GroupIcon color="primary" />
                 <Typography variant="h6" sx={{ fontSize: "1rem" }}>
-                  {selectedGroup 
-                    ? groups.find(g => g.id === selectedGroup)?.name || "Select Group"
-                    : "Select Group"
-                  }
+                  {selectedGroup
+                    ? groups.find((g) => g.id === selectedGroup)?.name ||
+                      "Select Group"
+                    : "Select Group"}
                 </Typography>
               </Box>
               {workspaceData?.role === "admin" && (
@@ -878,6 +901,18 @@ const Workspace = () => {
                 iconPosition="start"
                 sx={{ gap: { xs: 0.5, sm: 1 } }}
               />
+              <Tab
+                icon={
+                  <ArticleIcon
+                    sx={{
+                      fontSize: { xs: 18, sm: 24 },
+                    }}
+                  />
+                }
+                label="Collaboration"
+                iconPosition="start"
+                sx={{ gap: { xs: 0.5, sm: 1 } }}
+              />
             </Tabs>
           </Box>
 
@@ -896,8 +931,8 @@ const Workspace = () => {
       </Box>
 
       {/* Create Group Dialog */}
-      <Dialog 
-        open={createGroupOpen} 
+      <Dialog
+        open={createGroupOpen}
         onClose={handleCloseCreateDialog}
         maxWidth="sm"
         fullWidth
@@ -906,43 +941,53 @@ const Workspace = () => {
           sx: {
             borderRadius: { xs: 0, sm: 3 },
             m: { xs: 0, sm: 2 },
-          }
+          },
         }}
       >
-        <DialogTitle sx={{ 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "space-between",
-          pb: 1,
-          px: { xs: 2, sm: 3 },
-          pt: { xs: 2, sm: 3 },
-        }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            pb: 1,
+            px: { xs: 2, sm: 3 },
+            pt: { xs: 2, sm: 3 },
+          }}
+        >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <GroupIcon color="primary" />
-            <Typography 
-              variant="h6" 
-              color="primary" 
+            <Typography
+              variant="h6"
+              color="primary"
               fontWeight="600"
               sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}
             >
               Create New Group
             </Typography>
           </Box>
-          <IconButton 
-            onClick={handleCloseCreateDialog} 
+          <IconButton
+            onClick={handleCloseCreateDialog}
             size="small"
             sx={{ color: "text.secondary" }}
           >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        
-        <DialogContent sx={{ 
-          pt: 2, 
-          px: { xs: 2, sm: 3 },
-          pb: { xs: 1, sm: 2 },
-        }}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, sm: 3 } }}>
+
+        <DialogContent
+          sx={{
+            pt: 2,
+            px: { xs: 2, sm: 3 },
+            pb: { xs: 1, sm: 2 },
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: { xs: 2, sm: 3 },
+            }}
+          >
             <TextField
               label="Group Name"
               variant="outlined"
@@ -958,7 +1003,7 @@ const Workspace = () => {
                 },
               }}
             />
-            
+
             <TextField
               label="Description"
               variant="outlined"
@@ -977,18 +1022,20 @@ const Workspace = () => {
             />
           </Box>
         </DialogContent>
-        
-        <DialogActions sx={{ 
-          px: { xs: 2, sm: 3 }, 
-          pb: { xs: 2, sm: 3 }, 
-          gap: 1,
-          flexDirection: { xs: "column", sm: "row" },
-        }}>
-          <Button 
-            onClick={handleCloseCreateDialog} 
+
+        <DialogActions
+          sx={{
+            px: { xs: 2, sm: 3 },
+            pb: { xs: 2, sm: 3 },
+            gap: 1,
+            flexDirection: { xs: "column", sm: "row" },
+          }}
+        >
+          <Button
+            onClick={handleCloseCreateDialog}
             variant="outlined"
             fullWidth={isMobile}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               textTransform: "none",
               fontWeight: "500",
@@ -997,13 +1044,15 @@ const Workspace = () => {
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleCreateGroup}
-            variant="contained" 
+            variant="contained"
             disabled={!groupName.trim() || creatingGroup}
-            startIcon={creatingGroup ? <CircularProgress size={16} /> : <AddIcon />}
+            startIcon={
+              creatingGroup ? <CircularProgress size={16} /> : <AddIcon />
+            }
             fullWidth={isMobile}
-            sx={{ 
+            sx={{
               borderRadius: 2,
               textTransform: "none",
               fontWeight: "500",

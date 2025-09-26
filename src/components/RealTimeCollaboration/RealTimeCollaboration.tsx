@@ -9,61 +9,33 @@ import {
   alpha,
   Card,
   CardContent,
-  IconButton,
-  Avatar,
-  AvatarGroup,
   Chip,
   Divider,
   CircularProgress,
 } from "@mui/material";
-import {
-  Add,
-  Description,
-  People,
-  MoreVert,
-  AccessTime,
-  FiberManualRecord,
-} from "@mui/icons-material";
+import { Add, Description, People, AccessTime } from "@mui/icons-material";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
-import { use, useContext, useEffect, useState } from "react";
-import { AppContext } from "../context/AppContext";
+import { useContext, useEffect, useState } from "react";
+import { AppContext } from "../../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
-
-// Mock documents data
-const mockDocuments = [
-  {
-    id: "doc1",
-    title: "Project Proposal - AI Learning Platform",
-    lastModified: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    collaborators: 3,
-    isActive: true,
-    content: `<h1>AI Learning Platform Project Proposal</h1>
-    <p>This document outlines our vision for creating an innovative AI-powered learning platform that revolutionizes education.</p>
-    <h2>Project Overview</h2>
-    <p>Our platform aims to provide personalized learning experiences through advanced artificial intelligence algorithms.</p>
-    <h3>Key Features</h3>
-    <ul>
-      <li>Adaptive learning paths</li>
-      <li>Real-time progress tracking</li>
-      <li>Intelligent content recommendations</li>
-      <li>Collaborative learning tools</li>
-    </ul>
-    <p>This initiative represents a significant step forward in educational technology.</p>`,
-  },
-];
 
 interface Documents {
   documentId: string;
   documentTitle: string;
   createdAt: Date;
-  role: string;
+  ownerId: string;
   collaboratorCount: number;
 }
 
-export default function RealTimeCollaboration() {
+interface RealTimeCollaborationProps {
+  groupId?: string;
+}
+
+export default function RealTimeCollaboration({
+  groupId,
+}: RealTimeCollaborationProps) {
   const theme = useTheme();
   const navigate = useNavigate();
   const { userId } = useContext(AppContext);
@@ -91,14 +63,14 @@ export default function RealTimeCollaboration() {
 
   useEffect(() => {
     fetchDocuments();
-  }, []);
+  }, [groupId]);
 
   const fetchDocuments = async () => {
     try {
       const response = await axios.get(
         `${
           import.meta.env.VITE_BACKEND_URL_WS
-        }/documents/get-documents/${userId}`
+        }/documents/get-documents/${groupId}`
       );
       if (response.data.success) {
         console.log(response.data.data);
@@ -110,34 +82,24 @@ export default function RealTimeCollaboration() {
   };
 
   const handleCreateDocument = async () => {
-    if (isCreatingDocument) return; // Prevent multiple clicks
+    if (isCreatingDocument) return;
 
     setIsCreatingDocument(true);
     try {
       const response = await axios.post(
         `${
           import.meta.env.VITE_BACKEND_URL_WS
-        }/documents/create-document/${userId}`
+        }/documents/create-document/${groupId}`,
+        { userId: userId }
       );
       if (response.data.success) {
-        console.log("response from create doc:", response.data);
         const newDocId = response.data.document.docId;
-        const title = response.data.document.title;
         const newDocumentData = {
-          documentId: newDocId,
-          documentTitle: title,
           content: null,
           readOnly: false,
           isNew: true,
         };
 
-        const socket = io(`${import.meta.env.VITE_SOCKET_URL}`, {
-          transports: ["websocket"],
-        });
-        socket.on("connect", () => {
-          console.log("user/", userId, " connected with socket id:", socket.id);
-        });
-        socket.emit("joinDoc", { docId: newDocId, userId: userId });
         navigate(`/documents/${newDocId}`, { state: newDocumentData });
       }
     } catch (error) {
@@ -147,19 +109,38 @@ export default function RealTimeCollaboration() {
     }
   };
 
-  const handleSelectDocument = (docId: string) => {
+  const handleSelectDocument = async (docId: string) => {
     const selectedDoc = documents.find((doc) => doc.documentId === docId);
-    if(!selectedDoc) return;
-    if (selectedDoc) {
-      const documentData = {
-        documentId: selectedDoc.documentId,
-        documentTitle: selectedDoc.documentTitle,
-        readOnly: false,
-        isNew: false,
-      };
-      navigate(`/documents/${docId}`, { state: documentData });
+    if (!selectedDoc) return;
+
+    // Check owner for THIS document
+    const isOwner = selectedDoc.ownerId === userId;
+
+    if (!isOwner) {
+      try {
+        const response = await axios.post(
+          `${
+            import.meta.env.VITE_BACKEND_URL_WS
+          }/collaborators/add-collaborator/${docId}`,
+          { userId }
+        );
+        if (response.data.success) {
+          console.log("Collaborator added successfully");
+        }
+      } catch (error) {
+        console.error("Failed to add collaborator", error);
+      }
     }
+
+    // Navigate to editor
+    const documentData = {
+      content: null,
+      readOnly: false, 
+      isNew: false,
+    };
+    navigate(`/documents/${docId}`, { state: documentData });
   };
+
 
   return (
     <Box
@@ -171,26 +152,14 @@ export default function RealTimeCollaboration() {
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mb: 1,
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <ArticleIcon
-              sx={{ fontSize: 30, color: theme.palette.primary.main }}
-            />
-            <Typography
-              variant="h5"
-              component="h1"
               sx={{
-                fontWeight: "bold",
-                textAlign: "center",
+                color: theme.palette.primary.main,
+                fontSize: { xs: 28, sm: 32 },
               }}
-            >
+            />
+            <Typography variant={"h4"} component="h2" fontWeight="bold">
               Real-Time Collaborative Documents
             </Typography>
           </Box>
@@ -306,12 +275,12 @@ export default function RealTimeCollaboration() {
                     <Description
                       sx={{ color: theme.palette.primary.main, fontSize: 28 }}
                     />
-                    <Chip
-                      label={document.role}
+                    {/* <Chip
+                      label={document.ownerId}
                       size="small"
                       color="success"
                       sx={{ mb: 1, fontSize: "0.7rem", height: 20 }}
-                    />
+                    /> */}
                   </Box>
                 </Stack>
 
@@ -400,7 +369,7 @@ export default function RealTimeCollaboration() {
           ))}
 
           {/* Empty State */}
-          {mockDocuments.length === 0 && (
+          {documents.length === 0 && (
             <Paper
               sx={{
                 p: 8,
@@ -421,19 +390,7 @@ export default function RealTimeCollaboration() {
               >
                 Create your first collaborative document to get started
               </Typography>
-              <Button
-                variant="contained"
-                startIcon={
-                  isCreatingDocument ? <CircularProgress size={20} /> : <Add />
-                }
-                onClick={handleCreateDocument}
-                disabled={isCreatingDocument}
-                size="large"
-              >
-                {isCreatingDocument
-                  ? "Creating Document..."
-                  : "Create New Document"}
-              </Button>
+             
             </Paper>
           )}
         </Box>

@@ -35,14 +35,14 @@ import {
   Edit as EditIcon,
   Delete,
   PersonAdd,
+  ArrowBack,
 } from "@mui/icons-material";
-import EditorToolbar from "../components/RealTimeCollaboration/EditorToolbar";
-import CollaboratorsList from "../components/RealTimeCollaboration/CollaboratorsList";
-import { useLocation, useParams } from "react-router-dom";
+import EditorToolbar from "./EditorToolbar";
+import CollaboratorsList from "./CollaboratorsList";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
-import { AppContext } from "../context/AppContext";
-
+import { AppContext } from "../../context/AppContext";
 
 interface Collaborator {
   id: string;
@@ -53,13 +53,14 @@ interface Collaborator {
 export default function CollaborativeDocumentEditor() {
   const theme = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const { userId } = useContext(AppContext);
-  const { documentId, documentTitle, content, readOnly } = location.state || {};
+  const { content, readOnly, isNew } = location.state || {};
   const docId = useParams();
 
   const [documentData, setDocumentData] = useState<any>(null);
 
-  const [title, setTitle] = useState(documentTitle || "Untitled Document");
+  const [title, setTitle] = useState("Untitled Document");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
@@ -106,14 +107,12 @@ export default function CollaborativeDocumentEditor() {
 
   const fetchCollaborators = async () => {
     try {
-      console.log("Document Data in fCollab: ", docId.docId);
       const response = await axios.get(
         `${
           import.meta.env.VITE_BACKEND_URL_WS
         }/collaborators/get-collaborators/${docId.docId}`
       );
       if (response) {
-        console.log("Collaborators: ", response.data.data.collaborators);
         setCollaborators(response.data.data.collaborators);
       }
     } catch (error) {
@@ -124,19 +123,20 @@ export default function CollaborativeDocumentEditor() {
   const fetchDocData = async () => {
     try {
       const response = await axios.get(
-        `${
-          import.meta.env.VITE_BACKEND_URL_WS
-        }/documents/get-document-data/${docId.docId}`
+        `${import.meta.env.VITE_BACKEND_URL_WS}/documents/get-document-data/${
+          docId.docId
+        }`
       );
 
       if (response) {
-        console.log(" Document Data: ", response.data.data);
-        setDocumentData(response.data.data);  
+        setDocumentData(response.data.data);
       }
     } catch (error) {
       console.log(error);
     }
-  }
+  };
+
+  // Connect to socket server
   useEffect(() => {
     const socket = io(`${import.meta.env.VITE_SOCKET_URL}`, {
       transports: ["websocket"],
@@ -167,7 +167,7 @@ export default function CollaborativeDocumentEditor() {
     if (editor) {
       const currentContent = editor.getHTML();
       console.log("Saving document:", {
-        documentId,
+        docId,
         title,
         content: currentContent,
       });
@@ -197,7 +197,7 @@ export default function CollaborativeDocumentEditor() {
 
   const handleTitleSubmit = () => {
     setIsEditingTitle(false);
-    // Additional title change logic can be added here
+
   };
 
   const handleSave = () => {
@@ -227,9 +227,9 @@ export default function CollaborativeDocumentEditor() {
     console.log("Sharing document with emails:", emailList);
     try {
       const response = await axios.post(
-        `${
-          import.meta.env.VITE_BACKEND_URL
-        }/notification/share-document/${documentId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/notification/share-document/${
+          docId.docId
+        }`,
         { emails: emailList }
       );
       if (response.data.success) {
@@ -273,7 +273,7 @@ export default function CollaborativeDocumentEditor() {
   }
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", p: 1 }}>
       {/* Header */}
       <Paper
         elevation={1}
@@ -337,9 +337,9 @@ export default function CollaborativeDocumentEditor() {
           </Stack>
 
           <Stack direction="row" alignItems="center" gap={1}>
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+            {/* <Typography variant="caption" sx={{ opacity: 0.7 }}>
               Last saved: {formatLastSaved(lastSaved)}
-            </Typography>
+            </Typography> */}
 
             <Button
               startIcon={<Save />}
@@ -393,7 +393,7 @@ export default function CollaborativeDocumentEditor() {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            //   minHeight: "100%",
+            minHeight: "100vh",
             border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
             mt: 1,
           }}
@@ -601,6 +601,33 @@ export default function CollaborativeDocumentEditor() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Floating Back Button */}
+      <IconButton
+        onClick={() => navigate(-1)}
+        sx={{
+          position: "fixed",
+          bottom: 24,
+          right: 24,
+          width: 56,
+          height: 56,
+          backgroundColor: theme.palette.primary.main,
+          color: "white",
+          boxShadow: theme.shadows[6],
+          zIndex: 1000,
+          transition: "all 0.3s ease",
+          "&:hover": {
+            backgroundColor: theme.palette.primary.dark,
+            transform: "scale(1.1)",
+            boxShadow: theme.shadows[12],
+          },
+          "&:active": {
+            transform: "scale(0.95)",
+          },
+        }}
+      >
+        <ArrowBack />
+      </IconButton>
     </Box>
   );
 }
