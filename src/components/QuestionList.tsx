@@ -36,7 +36,7 @@ export default function QuestionList({
   questions,
   onEditQuestion,
   onDeleteQuestion,
-  onReorderQuestions,
+  
 }: QuestionListProps) {
   const theme = useTheme()
   const [expanded, setExpanded] = useState<string | false>(false)

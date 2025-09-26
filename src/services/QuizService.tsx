@@ -125,7 +125,7 @@ export const QuizService = {
 
     console.log('Sending quiz payload:', JSON.stringify(payload, null, 2));
     
-    // Log individual question transformation for debugging
+    
     payload.questions.forEach((q, index) => {
       console.log(`Question ${index + 1}:`, JSON.stringify(q, null, 2));
     });
@@ -134,7 +134,7 @@ export const QuizService = {
       const response = await axios.post('http://localhost:3000/quiz/create-complete', payload, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Add auth if needed
+          'Authorization': `Bearer ${localStorage.getItem('token')}` 
         }
       });
 

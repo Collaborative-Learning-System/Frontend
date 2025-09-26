@@ -14,6 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
 import RealTimeCollaboration from "./pages/RealTimeCollaboration";
+import Dashboard from "./pages/Dashboard";
 
 
 const App = () => {
@@ -94,6 +95,11 @@ const App = () => {
             </MainLayout>
           }
         />
+        <Route path="/dashboard" element={
+          <MainLayout>
+            <Dashboard />
+          </MainLayout>
+        } />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         

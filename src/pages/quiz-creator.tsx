@@ -159,11 +159,11 @@ export default function QuizCreator() {
     setIsPublishing(true)
     
     try {
-      const result = await QuizService.createCompleteQuiz(groupId, quizData.metadata, quizData.questions)
+      await QuizService.createCompleteQuiz(groupId, quizData.metadata, quizData.questions)
       setPublishDialogOpen(false)
       showSnackbar("Quiz published successfully!")
       
-      // Navigate back to the workspace after successful creation
+      
       setTimeout(() => {
         navigate(-1)
       }, 2000)

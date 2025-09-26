@@ -256,6 +256,10 @@ const DocumentSummarizer = () => {
                 disabled={loading || !documentText.trim()}
                 startIcon={loading ? <CircularProgress size={20} /> : <AutoAwesome />}
                 sx={{ mt: 3, width: '100%' }}
+                onClick={() => {
+                  // Simulate summary generation
+                  setLoading(true);
+                }}
               >
                 {loading ? 'Generating Summary...' : 'Generate Summary'}
               </Button>

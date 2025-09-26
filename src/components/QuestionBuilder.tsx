@@ -76,14 +76,14 @@ export default function QuestionBuilder({ onAddQuestion }: QuestionBuilderProps)
     setQuestionData((prev) => ({ ...prev, options: newOptions }))
   }
 
-  const addOption = () => {
-    if (questionData.options && questionData.options.length < 6) {
-      setQuestionData((prev) => ({
-        ...prev,
-        options: [...(prev.options || []), ""],
-      }))
-    }
-  }
+  // const addOption = () => {
+  //   if (questionData.options && questionData.options.length < 6) {
+  //     setQuestionData((prev) => ({
+  //       ...prev,
+  //       options: [...(prev.options || []), ""],
+  //     }))
+  //   }
+  // }
 
   const removeOption = (index: number) => {
     if (questionData.options && questionData.options.length > 2) {

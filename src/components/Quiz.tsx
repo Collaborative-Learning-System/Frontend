@@ -274,31 +274,31 @@ import React, { useState, useEffect , useRef } from "react";
         setShowingResults(null);
       };
 
-      const getDifficultyColor = (difficulty: string) => {
-        switch (difficulty) {
-          case "easy":
-            return "success";
-          case "medium":
-            return "warning";
-          case "hard":
-            return "error";
-          default:
-            return "primary";
-        }
-      };
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "easy":
+        return "success";
+      case "medium":
+        return "warning";
+      case "hard":
+        return "error";
+      default:
+        return "primary";
+    }
+  };
 
-      const getDifficultyIcon = (difficulty: string) => {
-        switch (difficulty) {
-          case "easy":
-            return "🟢";
-          case "medium":
-            return "🟡";
-          case "hard":
-            return "🔴";
-          default:
-            return "⚪";
-        }
-      };
+  const getDifficultyIcon = (difficulty: string) => {
+    switch (difficulty) {
+      case "easy":
+        return "🟢";
+      case "medium":
+        return "🟡";
+      case "hard":
+        return "🔴";
+      default:
+        return "⚪";
+    }
+  };
 
       const getScoreColor = (quiz: Quiz): string => {
         if (quiz.percentage !== undefined) {
@@ -654,48 +654,48 @@ import React, { useState, useEffect , useRef } from "react";
                           </Box>
                         </Box>
 
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            mb: 3,
-                            lineHeight: 1.5,
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {quiz.description}
-                        </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        mb: 3,
+                        lineHeight: 1.5,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {quiz.description}
+                    </Typography>
 
-                        {/* Quiz metadata */}
-                        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 0.5,
-                            }}
-                          >
-                            <AssignmentIcon fontSize="small" color="action" />
-                            <Typography variant="caption" color="text.secondary">
-                              {quiz.questions} questions
-                            </Typography>
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 0.5,
-                            }}
-                          >
-                            <TimeIcon fontSize="small" color="action" />
-                            <Typography variant="caption" color="text.secondary">
-                              {quiz.timeLimit} min
-                            </Typography>
-                          </Box>
-                        </Stack>
+                    {/* Quiz metadata */}
+                    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        <AssignmentIcon fontSize="small" color="action" />
+                        <Typography variant="caption" color="text.secondary">
+                          {quiz.questions} questions
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        <TimeIcon fontSize="small" color="action" />
+                        <Typography variant="caption" color="text.secondary">
+                          {quiz.timeLimit} min
+                        </Typography>
+                      </Box>
+                    </Stack>
 
                         {/* Score display for completed quizzes */}
                         {quiz.completed && quiz.score !== undefined && (

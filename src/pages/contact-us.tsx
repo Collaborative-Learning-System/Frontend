@@ -23,7 +23,6 @@ import {
 
 import ContactForm from "../components/ContactForm";
 import ContactInfo from "../components/ContactInfo";
-import FAQ from "../components/FAQ";
 
 export default function ContactUsPage() {
   const navigate = useNavigate();
@@ -183,11 +182,6 @@ export default function ContactUsPage() {
             <ContactInfo />
           </Grid>
         </Grid>
-
-        {/* FAQ Section */}
-        <Box sx={{ mt: 6 }}>
-          <FAQ />
-        </Box>
 
         {/* Additional Help Section */}
         <Box sx={{ mt: 6 }}>

@@ -9,8 +9,6 @@ import {
   Button,
   IconButton,
   LinearProgress,
-  Snackbar,
-  Alert,
   useTheme,
   Paper,
   Avatar,
@@ -69,7 +67,7 @@ export default function StudyPlanDisplay({
   onEdit,
 }: StudyPlanDisplayProps) {
   const [planData, setPlanData] = useState(studyPlan);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const theme = useTheme();
@@ -665,25 +663,7 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
         </CardContent>
       </Card>
 
-      {/* Snackbar for feedback */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity="success"
-          sx={{ 
-            width: "100%",
-            borderRadius: 3,
-            boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
-          }}
-        >
-          Plan saved successfully!
-        </Alert>
-      </Snackbar>
+      
     </Box>
   );
 }

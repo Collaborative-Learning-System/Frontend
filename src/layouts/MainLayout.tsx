@@ -32,7 +32,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           width: "100vw",
           position: "relative",
           bgcolor: theme.palette.background.paper,
-          paddingTop: { xs: "56px", sm: "72px" }, 
+          paddingTop: { xs: "56px", sm: "72px" },
           boxSizing: "border-box",
         }}
       >

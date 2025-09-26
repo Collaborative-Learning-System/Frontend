@@ -1,16 +1,13 @@
 import { Close, Groups, Search } from "@mui/icons-material";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import {
   Card,
   CardContent,
   Typography,
-  Stack,
   Avatar,
   IconButton,
   Box,
   useTheme,
   TextField,
-  Autocomplete,
   Button,
   alpha,
   List,
@@ -23,6 +20,7 @@ import {
   InputAdornment,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { handleLogging } from "../services/LoggingService";
 
 interface BrowseWorkspaceProps {
   onClose: () => void;
@@ -125,6 +123,7 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
       if (data.success && "role" in data.data) {
         setSuccessMessage(`Successfully joined "${data.data.name}" workspace!`);
         // Remove the joined workspace from the list or refresh the list
+        handleLogging(`Joined with workspace ${data.data.name}`);
         setTimeout(() => {
           fetchWorkspaces();
         }, 1500);
