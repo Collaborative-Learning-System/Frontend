@@ -32,7 +32,7 @@ interface StudyPlanFormData {
   endDate: string
   dailyHours: number
   preferredTimes: string[]
-  learningStyle: string
+  learningStyle: string[]
   difficulty: string
   includeBreaks: boolean
   includeReview: boolean
@@ -61,7 +61,7 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
     endDate: formatDateForInput(defaultEndDate),
     dailyHours: 2,
     preferredTimes: [],
-    learningStyle: '',
+    learningStyle: [],
     difficulty: '',
     includeBreaks: true,
     includeReview: true
@@ -90,9 +90,13 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
 
   const learningStyles = [
     'Visual',
-    'Auditory',
+    'Auditory', 
     'Kinesthetic',
-    'Reading/Writing'
+    'Reading/Writing',
+    'Social/Group Learning',
+    'Logical/Mathematical',
+    'Intrapersonal/Self-Study',
+    'Verbal/Linguistic'
   ]
 
   const difficultyLevels = [
@@ -119,12 +123,40 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
   }
 
   const handleTimePreferenceChange = (time: string) => {
-    setFormData(prev => ({
-      ...prev,
-      preferredTimes: prev.preferredTimes.includes(time)
-        ? prev.preferredTimes.filter(t => t !== time)
-        : [...prev.preferredTimes, time]
-    }))
+    const maxSlots = Math.ceil(formData.dailyHours / 2) // Each slot represents ~2 hours
+    
+    setFormData(prev => {
+      if (prev.preferredTimes.includes(time)) {
+        // Remove the time slot
+        return {
+          ...prev,
+          preferredTimes: prev.preferredTimes.filter(t => t !== time)
+        }
+      } else {
+        // Add the time slot only if under the limit
+        if (prev.preferredTimes.length < maxSlots) {
+          return {
+            ...prev,
+            preferredTimes: [...prev.preferredTimes, time]
+          }
+        }
+        return prev 
+      }
+    })
+  }
+
+
+
+  // Calculate recommended time slots and hours per slot
+  const getTimeSlotRecommendations = () => {
+    const maxSlots = Math.ceil(formData.dailyHours / 2)
+    const hoursPerSlot = formData.dailyHours / Math.max(formData.preferredTimes.length, 1)
+    
+    return {
+      maxSlots,
+      hoursPerSlot: Math.round(hoursPerSlot * 10) / 10, // Round to 1 decimal
+      remainingSlots: maxSlots - formData.preferredTimes.length
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -136,38 +168,20 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                      formData.studyGoal && 
                      formData.startDate && 
                      formData.endDate && 
-                     formData.learningStyle && 
-                     formData.difficulty
+                     formData.learningStyle.length > 0 && 
+                     formData.difficulty &&
+                     formData.preferredTimes.length > 0
 
   return (
     <Card>
       <CardContent sx={{ p: 4 }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            mb: 3,
-            justifyContent: "space-between",
-          }}
-        >
-          <Box></Box>
+        <Box sx={{ mb: 3 }}>
           <Typography
             variant="h5"
             sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
           >
             AI Study Plan Generator
           </Typography>
-          <Button
-            variant="outlined"
-            // onClick={handleStartOver}
-            sx={{
-              color: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
-            }}
-          >
-            Start Over
-          </Button>
         </Box>
 
         <Box
@@ -334,26 +348,83 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
               />
             </Grid>
 
-            {/* Learning Style */}
+            {/* Learning Styles */}
             <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
-                <InputLabel>Learning Style</InputLabel>
+                <InputLabel>Learning Styles</InputLabel>
                 <Select
+                  multiple
                   value={formData.learningStyle}
-                  label="Learning Style"
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      learningStyle: e.target.value,
-                    }))
-                  }
+                  label="Learning Styles"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Limit to maximum 3 selections
+                    if (Array.isArray(value) && value.length <= 3) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        learningStyle: value as string[],
+                      }));
+                    }
+                  }}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {(selected as string[]).map((value) => (
+                        <Chip
+                          key={value}
+                          label={value}
+                          size="small"
+                          sx={{ 
+                            bgcolor: theme.palette.primary.main, 
+                            color: 'white',
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 224,
+                        width: 250,
+                      },
+                    },
+                  }}
                 >
                   {learningStyles.map((style) => (
-                    <MenuItem key={style} value={style}>
-                      {style}
+                    <MenuItem 
+                      key={style} 
+                      value={style}
+                      disabled={!formData.learningStyle.includes(style) && formData.learningStyle.length >= 3}
+                      sx={{
+                        '&.Mui-disabled': {
+                          opacity: 0.5
+                        }
+                      }}
+                    >
+                      <Checkbox 
+                        checked={formData.learningStyle.includes(style)}
+                        sx={{
+                          color: theme.palette.primary.main,
+                          "&.Mui-checked": { color: theme.palette.primary.main },
+                        }}
+                      />
+                      <Typography sx={{ ml: 1 }}>{style}</Typography>
                     </MenuItem>
                   ))}
                 </Select>
+                
+                {/* Helper text */}
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    mt: 1, 
+                    color: theme.palette.text.secondary,
+                    fontSize: '0.75rem'
+                  }}
+                >
+                  Select up to 3 learning styles ({formData.learningStyle.length}/3 selected)
+                </Typography>
               </FormControl>
             </Grid>
 
@@ -408,24 +479,87 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
             <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
               Preferred Study Times
             </Typography>
+            
+            {/* Time slot recommendations info */}
+            {(() => {
+              const recommendations = getTimeSlotRecommendations()
+              return (
+                <Alert 
+                  severity="info" 
+                  sx={{ mb: 2, bgcolor: "#e3f2fd", border: "1px solid #2196f3" }}
+                >
+                  <Typography variant="body2">
+                    Based on your {formData.dailyHours} daily hours, you can select up to{' '}
+                    <strong>{recommendations.maxSlots} time slots</strong>.
+                    {formData.preferredTimes.length > 0 && (
+                      <> Each selected slot will be approximately{' '}
+                      <strong>{recommendations.hoursPerSlot} hours</strong>.</>
+                    )}
+                    {recommendations.remainingSlots > 0 && (
+                      <> You can select {recommendations.remainingSlots} more time slot(s).</>
+                    )}
+                  </Typography>
+                </Alert>
+              )
+            })()}
+
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              {preferredTimeOptions.map((time) => (
-                <FormControlLabel
-                  key={time}
-                  control={
-                    <Checkbox
-                      checked={formData.preferredTimes.includes(time)}
-                      onChange={() => handleTimePreferenceChange(time)}
-                      sx={{
-                        color: theme.palette.primary.main,
-                        "&.Mui-checked": { color: theme.palette.primary.main },
-                      }}
-                    />
-                  }
-                  label={time}
-                />
-              ))}
+              {preferredTimeOptions.map((time) => {
+                const isChecked = formData.preferredTimes.includes(time)
+                const canSelect = isChecked || formData.preferredTimes.length < Math.ceil(formData.dailyHours / 2)
+                
+                return (
+                  <FormControlLabel
+                    key={time}
+                    control={
+                      <Checkbox
+                        checked={isChecked}
+                        onChange={() => handleTimePreferenceChange(time)}
+                        disabled={!canSelect}
+                        sx={{
+                          color: theme.palette.primary.main,
+                          "&.Mui-checked": { color: theme.palette.primary.main },
+                          "&.Mui-disabled": { color: theme.palette.action.disabled },
+                        }}
+                      />
+                    }
+                    label={
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Typography 
+                          sx={{ 
+                            color: !canSelect ? theme.palette.action.disabled : 'inherit',
+                            opacity: !canSelect ? 0.6 : 1 
+                          }}
+                        >
+                          {time}
+                        </Typography>
+                        {isChecked && (
+                          <Chip 
+                            size="small" 
+                            label={`~${getTimeSlotRecommendations().hoursPerSlot}h`}
+                            sx={{ 
+                              bgcolor: theme.palette.primary.light, 
+                              color: 'white',
+                              fontSize: '0.75rem'
+                            }}
+                          />
+                        )}
+                      </Box>
+                    }
+                    sx={{
+                      opacity: !canSelect ? 0.6 : 1,
+                      transition: 'opacity 0.2s ease'
+                    }}
+                  />
+                )
+              })}
             </Box>
+            
+            {formData.preferredTimes.length === 0 && (
+              <Alert severity="warning" sx={{ mt: 2 }}>
+                Please select at least one preferred study time to continue.
+              </Alert>
+            )}
           </Box>
 
           {/* Additional Options */}
@@ -476,7 +610,7 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
           {!isFormValid && (
             <Alert severity="info">
               Please fill in all required fields: subjects, study goal, start
-              date, end date, learning style, and difficulty level.
+              date, end date, at least one learning style, difficulty level, and at least one preferred study time.
             </Alert>
           )}
 

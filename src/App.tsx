@@ -7,13 +7,15 @@ import Groups from "./pages/Groups";
 import Home from "./pages/Home";
 import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
-import Profile from "./pages/Userprofile"
+import Profile from "./pages/Userprofile";
+import QuizCreator from "./pages/quiz-creator";
 import ContactForm from "./components/ContactForm";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
 import RealTimeCollaboration from "./pages/RealTimeCollaboration";
 import Dashboard from "./pages/Dashboard";
+
 
 const App = () => {
   return (
@@ -50,6 +52,14 @@ const App = () => {
           element={
             <MainLayout>
               <Workspace />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/quiz-creator"
+          element={
+            <MainLayout>
+              <QuizCreator />
             </MainLayout>
           }
         />
@@ -92,6 +102,7 @@ const App = () => {
         } />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        
       </Routes>
     </ThemeContextProvider>
   );
