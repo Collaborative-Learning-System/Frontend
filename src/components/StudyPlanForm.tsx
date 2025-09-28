@@ -586,24 +586,6 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 }
                 label="Include regular breaks in study sessions"
               />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.includeReview}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        includeReview: e.target.checked,
-                      }))
-                    }
-                    sx={{
-                      color: theme.palette.primary.main,
-                      "&.Mui-checked": { color: theme.palette.primary.main },
-                    }}
-                  />
-                }
-                label="Include review sessions for better retention"
-              />
             </Box>
           </Box>
 

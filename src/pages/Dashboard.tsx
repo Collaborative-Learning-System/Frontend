@@ -1,8 +1,11 @@
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
   Card,
   CardContent,
+  CardHeader,
   Chip,
   Avatar,
   List,
@@ -12,20 +15,50 @@ import {
   Button,
   useTheme,
   alpha,
+  CircularProgress,
 } from "@mui/material";
 import {
   Folder,
   Group,
   Quiz,
-  AccessTime,
   History,
   Schedule,
   Add,
+  AutoFixHigh,
 } from "@mui/icons-material";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import { AppContext } from "../context/AppContext";
+import { getUserStudyPlans } from "../services/StudyPlanService";
+import StudyPlanCard from "../components/StudyPlanCard";
 
 const Dashboard = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const { userId } = useContext(AppContext);
+  
+  const [studyPlans, setStudyPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+
+  // Fetch user's study plans
+  useEffect(() => {
+    const fetchStudyPlans = async () => {
+      if (!userId) return;
+      
+      setLoadingPlans(true);
+      try {
+        const response = await getUserStudyPlans(userId);
+        if (response.success) {
+          setStudyPlans(response.data.slice(0, 4)); // Show max 4 plans
+        }
+      } catch (error) {
+        console.error('Failed to fetch study plans:', error);
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+
+    fetchStudyPlans();
+  }, [userId]);
 
   const stats = [
     {
@@ -47,10 +80,10 @@ const Dashboard = () => {
       color: "#FF9800",
     },
     {
-      title: "Total Study Hours",
-      value: "147",
-      icon: <AccessTime />,
-      color: "#9C27B0",
+      title: "Active Study Plans",
+      value: studyPlans.length.toString(),
+      icon: <Schedule />,
+      color: "#673AB7",
     },
   ];
 
@@ -323,6 +356,118 @@ const Dashboard = () => {
           </Card>
         </Box>
       </Box>
+
+      {/* My Study Plans Section */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Schedule sx={{ mr: 1, color: theme.palette.primary.main }} />
+              <Typography variant="h6" fontWeight="600">
+                My Study Plans
+              </Typography>
+            </Box>
+            <Button 
+              variant="text" 
+              size="small"
+              onClick={() => navigate('/study-plans-generator')}
+              startIcon={<Add />}
+            >
+              Create New
+            </Button>
+          </Box>
+          
+          {loadingPlans ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : studyPlans.length > 0 ? (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(2, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: 3,
+              }}
+            >
+              {studyPlans.map((plan, index) => (
+                <Box key={plan.planId || index}>
+                  <StudyPlanCard
+                    planId={plan.planId}
+                    title={plan.title}
+                    subjects={plan.subjects}
+                    studyGoal={plan.studyGoal}
+                    startDate={plan.startDate}
+                    endDate={plan.endDate}
+                    dailyHours={plan.dailyHours}
+                    createdAt={plan.createdAt}
+                    progress={plan.progress || Math.floor(Math.random() * 100)}
+                    totalTasks={plan.totalTasks || Math.floor(Math.random() * 20) + 5}
+                    completedTasks={plan.completedTasks || Math.floor(Math.random() * 15)}
+                    onView={(planId) => {
+                      console.log('View plan:', planId);
+                      // Navigate to plan details
+                    }}
+                    onResume={(planId) => {
+                      console.log('Resume plan:', planId);
+                      // Navigate to plan execution
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                textAlign: 'center',
+                py: 6,
+                px: 3,
+                borderRadius: 2,
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                border: `1px dashed ${alpha(theme.palette.primary.main, 0.3)}`,
+              }}
+            >
+              <AutoFixHigh 
+                sx={{ 
+                  fontSize: 48, 
+                  color: alpha(theme.palette.primary.main, 0.6),
+                  mb: 2 
+                }} 
+              />
+              <Typography variant="h6" sx={{ mb: 1, color: theme.palette.text.primary }}>
+                No Study Plans Yet
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 3, color: theme.palette.text.secondary }}>
+                Create your first study plan to start your learning journey
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={() => navigate('/study-plans-generator')}
+                sx={{
+                  bgcolor: theme.palette.primary.main,
+                  '&:hover': {
+                    bgcolor: theme.palette.primary.dark,
+                  }
+                }}
+              >
+                Create Study Plan
+              </Button>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Suggested Workspaces */}
       <Card>

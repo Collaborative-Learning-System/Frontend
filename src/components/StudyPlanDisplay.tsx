@@ -283,7 +283,7 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
             </Box>
           </Box>
 
-          {/* Progress */}
+          {/* Progress
           <Box sx={{ mb: 3 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -307,7 +307,7 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
                 },
               }}
             />
-          </Box>
+          </Box> */}
 
           <Button
             variant="contained"
@@ -592,76 +592,6 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
           </Card>
         );
       })()}
-
-      {/* Study Tips */}
-      <Card sx={{ 
-        borderRadius: 4,
-        boxShadow: theme.palette.mode === 'dark' 
-          ? '0 10px 30px rgba(0,0,0,0.3)' 
-          : '0 10px 30px rgba(0,0,0,0.1)',
-        background: theme.palette.mode === 'dark'
-          ? 'linear-gradient(135deg, #374151 0%, #1f2937 100%)'
-          : 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
-      }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h4" gutterBottom sx={{ 
-            color: theme.palette.mode === 'dark' 
-              ? theme.palette.primary.light 
-              : '#8b4513', 
-            fontWeight: 'bold', 
-            mb: 3 
-          }}>
-            💡 Study Tips
-          </Typography>
-          <Grid container spacing={3}>
-            {planData.tips.map((tip, index) => (
-              <Grid size={{ xs: 12, md: 6 }} key={index}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    bgcolor: theme.palette.mode === 'dark'
-                      ? 'rgba(255,255,255,0.05)'
-                      : 'rgba(255,255,255,0.8)',
-                    borderRadius: 3,
-                    backdropFilter: 'blur(10px)',
-                    border: theme.palette.mode === 'dark'
-                      ? '1px solid rgba(255,255,255,0.1)'
-                      : '1px solid rgba(255,255,255,0.3)',
-                    '&:hover': { 
-                      transform: 'translateY(-2px)',
-                      boxShadow: theme.palette.mode === 'dark'
-                        ? '0 8px 25px rgba(0,0,0,0.3)'
-                        : '0 8px 25px rgba(0,0,0,0.15)'
-                    },
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-                    <Avatar sx={{ 
-                      bgcolor: theme.palette.primary.main, 
-                      color: 'white',
-                      width: 32,
-                      height: 32,
-                      fontSize: '1rem',
-                      fontWeight: 'bold'
-                    }}>
-                      {index + 1}
-                    </Avatar>
-                    <Typography variant="body1" sx={{ 
-                      fontWeight: 500, 
-                      lineHeight: 1.6,
-                      color: theme.palette.text.primary
-                    }}>
-                      {tip}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-      </Card>
 
       
     </Box>
