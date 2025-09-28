@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Highlight from "@tiptap/extension-highlight";
@@ -7,6 +7,10 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import * as Y from "yjs";
+import { Awareness } from "y-protocols/awareness";
 import {
   Box,
   Paper,
@@ -41,8 +45,8 @@ import EditorToolbar from "./EditorToolbar";
 import CollaboratorsList from "./CollaboratorsList";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { io } from "socket.io-client";
 import { AppContext } from "../../context/AppContext";
+import { socket } from "../../WebSocket";
 
 interface Collaborator {
   id: string;
@@ -50,26 +54,96 @@ interface Collaborator {
   role: string;
 }
 
+interface GroupMembers {
+  id: string;
+  fullname: string;
+  email: string;
+}
+
 export default function CollaborativeDocumentEditor() {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const { userId } = useContext(AppContext);
-  const { content, readOnly, isNew } = location.state || {};
-  const docId = useParams();
+  const documentId = location.state?.documentId;
+  const docId = useParams().docId || documentId;
+  const groupId = location.state?.groupId;
 
   const [documentData, setDocumentData] = useState<any>(null);
-
-  const [title, setTitle] = useState("Untitled Document");
+  const [title, setTitle] = useState(
+    documentData?.title || "Untitled Document"
+  );
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [groupMembers, setGroupMembers] = useState<GroupMembers[]>([]);
 
   // Share modal state
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [emailInput, setEmailInput] = useState("");
   const [emailList, setEmailList] = useState<string[]>([]);
+
+  const ydocRef = useRef<Y.Doc>(new Y.Doc());
+  if (!ydocRef.current) {
+    ydocRef.current = new Y.Doc();
+  }
+  const ydoc = ydocRef.current;
+
+  if (!docId) {
+    navigate("/workspace");
+    return null;
+  }
+
+  // -- SOCKET.IO CONNECTION -- //
+  useEffect(() => {
+    if (!userId || !docId) {
+      return;
+    }
+
+    // Connect to socket server
+    socket.on("connect", () => {
+      // join a document
+      socket.emit("joinDoc", { docId: docId, userId: userId });
+    });
+
+    // Listen for initialDoc send by the server when user join a document
+    socket.on("initDoc", (data: { update: Uint8Array }) => {
+      if (data.update) {
+        Y.applyUpdate(ydoc, new Uint8Array(data.update));
+      }
+    });
+
+    socket.on("syncUpdate", (data: { content: Uint8Array }) => {
+      if (data.content) {
+        Y.applyUpdate(ydoc, new Uint8Array(data.content));
+      }
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("initDoc");
+      socket.off("syncUpdate");
+    };
+  }, [docId, userId]);
+
+  // --- SEND LOCAL YJS UPDATES TO SERVER --- //
+  useEffect(() => {
+    if (!userId || !docId) {
+      return;
+    }
+    const updateHandler = (update: Uint8Array) => {
+      socket.emit("syncUpdate", {
+        docId: docId,
+        content: update,
+        userId: userId,
+      });
+    };
+    ydoc.on("update", updateHandler);
+
+    return () => {
+      ydoc.off("update", updateHandler);
+    };
+  }, [ydoc, docId, userId]);
 
   const editor = useEditor({
     extensions: [
@@ -86,95 +160,74 @@ export default function CollaborativeDocumentEditor() {
       Link.configure({
         openOnClick: false,
       }),
+      Collaboration.configure({
+        document: ydoc,
+      }),
+      CollaborationCursor.configure({
+        provider: { awareness: new Awareness(ydoc) },
+        user: {
+          userId: userId,
+          name: "User " + userId,
+          color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+        },
+      }),
     ],
-    content: content || `<p>Start typing your document here...</p>`,
-    editable: !readOnly,
+    editable: true,
     onUpdate: ({ editor }) => {
       // Count words
       const text = editor.getText();
       const words = text.trim() ? text.trim().split(/\s+/).length : 0;
       setWordCount(words);
-
-      // Auto-save logic (commented out for now)
-      // if (handleSave) {
-      //   setTimeout(() => {
-      //     handleSave(editor.getJSON());
-      //     setLastSaved(new Date());
-      //   }, 1000);
-      // }
     },
   });
 
-  const fetchCollaborators = async () => {
-    try {
-      const response = await axios.get(
-        `${
-          import.meta.env.VITE_BACKEND_URL_WS
-        }/collaborators/get-collaborators/${docId.docId}`
-      );
-      if (response) {
+  // --Fetch Collaborators and Doc data -- //
+  useEffect(() => {
+    const fetchCollaborators = async () => {
+      try {
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL_WS
+          }/collaborators/get-collaborators/${docId}`
+        );
+
         setCollaborators(response.data.data.collaborators);
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    };
 
-  const fetchDocData = async () => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL_WS}/documents/get-document-data/${
-          docId.docId
-        }`
-      );
-
-      if (response) {
+    const fetchDocData = async () => {
+      try {
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL_WS
+          }/documents/get-document-data/${docId}`
+        );
         setDocumentData(response.data.data);
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    };
 
-  // Connect to socket server
-  useEffect(() => {
-    const socket = io(`${import.meta.env.VITE_SOCKET_URL}`, {
-      transports: ["websocket"],
-    });
-    // Handle connection
-    socket.on("connect", () => {
-      console.log("Connected with socket id:", socket.id);
-      // join a document
-      socket.emit("joinDoc", { docId: docId.docId, userId: userId });
-    });
-  }, []);
-
-  useEffect(() => {
+    const fetchGroupMembers = async () => {
+      try {
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/workspaces/get-group-members/${groupId}`
+        );
+        setGroupMembers(response.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
     fetchDocData();
     fetchCollaborators();
-  }, []);
+    fetchGroupMembers();
+  }, [docId]);
 
-  // Update editor content when the content prop changes
-  useEffect(() => {
-    if (editor && content !== undefined) {
-      editor.commands.setContent(
-        content || `<p>Start typing your document here...</p>`
-      );
-    }
-  }, [editor, content]);
-
-  const handleSaveDocument = () => {
-    if (editor) {
-      const currentContent = editor.getHTML();
-      console.log("Saving document:", {
-        docId,
-        title,
-        content: currentContent,
-      });
-      setLastSaved(new Date());
-      // Here you would implement actual save functionality
-    }
-  };
+  const handleSaveDocument = () => {};
 
   const handleShareDocument = () => {
     setShareModalOpen(true);
@@ -197,66 +250,35 @@ export default function CollaborativeDocumentEditor() {
 
   const handleTitleSubmit = () => {
     setIsEditingTitle(false);
-
   };
 
   const handleSave = () => {
     handleSaveDocument();
   };
 
-  // Email collaboration functions
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleAddEmail = () => {
-    if (emailInput.trim() && validateEmail(emailInput.trim())) {
-      if (!emailList.includes(emailInput.trim())) {
-        setEmailList([...emailList, emailInput.trim()]);
-        setEmailInput("");
-      }
-    }
-  };
-
   const handleRemoveEmail = (emailToRemove: string) => {
-    setEmailList(emailList.filter((email) => email !== emailToRemove));
+    setGroupMembers(groupMembers.filter((member) => member.email !== emailToRemove));
   };
 
   const handleShareWithEmails = async () => {
-    console.log("Sharing document with emails:", emailList);
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/notification/share-document/${
-          docId.docId
-        }`,
-        { emails: emailList }
+      const newEmails = groupMembers
+        .map((member) => member.email)
+        .filter((email) => !emailList.includes(email));
+      await axios.post(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/notification/share-document/${docId}`,
+        { emails: newEmails }
       );
-      if (response.data.success) {
-        console.log("Document shared successfully:", response.data);
-      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setShareModalOpen(false);
       setEmailList([]);
       setEmailInput("");
     }
   };
-
-  const formatLastSaved = (date: Date | null) => {
-    if (!date) return "Never";
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return date.toLocaleDateString();
-  };
-
   if (!editor) {
     return (
       <Box
@@ -273,7 +295,9 @@ export default function CollaborativeDocumentEditor() {
   }
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", p: 1 }}>
+    <Box
+      sx={{ height: "100%", display: "flex", flexDirection: "column", p: 1 }}
+    >
       {/* Header */}
       <Paper
         elevation={1}
@@ -305,18 +329,17 @@ export default function CollaborativeDocumentEditor() {
               <Typography
                 variant="h5"
                 sx={{
-                  cursor: readOnly ? "default" : "pointer",
+                  cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
-                  "&:hover": readOnly ? {} : { opacity: 0.7 },
+                  "&:hover": { opacity: 0.7 },
                 }}
-                onClick={() => !readOnly && setIsEditingTitle(true)}
+                onClick={() => setIsEditingTitle(true)}
               >
                 {title}
-                {!readOnly && (
-                  <EditIcon fontSize="small" sx={{ opacity: 0.5 }} />
-                )}
+
+                <EditIcon fontSize="small" sx={{ opacity: 0.5 }} />
               </Typography>
             )}
 
@@ -341,12 +364,7 @@ export default function CollaborativeDocumentEditor() {
               Last saved: {formatLastSaved(lastSaved)}
             </Typography> */}
 
-            <Button
-              startIcon={<Save />}
-              onClick={handleSave}
-              size="small"
-              disabled={readOnly}
-            >
+            <Button startIcon={<Save />} onClick={handleSave} size="small">
               Save
             </Button>
 
@@ -376,13 +394,10 @@ export default function CollaborativeDocumentEditor() {
       </Paper>
 
       {/* Collaborators */}
-      <CollaboratorsList
-        collaborators={collaborators}
-        currentUserId="current"
-      />
+      <CollaboratorsList collaborators={collaborators} currentUserId={userId} />
 
       {/* Editor Toolbar */}
-      {!readOnly && <EditorToolbar editor={editor} />}
+      <EditorToolbar editor={editor} />
 
       {/* Editor Content */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -518,52 +533,21 @@ export default function CollaborativeDocumentEditor() {
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
-            Add collaborators by entering their email addresses
+            Share with group members
           </Typography>
 
           <Stack spacing={2}>
-            <Stack direction="row" spacing={1} alignItems="flex-end">
-              <TextField
-                label="Email Address"
-                variant="outlined"
-                size="small"
-                fullWidth
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAddEmail()}
-                error={
-                  emailInput.trim() !== "" && !validateEmail(emailInput.trim())
-                }
-                helperText={
-                  emailInput.trim() !== "" && !validateEmail(emailInput.trim())
-                    ? "Please enter a valid email address"
-                    : ""
-                }
-              />
-              <Button
-                variant="contained"
-                onClick={handleAddEmail}
-                disabled={
-                  !emailInput.trim() ||
-                  !validateEmail(emailInput.trim()) ||
-                  emailList.includes(emailInput.trim())
-                }
-                size="small"
-              >
-                Add
-              </Button>
-            </Stack>
 
-            {emailList.length > 0 && (
+            {groupMembers.length > 0 && (
               <Box>
                 <Typography
                   variant="subtitle2"
                   sx={{ mb: 1, fontWeight: "medium" }}
                 >
-                  Collaborators to add ({emailList.length}):
+                  Collaborators ({groupMembers.length}):
                 </Typography>
                 <List dense>
-                  {emailList.map((email, index) => (
+                  {groupMembers.map((member, index) => (
                     <ListItem
                       key={index}
                       sx={{
@@ -572,12 +556,12 @@ export default function CollaborativeDocumentEditor() {
                         mb: 0.5,
                       }}
                     >
-                      <ListItemText primary={email} />
+                      <ListItemText primary={member.email} />
                       <ListItemSecondaryAction>
                         <IconButton
                           edge="end"
                           aria-label="remove"
-                          onClick={() => handleRemoveEmail(email)}
+                          onClick={() => handleRemoveEmail(member.email)}
                           size="small"
                         >
                           <Delete />
@@ -595,7 +579,7 @@ export default function CollaborativeDocumentEditor() {
           <Button
             onClick={handleShareWithEmails}
             variant="contained"
-            disabled={emailList.length === 0}
+            disabled={groupMembers.length === 0}
           >
             Share Document
           </Button>

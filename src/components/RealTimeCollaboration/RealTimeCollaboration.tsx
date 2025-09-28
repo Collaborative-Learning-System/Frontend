@@ -9,9 +9,10 @@ import {
   alpha,
   Card,
   CardContent,
-  Chip,
   Divider,
   CircularProgress,
+  Skeleton,
+  Alert,
 } from "@mui/material";
 import { Add, Description, People, AccessTime } from "@mui/icons-material";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -20,6 +21,7 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
+import { handleLogging } from "../../services/LoggingService";
 
 interface Documents {
   documentId: string;
@@ -41,43 +43,28 @@ export default function RealTimeCollaboration({
   const { userId } = useContext(AppContext);
   const [isCreatingDocument, setIsCreatingDocument] = useState(false);
   const [documents, setDocuments] = useState<Documents[]>([]);
-
-  // const formatTimeAgo = (date: Date) => {
-  //   const now = new Date();
-  //   const diffInMinutes = Math.floor(
-  //     (now.getTime() - date.getTime()) / (1000 * 60)
-  //   );
-
-  //   if (diffInMinutes < 1) return "Just now";
-  //   if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-
-  //   const diffInHours = Math.floor(diffInMinutes / 60);
-  //   if (diffInHours < 24) return `${diffInHours}h ago`;
-
-  //   const diffInDays = Math.floor(diffInHours / 24);
-  //   if (diffInDays < 7) return `${diffInDays}d ago`;
-
-  //   const diffInWeeks = Math.floor(diffInDays / 7);
-  //   return `${diffInWeeks}w ago`;
-  // };
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
+  const [documentError, setDocumentError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDocuments();
   }, [groupId]);
 
   const fetchDocuments = async () => {
+    setIsLoadingDocuments(true);
+    setDocumentError(null);
     try {
       const response = await axios.get(
         `${
           import.meta.env.VITE_BACKEND_URL_WS
         }/documents/get-documents/${groupId}`
       );
-      if (response.data.success) {
-        console.log(response.data.data);
-        setDocuments(response.data.data);
-      }
+      setDocuments(response.data.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
+      setDocumentError("Failed to load documents. Please try again.");
+    } finally {
+      setIsLoadingDocuments(false);
     }
   };
 
@@ -92,21 +79,22 @@ export default function RealTimeCollaboration({
         }/documents/create-document/${groupId}`,
         { userId: userId }
       );
-      if (response.data.success) {
-        const newDocId = response.data.document.docId;
-        const newDocumentData = {
-          content: null,
-          readOnly: false,
-          isNew: true,
-        };
-
-        navigate(`/documents/${newDocId}`, { state: newDocumentData });
+      handleLogging("Created a new collaborative document")
+      const newDocId = response.data.document.docId;
+      const docData = {
+        documentId: newDocId,
+        groupId: groupId,
       }
+      navigate(`/documents/${newDocId}`, { state: docData });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsCreatingDocument(false);
     }
+  };
+
+  const handleRetryFetchDocuments = () => {
+    fetchDocuments();
   };
 
   const handleSelectDocument = async (docId: string) => {
@@ -118,29 +106,24 @@ export default function RealTimeCollaboration({
 
     if (!isOwner) {
       try {
-        const response = await axios.post(
+        await axios.post(
           `${
             import.meta.env.VITE_BACKEND_URL_WS
           }/collaborators/add-collaborator/${docId}`,
           { userId }
         );
-        if (response.data.success) {
-          console.log("Collaborator added successfully");
-        }
       } catch (error) {
         console.error("Failed to add collaborator", error);
       }
     }
-
+    handleLogging(`Joined with collaborative document: ${selectedDoc.documentTitle}`)
     // Navigate to editor
-    const documentData = {
-      content: null,
-      readOnly: false, 
-      isNew: false,
+    const docData = {
+      documentId: selectedDoc?.documentId,
+      groupId: groupId,
     };
-    navigate(`/documents/${docId}`, { state: documentData });
+    navigate(`/documents/${docId}`, { state: docData });
   };
-
 
   return (
     <Box
@@ -216,184 +199,242 @@ export default function RealTimeCollaboration({
                 {isCreatingDocument ? "Creating..." : "New Document"}
               </Button>
               {/* <Button variant="outlined" startIcon={<Folder />}>
-                Import
-              </Button> */}
+                  Import
+                </Button> */}
             </Stack>
           </Stack>
         </Paper>
 
         {/* Documents Grid */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)",
-            },
-            gap: 3,
-          }}
-        >
-          {documents.map((document) => (
-            <Card
-              key={document.documentId}
-              sx={{
-                height: "100%",
-                cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                },
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-              }}
-              onClick={() => handleSelectDocument(document.documentId)}
+        {documentError ? (
+          /* Error State */
+          <Paper
+            sx={{
+              p: 4,
+              textAlign: "center",
+              bgcolor: alpha(theme.palette.error.main, 0.05),
+              border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+            }}
+          >
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {documentError}
+            </Alert>
+            <Button
+              variant="contained"
+              onClick={handleRetryFetchDocuments}
+              color="primary"
             >
-              <CardContent
+              Retry
+            </Button>
+          </Paper>
+        ) : isLoadingDocuments ? (
+          /* Loading State */
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                lg: "repeat(3, 1fr)",
+              },
+              gap: 3,
+            }}
+          >
+            {[...Array(6)].map((_, index) => (
+              <Card
+                key={index}
                 sx={{
-                  p: 3,
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
+                  height: 200,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                 }}
               >
-                {/* Document Header */}
-                <Stack
-                  direction="row"
-                  alignItems="flex-start"
-                  justifyContent="space-between"
-                  sx={{ mb: 2 }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: 1,
-                      flex: 1,
-                    }}
+                <CardContent sx={{ p: 3 }}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mb: 2 }}
                   >
-                    <Description
-                      sx={{ color: theme.palette.primary.main, fontSize: 28 }}
-                    />
-                    {/* <Chip
-                      label={document.ownerId}
-                      size="small"
-                      color="success"
-                      sx={{ mb: 1, fontSize: "0.7rem", height: 20 }}
-                    /> */}
-                  </Box>
-                </Stack>
-
-                {/* Document Title */}
-                <Typography
-                  variant="h6"
-                  sx={{
-                    mb: 2,
-                    fontWeight: "medium",
-                    color: theme.palette.text.primary,
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                  }}
-                >
-                  {document.documentTitle}
-                </Typography>
-
-                {/* Document Info */}
-                <Box sx={{ mt: "auto" }}>
+                    <Skeleton variant="circular" width={28} height={28} />
+                    <Skeleton variant="text" width="60%" height={24} />
+                  </Stack>
+                  <Skeleton
+                    variant="text"
+                    width="100%"
+                    height={32}
+                    sx={{ mb: 2 }}
+                  />
                   <Stack
                     direction="row"
                     alignItems="center"
                     spacing={1}
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 1 }}
                   >
-                    <AccessTime
-                      sx={{ fontSize: 16, color: "text.secondary" }}
-                    />
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      created{" "}
-                      {document.createdAt
-                        ? formatDistanceToNow(new Date(document.createdAt), {
-                            addSuffix: true,
-                          })
-                        : "No timestamp"}
-                    </Typography>
+                    <Skeleton variant="circular" width={16} height={16} />
+                    <Skeleton variant="text" width="70%" height={16} />
                   </Stack>
-
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Skeleton variant="circular" width={16} height={16} />
+                    <Skeleton variant="text" width="50%" height={16} />
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+        ) : (
+          /* Documents Content */
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                lg: "repeat(3, 1fr)",
+              },
+              gap: 3,
+            }}
+          >
+            {documents.map((document) => (
+              <Card
+                key={document.documentId}
+                sx={{
+                  height: "100%",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                  },
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                }}
+                onClick={() => handleSelectDocument(document.documentId)}
+              >
+                <CardContent
+                  sx={{
+                    p: 3,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {/* Document Header */}
                   <Stack
                     direction="row"
-                    alignItems="center"
+                    alignItems="flex-start"
                     justifyContent="space-between"
+                    sx={{ mb: 2 }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <People sx={{ fontSize: 16, color: "text.secondary" }} />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 1,
+                        flex: 1,
+                      }}
+                    >
+                      <Description
+                        sx={{ color: theme.palette.primary.main, fontSize: 28 }}
+                      />
+                      {/* <Chip
+                          label={document.ownerId}
+                          size="small"
+                          color="success"
+                          sx={{ mb: 1, fontSize: "0.7rem", height: 20 }}
+                        /> */}
+                    </Box>
+                  </Stack>
+
+                  {/* Document Title */}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      mb: 2,
+                      fontWeight: "medium",
+                      color: theme.palette.text.primary,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {document.documentTitle}
+                  </Typography>
+
+                  {/* Document Info */}
+                  <Box sx={{ mt: "auto" }}>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                      sx={{ mb: 2 }}
+                    >
+                      <AccessTime
+                        sx={{ fontSize: 16, color: "text.secondary" }}
+                      />
                       <Typography
                         variant="body2"
                         sx={{ color: "text.secondary" }}
                       >
-                        {document.collaboratorCount} collaborator
-                        {document.collaboratorCount !== 1 ? "s" : ""}
+                        created{" "}
+                        {document.createdAt
+                          ? formatDistanceToNow(new Date(document.createdAt), {
+                              addSuffix: true,
+                            })
+                          : "No timestamp"}
                       </Typography>
-                    </Box>
+                    </Stack>
 
-                    {/* <AvatarGroup
-                      max={3}
-                      sx={{
-                        "& .MuiAvatar-root": {
-                          width: 24,
-                          height: 24,
-                          fontSize: 12,
-                        },
-                      }}
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
                     >
-                      {Array.from(
-                        { length: Math.min(document.collaborators, 3) },
-                        (_, i) => (
-                          <Avatar
-                            key={i}
-                            sx={{ bgcolor: `hsl(${i * 120}, 60%, 50%)` }}
-                          >
-                            {String.fromCharCode(65 + i)}
-                          </Avatar>
-                        )
-                      )}
-                    </AvatarGroup> */}
-                  </Stack>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <People
+                          sx={{ fontSize: 16, color: "text.secondary" }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          {document.collaboratorCount} collaborator
+                          {document.collaboratorCount !== 1 ? "s" : ""}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
 
-          {/* Empty State */}
-          {documents.length === 0 && (
-            <Paper
-              sx={{
-                p: 8,
-                textAlign: "center",
-                bgcolor: alpha(theme.palette.primary.main, 0.02),
-                gridColumn: "1 / -1",
-              }}
-            >
-              <Description
-                sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
-              />
-              <Typography variant="h5" gutterBottom>
-                No documents yet
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={{ color: "text.secondary", mb: 3 }}
+            {/* Empty State */}
+            {documents.length === 0 && !isLoadingDocuments && (
+              <Paper
+                sx={{
+                  p: 8,
+                  textAlign: "center",
+                  bgcolor: alpha(theme.palette.primary.main, 0.02),
+                  gridColumn: "1 / -1",
+                }}
               >
-                Create your first collaborative document to get started
-              </Typography>
-             
-            </Paper>
-          )}
-        </Box>
+                <Description
+                  sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+                />
+                <Typography variant="h5" gutterBottom>
+                  No documents yet
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: "text.secondary", mb: 3 }}
+                >
+                  Create your first collaborative document to get started
+                </Typography>
+              </Paper>
+            )}
+          </Box>
+        )}
       </Container>
     </Box>
   );

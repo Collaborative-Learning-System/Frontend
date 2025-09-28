@@ -10,7 +10,7 @@ import {
   useTheme,
   alpha,
 } from '@mui/material';
-import { Circle, Person } from '@mui/icons-material';
+import { Circle } from '@mui/icons-material';
 
 interface Collaborator {
   id: string;
@@ -23,7 +23,7 @@ interface Collaborator {
 
 interface CollaboratorsListProps {
   collaborators: Collaborator[];
-  currentUserId: string;
+  currentUserId: string | null;
 }
 
 const CollaboratorsList: React.FC<CollaboratorsListProps> = ({
@@ -31,11 +31,6 @@ const CollaboratorsList: React.FC<CollaboratorsListProps> = ({
   currentUserId,
 }) => {
   const theme = useTheme();
-
-  const getAvatarLetter = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
-
   return (
     <Box
       sx={{
@@ -43,12 +38,7 @@ const CollaboratorsList: React.FC<CollaboratorsListProps> = ({
         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
         backgroundColor: alpha(theme.palette.background.paper, 0.8),
       }}
-    >
-      <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Person />
-        {/* Active Collaborators ({collaborators.filter(c => c.isActive).length}) */}
-      </Typography>
-      
+    > 
       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
         {collaborators.map((collaborator) => (
           <Tooltip
@@ -60,36 +50,35 @@ const CollaboratorsList: React.FC<CollaboratorsListProps> = ({
               <Badge
                 overlap="circular"
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                // badgeContent={
-                //   collaborator.isActive ? (
-                //     <Circle
-                //       sx={{
-                //         color: '#4caf50',
-                //         fontSize: 12,
-                //         backgroundColor: theme.palette.background.paper,
-                //         borderRadius: '50%',
-                //         p: 0.25,
-                //       }}
-                //     />
-                //   ) : null
-                // }
+                badgeContent={
+                  
+                    <Circle
+                      sx={{
+                        color: '#4caf50',
+                        fontSize: 12,
+                        backgroundColor: theme.palette.background.paper,
+                        borderRadius: '50%',
+                        p: 0.25,
+                      }}
+                    />
+                  
+                }
               >
                 <Chip
                   avatar={
                     <Avatar
                       sx={{
-                       // color: theme.palette.getContrastText(collaborator.color),
-                        width: 24,
-                        height: 24,
+                        width: 28,
+                        height: 28,
                         fontSize: '0.75rem',
                       }}
                     >
-                      {getAvatarLetter(collaborator.name)}
+                      {collaborator.name.split(" ").map(n => n[0]).join("")}
                     </Avatar>
                   }
                   label={
                     <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                      {collaborator.name}
+                      {/* {collaborator.name} */}
                       {collaborator.id === currentUserId && (
                         <Typography
                           component="span"
