@@ -137,8 +137,7 @@ const Landing = () => {
         };
       }
     } catch (error) {
-
-      setLogs([]);
+      // setLogs([]);
       return {
         success: false,
         message: "Failed to create workspace due to an error",
@@ -154,7 +153,7 @@ const Landing = () => {
       const response = await axios.get(
         `${
           import.meta.env.VITE_BACKEND_URL
-        }/notification/get-logs-by-user/${localStorage.getItem("userId")}`
+        }/user/get-logs-by-user/${localStorage.getItem("userId")}`
       );
 
       if (response) {
@@ -182,7 +181,6 @@ const Landing = () => {
     fetchWorkspaces();
     setMounted(true);
     fetchLogs();
-
   }, []);
 
   // Format date and time
@@ -742,8 +740,8 @@ const Landing = () => {
                     const logTime = new Date(log.timestamp);
                     return (
                       new Date().getTime() - logTime.getTime() <=
-                      5 * 60 * 60 * 1000
-                    ); // last 5 hour
+                      24 * 60 * 60 * 1000
+                    ); // last 24 hour
                   })
                   .map((activity, index) => (
                     <Slide

@@ -10,7 +10,7 @@ export const handleLogging = async (activity: string) => {
     if (!loggingData.userId || !loggingData.activity || !loggingData.timestamp)
       return;
     const response = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/notification/log-activity`,
+      `${import.meta.env.VITE_BACKEND_URL}/user/log-activity`,
       loggingData
     );
     if (response) {

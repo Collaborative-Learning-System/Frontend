@@ -12,6 +12,7 @@ import {
   IconButton,
   Alert,
   Switch,
+  FormControlLabel,
 } from "@mui/material";
 import {
   Person,
@@ -22,6 +23,8 @@ import {
   PhotoCamera,
   Lock,
 } from "@mui/icons-material";
+import InfoIcon from "@mui/icons-material/Info";
+
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -48,8 +51,6 @@ export default function UserProfile() {
         setError("Profile Updation Failed. Please try again later.");
         return;
       }
-      console.log("User Data:", userData);
-      console.log("Updating profile with data:", editData);
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/auth/update-profile`,
         {
@@ -76,6 +77,28 @@ export default function UserProfile() {
       setTimeout(() => {
         setError(""), setSuccess("");
       }, 4000);
+    }
+  };
+
+  const handleRemoveAccount = async () => {
+    try {
+      if (!userData?.userId) {
+        setError("Account Deletion Failed. Please try again later.");
+        return;
+      }
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/delete-account/${
+          userData?.userId
+        }`
+      );
+      if (response.data.success) {
+        setSuccess("Account deleted successfully!");
+        setTimeout(() => {
+          navigate("/auth");
+        }, 2000);
+      }
+    } catch (error) {
+      setError("Account Deletion Failed. Please try again later.");
     }
   };
 
@@ -163,6 +186,15 @@ export default function UserProfile() {
             <Typography variant="body2" color="text.secondary">
               {userData?.bio || ""}
             </Typography>
+          </Box>
+          <Box>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={handleRemoveAccount}
+            >
+              Remove Account
+            </Button>
           </Box>
         </Stack>
       </Box>
@@ -317,7 +349,7 @@ export default function UserProfile() {
               alignItems="center"
               sx={{ mb: 1 }}
             >
-              <Person sx={{ color: theme.palette.primary.main }} />
+              <InfoIcon sx={{ color: theme.palette.primary.main }} />
               <Typography variant="subtitle2" color="text.secondary">
                 Bio
               </Typography>
@@ -365,7 +397,7 @@ export default function UserProfile() {
               color="primary"
               disabled={isEditing}
               onClick={() => {
-                navigate('/reset-password')
+                navigate("/reset-password");
               }}
             >
               Reset Password
@@ -398,33 +430,22 @@ export default function UserProfile() {
           </Typography>
         </Box>
         <Divider sx={{ mb: 4 }} />
-        <Box sx={{ mb: 1 }}>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2,
-            }}
-          >
-            <Typography variant="body1">
-              Track User Recent Activities
-            </Typography>
-            <Switch />
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 2,
-            }}
-          >
-            <Typography variant="body1">
-              Send Email Notifications for Upcoming Activities
-            </Typography>
-            <Switch />
-          </Box>
+        <Box sx={{ mb: 1, display: "flex", flexDirection: "column", gap: 1 }}>
+          <FormControlLabel
+            control={<Switch name="trackUser" color="primary" />}
+            label="Track My Activities"
+          />
+
+          <FormControlLabel
+            control={
+              <Switch
+                name="sendEmailNotifications"
+                color="primary"
+                //onClick={handleUserActivityTracking}
+              />
+            }
+            label="Send Email Notifications For Up Coming Events"
+          />
         </Box>
       </Box>
     </Box>
