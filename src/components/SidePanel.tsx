@@ -27,9 +27,6 @@ import {
 } from "@mui/icons-material";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
-import NotificationService from "../services/NotificationService";
-import { handleLogging } from "../services/LoggingService";
 
 interface SidePanelProps {
   open: boolean;
@@ -93,44 +90,11 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       ),
       path: "/real-time-collaboration",
     },
-    // {
-    //   text: "Contact Us",
-    //   icon: (
-    //     <Tooltip title="Contact Us">
-    //       <ContactPhoneRounded />
-    //     </Tooltip>
-    //   ),
-    //   path: "/contact-us",
-    // },
   ];
 
   const handleMenuItemClick = (path: string) => {
     navigate(path);
     if (isMobile) onClose();
-  };
-
-
-  const handleLogout = async () => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    try {
-      const response = await axios.post(
-        `${backendUrl}/auth/logout/${userData?.userId}`
-      );
-      if (response.data.success) {
-           handleLogging(`User/${userData?.userId} logged out`);
-        NotificationService.showSuccess("Logged out successfully");
-        setTimeout(() => {
-          navigate("/auth");
-          logout();
-        }, 1000);
-      }
-    } catch (error) {
-      NotificationService.showError("Failed to log out");
-    }
-  };
-
-  const handleProfile = () => {
-    navigate("/profile");
   };
 
   const drawerContent = (
@@ -224,8 +188,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 >
                   <ListItemIcon
                     sx={{
-                      //color: theme.palette.primary.main,
-
                       minWidth: open ? 40 : "auto",
                       justifyContent: "center",
                     }}
@@ -239,10 +201,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                       primaryTypographyProps={{
                         fontSize: "0.9rem",
                         fontWeight: isSelected ? 600 : 500,
-                        // color: isSelected
-                        //   ? theme.palette.primary.main
-                        //   : theme.palette.text.primary,
-                        //color: theme.palette.primary.main,
                       }}
                     />
                   )}
@@ -271,7 +229,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               cursor: "pointer",
               "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
-            onClick={handleProfile}
+            onClick={() => navigate("/profile")}
           >
             <Avatar
               src={""}
@@ -294,7 +252,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               <Typography variant="subtitle2" fontWeight="bold">
                 {userData?.fullName}
               </Typography>
-              <Typography variant="caption">{userData?.email}</Typography>
+              <Typography variant="caption">
+                {userData?.email}
+              </Typography>
             </Box>
           </Box>
         ) : (
@@ -307,7 +267,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               cursor: "pointer",
               "&:hover": { backgroundColor: theme.palette.action.hover },
             }}
-            onClick={handleProfile}
+            onClick={() => navigate("/profile")}
           >
             <Tooltip title="View Profile">
               <Avatar
@@ -331,7 +291,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         <Divider sx={{ my: 1 }} />
         {/* Logout Button */}
         <ListItemButton
-          onClick={handleLogout}
+          onClick={() => logout()}
           sx={{
             borderRadius: 2,
             justifyContent: open ? "initial" : "center",

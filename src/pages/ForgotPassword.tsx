@@ -52,7 +52,6 @@ const ForgotPassword = () => {
 
       if (response.data.success) {
           setSuccess("Reset email sent! Please check your inbox.");
-          localStorage.setItem("resetEmail", resetEmail);
       } else {
         setError(response.data.message || "Failed to send reset email");
       }

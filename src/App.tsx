@@ -13,9 +13,9 @@ import ContactForm from "./components/ContactForm";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
-import RealTimeCollaboration from "./pages/RealTimeCollaboration";
 import Dashboard from "./pages/Dashboard";
-
+import CollaborativeDocumentEditor from "./components/RealTimeCollaboration/CollaborativeDocumentEditor";
+import { PrivateRoute } from "./Routes/ProtectedRoutes";
 
 const App = () => {
   return (
@@ -88,19 +88,22 @@ const App = () => {
           }
         />
         <Route
-          path="/real-time-collaboration"
+          path="/documents/:docId"
+          element={
+            <PrivateRoute>
+              <CollaborativeDocumentEditor />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
           element={
             <MainLayout>
-              <RealTimeCollaboration />
+              <Dashboard />
             </MainLayout>
           }
         />
-        <Route path="/dashboard" element={
-          <MainLayout>
-            <Dashboard />
-          </MainLayout>
-        } />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password/:userId" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
       </Routes>
