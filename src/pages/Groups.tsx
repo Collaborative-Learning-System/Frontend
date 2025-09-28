@@ -7,15 +7,12 @@ import {
   Stack,
   Typography,
   Button,
-  Backdrop,
 } from "@mui/material";
 import React from "react";
 import { useTheme } from "@mui/material/styles";
-
 const Groups = () => {
   const theme = useTheme();
   const [viewDetail, setViewDetail] = React.useState(false);
-  const [createQuiz, setCreateQuiz] = React.useState(false);
 
   return (
     <Box
@@ -66,23 +63,6 @@ const Groups = () => {
           </Typography>
         </Box>
       )}
-      {/* {Users.some((user) => {
-        user.role === "WORKSPACE_ADMIN" && (
-      
-          <Box
-            sx={{
-              width: "100%",
-              mt: 2,
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button variant="contained" onClick={() => setCreateQuiz(true)}>
-              Create Quiz
-            </Button>
-          </Box>
-        )
-      })} */}
       <Box
         sx={{
           width: "100%",
@@ -92,9 +72,6 @@ const Groups = () => {
           gap: 2,
         }}
       >
-        <Button variant="contained" onClick={() => setCreateQuiz(true)}>
-          Create Quiz
-        </Button>
         <Button variant="contained">
           Leaderboard
         </Button>
@@ -148,28 +125,6 @@ const Groups = () => {
           <Grid size={9}></Grid>
         </Grid>
       </Stack>
-      <Backdrop
-        open={createQuiz}
-        onClick={() => setCreateQuiz(false)}
-        sx={{
-          zIndex: theme.zIndex.modal,
-          backgroundColor: alpha(theme.palette.background.default, 0.7),
-        }}
-      >
-        <Box
-          onClick={(e) => e.stopPropagation()}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            height: "100%",
-            p: 2,
-          }}
-        >
-        
-        </Box>
-      </Backdrop>
     </Box>
   );
 };

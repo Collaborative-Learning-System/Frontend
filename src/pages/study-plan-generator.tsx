@@ -23,7 +23,7 @@ interface StudyPlanFormData {
   endDate: string;
   dailyHours: number;
   preferredTimes: string[];
-  learningStyle: string;
+  learningStyle: string[];
   difficulty: string;
   includeBreaks: boolean;
   includeReview: boolean;
@@ -136,7 +136,7 @@ export default function StudyPlanGenerator() {
             duration: studyTime,
             type: "study",
             completed: false,
-            description: getTaskDescription(subject, formData.learningStyle),
+            description: getTaskDescription(subject, formData.learningStyle[0] || 'Visual'),
           });
           remainingHours -= studyTime;
 
@@ -221,16 +221,31 @@ export default function StudyPlanGenerator() {
   };
 
   const generateTips = (formData: StudyPlanFormData) => {
+    // Generate learning style specific tips
+    const learningStyleTips = [];
+    
+    if (formData.learningStyle.includes("Visual")) {
+      learningStyleTips.push("Use diagrams, charts, mind maps, and color-coding to organize information visually.");
+    }
+    if (formData.learningStyle.includes("Auditory")) {
+      learningStyleTips.push("Record yourself explaining concepts and listen back, or discuss topics with study partners.");
+    }
+    if (formData.learningStyle.includes("Kinesthetic")) {
+      learningStyleTips.push("Use hands-on practice, write notes by hand, and take movement breaks during study sessions.");
+    }
+    if (formData.learningStyle.includes("Reading/Writing")) {
+      learningStyleTips.push("Take detailed notes, rewrite key concepts, and create written summaries of what you learn.");
+    }
+    if (formData.learningStyle.includes("Social/Group Learning")) {
+      learningStyleTips.push("Join study groups, teach others, and participate in collaborative learning activities.");
+    }
+    if (formData.learningStyle.includes("Logical/Mathematical")) {
+      learningStyleTips.push("Break down complex topics into logical steps and use problem-solving approaches.");
+    }
+    
     const tips = [
-      `As a ${formData.learningStyle.toLowerCase()} learner, focus on ${
-        formData.learningStyle === "Visual"
-          ? "diagrams and visual aids"
-          : formData.learningStyle === "Auditory"
-          ? "listening and discussion"
-          : formData.learningStyle === "Kinesthetic"
-          ? "hands-on practice"
-          : "reading and note-taking"
-      }.`,
+      `Your learning styles (${formData.learningStyle.join(", ")}) suggest a multi-modal approach to studying.`,
+      ...learningStyleTips,
       `Study during your preferred times: ${formData.preferredTimes
         .join(", ")
         .toLowerCase()}.`,
@@ -245,7 +260,6 @@ export default function StudyPlanGenerator() {
       "Use active recall techniques - test yourself regularly instead of just re-reading.",
       "Create a dedicated study space free from distractions.",
       "Track your progress daily and adjust the plan if needed.",
-      "Join study groups or find study partners for better engagement.",
     ];
     return tips;
   };

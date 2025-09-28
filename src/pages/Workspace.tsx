@@ -53,6 +53,7 @@ import NotificationService from "../services/NotificationService";
 import { useThemeContext } from "../context/ThemeContext";
 import { handleLogging } from "../services/LoggingService";
 import RealTimeCollaboration from "../components/RealTimeCollaboration/RealTimeCollaboration";
+import { useWorkspace } from "../context/WorkspaceContext";
 
 interface WorkspaceData {
   id: string;
@@ -94,6 +95,7 @@ const Workspace = () => {
   const theme = useTheme();
   const { mode } = useThemeContext();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { setWorkspaceData: setGlobalWorkspaceData } = useWorkspace();
 
   useEffect(() => {
     const fetchWorkspaceDetails = async () => {
@@ -112,7 +114,10 @@ const Workspace = () => {
         );
 
         if (response.data.success) {
+          console.log("Workspace data fetched:", response.data.data);
           setWorkspaceData(response.data.data);
+          setGlobalWorkspaceData(response.data.data);
+          console.log("Global workspace data set:", response.data.data);
           setError(null);
         } else {
           throw new Error(

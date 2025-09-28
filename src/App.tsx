@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
 import Profile from "./pages/Userprofile";
+import QuizCreator from "./pages/quiz-creator";
 import ContactForm from "./components/ContactForm";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -55,6 +56,14 @@ const App = () => {
           }
         />
         <Route
+          path="/quiz-creator"
+          element={
+            <MainLayout>
+              <QuizCreator />
+            </MainLayout>
+          }
+        />
+        <Route
           path="/profile"
           element={
             <MainLayout>
@@ -96,6 +105,7 @@ const App = () => {
         />
         <Route path="/reset-password/:userId" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        
       </Routes>
     </ThemeContextProvider>
   );
