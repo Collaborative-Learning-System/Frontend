@@ -80,7 +80,6 @@ export default function CollaborativeDocumentEditor() {
 
   // Share modal state
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [emailInput, setEmailInput] = useState("");
   const [emailList, setEmailList] = useState<string[]>([]);
 
   const ydocRef = useRef<Y.Doc>(new Y.Doc());
@@ -276,7 +275,7 @@ export default function CollaborativeDocumentEditor() {
     } finally {
       setShareModalOpen(false);
       setEmailList([]);
-      setEmailInput("");
+     
     }
   };
   if (!editor) {
