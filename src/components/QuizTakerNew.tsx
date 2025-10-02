@@ -25,7 +25,6 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
-
 } from "@mui/material";
 import {
   AccessTime as TimeIcon,
@@ -41,12 +40,12 @@ import {
 } from "@mui/icons-material";
 import QuizResults from "./QuizResults";
 import { QuizAttemptService } from "../services/QuizAttemptService";
-import type { 
-  QuizDetails, 
-  Question, 
-  QuizAttemptResponse, 
+import type {
+  QuizDetails,
+  Question,
+  QuizAttemptResponse,
   QuizCompletionResponse,
-  AnswerSubmission
+  AnswerSubmission,
 } from "../services/QuizAttemptService";
 
 interface QuizTakerProps {
@@ -57,15 +56,18 @@ interface QuizTakerProps {
 
 interface UserAnswer {
   questionId: string;
-  answer: string; 
-  selectedOptionId?: string; 
+  answer: string;
+  selectedOptionId?: string;
   saved: boolean;
 }
 
-const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) => {
+const QuizTakerNew: React.FC<QuizTakerProps> = ({
+  quizId,
+  onComplete,
+  onBack,
+}) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
 
   const [quiz, setQuiz] = useState<QuizDetails | null>(null);
   const [attempt, setAttempt] = useState<QuizAttemptResponse | null>(null);
@@ -76,7 +78,6 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   const [results, setResults] = useState<QuizCompletionResponse | null>(null);
   const [showDetailedResults, setShowDetailedResults] = useState(false);
 
-  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showWarning, setShowWarning] = useState(false);
@@ -84,16 +85,13 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   const [saving, setSaving] = useState(false);
   const [autoSaveEnabled] = useState(true);
 
-  
   const initializingRef = useRef<boolean>(false);
   const initializedRef = useRef<boolean>(false);
 
- 
   useEffect(() => {
     initializeQuiz();
   }, [quizId]);
 
- 
   useEffect(() => {
     if (timeLeft > 0 && !quizCompleted && attempt) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -103,28 +101,24 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
     }
   }, [timeLeft, quizCompleted, attempt]);
 
-  
   useEffect(() => {
     if (timeLeft <= 300 && timeLeft > 0 && !showWarning) {
       setShowWarning(true);
     }
   }, [timeLeft, showWarning]);
 
-  
   useEffect(() => {
     if (autoSaveEnabled && attempt) {
       const interval = setInterval(() => {
         saveCurrentAnswer();
-      }, 30000); 
+      }, 30000);
 
       return () => clearInterval(interval);
     }
   }, [autoSaveEnabled, attempt, currentQuestion]);
 
   const initializeQuiz = async () => {
-    
     if (initializingRef.current || initializedRef.current) {
-      console.log('Quiz initialization already in progress or completed - skipping');
       return;
     }
 
@@ -133,43 +127,42 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
       setLoading(true);
       setError(null);
 
-      
-      if (!quizId || quizId === 'undefined' || quizId.trim() === '') {
-        throw new Error(`Quiz ID is required. Received: ${quizId} (type: ${typeof quizId})`);
+      if (!quizId || quizId === "undefined" || quizId.trim() === "") {
+        throw new Error(
+          `Quiz ID is required. Received: ${quizId} (type: ${typeof quizId})`
+        );
       }
 
-      
       const quizDetails = await QuizAttemptService.getQuizDetails(quizId);
-      
-      
-      if (!quizDetails || !quizDetails.questions || !Array.isArray(quizDetails.questions)) {
-        throw new Error('Invalid quiz data: missing questions');
+
+      if (
+        !quizDetails ||
+        !quizDetails.questions ||
+        !Array.isArray(quizDetails.questions)
+      ) {
+        throw new Error("Invalid quiz data: missing questions");
       }
-      
+
       setQuiz(quizDetails);
 
-     
-      const initialAnswers: UserAnswer[] = quizDetails.questions.map(q => ({
+      const initialAnswers: UserAnswer[] = quizDetails.questions.map((q) => ({
         questionId: q.id,
-        answer: '',
-        saved: false
+        answer: "",
+        saved: false,
       }));
       setUserAnswers(initialAnswers);
 
-    
       const attemptResponse = await QuizAttemptService.startQuizAttempt(quizId);
-      
+
       setAttempt(attemptResponse);
 
-    
       setTimeLeft(quizDetails.timeLimit * 60);
 
       setLoading(false);
       initializedRef.current = true;
-      
     } catch (err: any) {
-      console.error('Failed to initialize quiz:', err);
-      setError(err.message || 'Failed to load quiz');
+      console.error("Failed to initialize quiz:", err);
+      setError(err.message || "Failed to load quiz");
       setLoading(false);
     } finally {
       initializingRef.current = false;
@@ -191,15 +184,15 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   const handleAnswerChange = (answer: string, optionId?: string) => {
     const updatedAnswers = [...userAnswers];
     const questionIndex = updatedAnswers.findIndex(
-      a => a.questionId === quiz?.questions[currentQuestion]?.id
+      (a) => a.questionId === quiz?.questions[currentQuestion]?.id
     );
 
     if (questionIndex !== -1) {
       updatedAnswers[questionIndex] = {
         ...updatedAnswers[questionIndex],
         answer,
-        selectedOptionId: optionId, 
-        saved: false
+        selectedOptionId: optionId,
+        saved: false,
       };
       setUserAnswers(updatedAnswers);
     }
@@ -208,10 +201,8 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   const saveCurrentAnswer = useCallback(async () => {
     if (!attempt || !quiz || saving) return;
 
-   
-
     const currentAnswer = userAnswers.find(
-      a => a.questionId === quiz.questions[currentQuestion]?.id
+      (a) => a.questionId === quiz.questions[currentQuestion]?.id
     );
 
     if (!currentAnswer || currentAnswer.saved || !currentAnswer.answer.trim()) {
@@ -220,44 +211,42 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
 
     try {
       setSaving(true);
-      
-      
+
       const actualAttemptId = attempt.attemptId || (attempt as any).id;
       if (!actualAttemptId) {
-        
-        throw new Error('Attempt ID is missing. Please restart the quiz.');
+        throw new Error("Attempt ID is missing. Please restart the quiz.");
       }
 
       const answerData: AnswerSubmission = {
         attemptId: actualAttemptId,
-        questionId: currentAnswer.questionId
+        questionId: currentAnswer.questionId,
       };
 
-      
       const currentQuestion_obj = quiz.questions[currentQuestion];
-      
-      
-      if ((currentQuestion_obj.questionType === 'MCQ' || currentQuestion_obj.questionType === 'TRUE_FALSE') && currentAnswer.selectedOptionId) {
+
+      if (
+        (currentQuestion_obj.questionType === "MCQ" ||
+          currentQuestion_obj.questionType === "TRUE_FALSE") &&
+        currentAnswer.selectedOptionId
+      ) {
         answerData.selectedOptionId = currentAnswer.selectedOptionId;
-        
       } else {
         answerData.userAnswer = currentAnswer.answer;
-        
       }
 
       const response = await QuizAttemptService.saveAnswer(answerData);
-      console.log('✅ Save response:', response);
+      console.log("✅ Save response:", response);
 
       const updatedAnswers = [...userAnswers];
       const answerIndex = updatedAnswers.findIndex(
-        a => a.questionId === currentAnswer.questionId
+        (a) => a.questionId === currentAnswer.questionId
       );
       if (answerIndex !== -1) {
         updatedAnswers[answerIndex].saved = true;
         setUserAnswers(updatedAnswers);
       }
     } catch (err: any) {
-      console.error('Failed to save answer:', err);
+      console.error("Failed to save answer:", err);
     } finally {
       setSaving(false);
     }
@@ -278,49 +267,32 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   };
 
   const handleSubmitQuiz = async () => {
-    
-    
-    
-    
     if (!attempt) {
-     
-      setError('Quiz attempt not found. Please restart the quiz.');
+      setError("Quiz attempt not found. Please restart the quiz.");
       return;
     }
 
-   
     const actualAttemptId = attempt.attemptId || (attempt as any).id;
     if (!actualAttemptId) {
-      
-      setError('Attempt ID is missing. Please restart the quiz.');
+      setError("Attempt ID is missing. Please restart the quiz.");
       return;
     }
 
     try {
       setLoading(true);
-      
-      
-      
+
       await saveCurrentAnswer();
-      
-     
-      const completionResults = await QuizAttemptService.completeQuiz(actualAttemptId);
-      
-      console.log('✅ Results structure check:', {
-        hasResults: !!completionResults.results,
-        resultsType: typeof completionResults.results,
-        isArray: Array.isArray(completionResults.results),
-        resultsLength: completionResults.results ? completionResults.results.length : 'N/A'
-      });
-      
+
+      const completionResults = await QuizAttemptService.completeQuiz(
+        actualAttemptId
+      );
+
       setResults(completionResults);
       setQuizCompleted(true);
-    
-      
+
       onComplete(completionResults);
     } catch (err: any) {
-      
-      setError(err.message || 'Failed to submit quiz');
+      setError(err.message || "Failed to submit quiz");
       alert(`Error submitting quiz: ${err.message}`);
     } finally {
       setLoading(false);
@@ -328,13 +300,14 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   };
 
   const handleAutoSubmit = async () => {
-   
-    
     try {
       await handleSubmitQuiz();
     } catch (err) {
-      
-      alert(`Auto-submit failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      alert(
+        `Auto-submit failed: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
     }
   };
 
@@ -348,7 +321,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   };
 
   const getAnsweredCount = () => {
-    return userAnswers.filter(answer => answer.answer.trim() !== '').length;
+    return userAnswers.filter((answer) => answer.answer.trim() !== "").length;
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -365,15 +338,17 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   };
 
   const renderQuestionInput = (question: Question) => {
-    const currentAnswer = userAnswers.find(a => a.questionId === question.id);
+    const currentAnswer = userAnswers.find((a) => a.questionId === question.id);
 
-    if (question.questionType === 'MCQ' && question.options) {
+    if (question.questionType === "MCQ" && question.options) {
       return (
         <FormControl component="fieldset" fullWidth>
           <RadioGroup
             value={currentAnswer?.answer || ""}
             onChange={(e) => {
-              const selectedOption = question.options?.find(opt => opt.optionText === e.target.value);
+              const selectedOption = question.options?.find(
+                (opt) => opt.optionText === e.target.value
+              );
               handleAnswerChange(e.target.value, selectedOption?.id);
             }}
           >
@@ -381,14 +356,17 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
               {question.options.map((option, index) => (
                 <Paper
                   key={option.id}
-                  elevation={currentAnswer?.answer === option.optionText ? 3 : 1}
+                  elevation={
+                    currentAnswer?.answer === option.optionText ? 3 : 1
+                  }
                   sx={{
                     borderRadius: 2,
                     transition: "all 0.2s ease-in-out",
                     border: "2px solid",
-                    borderColor: currentAnswer?.answer === option.optionText
-                      ? "primary.main"
-                      : "transparent",
+                    borderColor:
+                      currentAnswer?.answer === option.optionText
+                        ? "primary.main"
+                        : "transparent",
                     "&:hover": {
                       borderColor: "primary.light",
                     },
@@ -403,9 +381,10 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                         sx={{
                           py: 1,
                           pr: 2,
-                          fontWeight: currentAnswer?.answer === option.optionText
-                            ? "medium"
-                            : "normal",
+                          fontWeight:
+                            currentAnswer?.answer === option.optionText
+                              ? "medium"
+                              : "normal",
                         }}
                       >
                         <Box
@@ -417,12 +396,14 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                             width: 24,
                             height: 24,
                             borderRadius: "50%",
-                            bgcolor: currentAnswer?.answer === option.optionText
-                              ? "primary.main"
-                              : "grey.300",
-                            color: currentAnswer?.answer === option.optionText
-                              ? "white"
-                              : "text.secondary",
+                            bgcolor:
+                              currentAnswer?.answer === option.optionText
+                                ? "primary.main"
+                                : "grey.300",
+                            color:
+                              currentAnswer?.answer === option.optionText
+                                ? "white"
+                                : "text.secondary",
                             fontSize: "0.75rem",
                             fontWeight: "bold",
                             mr: 2,
@@ -447,18 +428,20 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
           </RadioGroup>
         </FormControl>
       );
-    } else if (question.questionType === 'TRUE_FALSE') {
+    } else if (question.questionType === "TRUE_FALSE") {
       return (
         <FormControl component="fieldset" fullWidth>
           <RadioGroup
             value={currentAnswer?.answer || ""}
             onChange={(e) => {
-              const selectedOption = question.options?.find(opt => opt.optionText === e.target.value);
+              const selectedOption = question.options?.find(
+                (opt) => opt.optionText === e.target.value
+              );
               handleAnswerChange(e.target.value, selectedOption?.id);
             }}
           >
             <Stack spacing={2}>
-              {['True', 'False'].map((option) => (
+              {["True", "False"].map((option) => (
                 <Paper
                   key={option}
                   elevation={currentAnswer?.answer === option ? 3 : 1}
@@ -466,9 +449,10 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                     borderRadius: 2,
                     transition: "all 0.2s ease-in-out",
                     border: "2px solid",
-                    borderColor: currentAnswer?.answer === option
-                      ? "primary.main"
-                      : "transparent",
+                    borderColor:
+                      currentAnswer?.answer === option
+                        ? "primary.main"
+                        : "transparent",
                     "&:hover": {
                       borderColor: "primary.light",
                     },
@@ -483,9 +467,10 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                         sx={{
                           py: 1,
                           pr: 2,
-                          fontWeight: currentAnswer?.answer === option
-                            ? "medium"
-                            : "normal",
+                          fontWeight:
+                            currentAnswer?.answer === option
+                              ? "medium"
+                              : "normal",
                         }}
                       >
                         {option}
@@ -505,7 +490,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
           </RadioGroup>
         </FormControl>
       );
-    } else if (question.questionType === 'SHORT_ANSWER') {
+    } else if (question.questionType === "SHORT_ANSWER") {
       return (
         <TextField
           fullWidth
@@ -528,14 +513,14 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   // Loading state
   if (loading && !quiz) {
     return (
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          minHeight: '60vh',
-          flexDirection: 'column',
-          gap: 2
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+          flexDirection: "column",
+          gap: 2,
         }}
       >
         <CircularProgress size={60} />
@@ -550,8 +535,8 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   if (error && !quiz) {
     return (
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <Alert 
-          severity="error" 
+        <Alert
+          severity="error"
           action={
             <Button onClick={initializeQuiz} size="small">
               <RefreshIcon sx={{ mr: 1 }} />
@@ -569,7 +554,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   if (quizCompleted && results) {
     // Show detailed results if requested
     if (showDetailedResults && quiz) {
-      const userId = localStorage.getItem('userId') || '';
+      const userId = localStorage.getItem("userId") || "";
       return (
         <QuizResults
           quizId={quiz.id}
@@ -624,10 +609,16 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ textAlign: "center", mb: 3 }}>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                  You scored {results.score} out of {results.totalQuestions} questions correctly.
+                  You scored {results.score} out of {results.totalQuestions}{" "}
+                  questions correctly.
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Time taken: {Math.floor(results.timeTaken / 60)}:{(results.timeTaken % 60).toString().padStart(2, '0')}
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Time taken: {Math.floor(results.timeTaken / 60)}:
+                  {(results.timeTaken % 60).toString().padStart(2, "0")}
                 </Typography>
 
                 <Box sx={{ mt: 2 }}>
@@ -669,7 +660,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                     mt: 3,
                     height: 12,
                     borderRadius: 6,
-                    bgcolor: "grey.200",
+                    bgcolor: "action.disabled",
                     "& .MuiLinearProgress-bar": {
                       borderRadius: 6,
                     },
@@ -680,7 +671,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                 />
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+              <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
                 <Button
                   variant="outlined"
                   fullWidth
@@ -721,7 +712,14 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
 
   if (!quiz || !quiz.questions || quiz.questions.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <Alert severity="error">
           Quiz data is not available or has no questions.
         </Alert>
@@ -736,11 +734,18 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
   }
 
   const currentQ = quiz.questions[currentQuestion];
-  
+
   // Additional safety check for current question
   if (!currentQ) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <Alert severity="error">
           Current question not found. Please refresh the page.
         </Alert>
@@ -920,7 +925,14 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
               elevation={3}
               sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, mb: 3 }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  mb: 3,
+                }}
+              >
                 <Typography
                   variant="h6"
                   fontWeight="bold"
@@ -932,11 +944,13 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                 >
                   {currentQ.question}
                 </Typography>
-                
+
                 {currentQ.points > 0 && (
-                  <Chip 
-                    label={`${currentQ.points} ${currentQ.points === 1 ? 'point' : 'points'}`}
-                    color="primary" 
+                  <Chip
+                    label={`${currentQ.points} ${
+                      currentQ.points === 1 ? "point" : "points"
+                    }`}
+                    color="primary"
                     size="small"
                     sx={{ ml: 2 }}
                   />
@@ -947,34 +961,48 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
 
               {/* Save indicator */}
               {attempt && (
-                <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box
+                  sx={{
+                    mt: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {saving ? (
                       <CircularProgress size={16} />
                     ) : (
-                      <SaveIcon 
-                        sx={{ 
-                          fontSize: 16, 
-                          color: userAnswers.find(a => a.questionId === currentQ.id)?.saved 
-                            ? 'success.main' 
-                            : 'text.disabled' 
-                        }} 
+                      <SaveIcon
+                        sx={{
+                          fontSize: 16,
+                          color: userAnswers.find(
+                            (a) => a.questionId === currentQ.id
+                          )?.saved
+                            ? "success.main"
+                            : "text.disabled",
+                        }}
                       />
                     )}
                     <Typography variant="caption" color="text.secondary">
-                      {saving 
-                        ? 'Saving...' 
-                        : userAnswers.find(a => a.questionId === currentQ.id)?.saved 
-                          ? 'Saved' 
-                          : 'Auto-save enabled'
-                      }
+                      {saving
+                        ? "Saving..."
+                        : userAnswers.find((a) => a.questionId === currentQ.id)
+                            ?.saved
+                        ? "Saved"
+                        : "Auto-save enabled"}
                     </Typography>
                   </Box>
-                  
+
                   <Button
                     size="small"
                     onClick={saveCurrentAnswer}
-                    disabled={saving || !userAnswers.find(a => a.questionId === currentQ.id)?.answer.trim()}
+                    disabled={
+                      saving ||
+                      !userAnswers
+                        .find((a) => a.questionId === currentQ.id)
+                        ?.answer.trim()
+                    }
                     startIcon={<SaveIcon />}
                   >
                     Save Now
@@ -986,7 +1014,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
         )}
 
         {/* Navigation */}
-        <Paper elevation={3} sx={{ p: 2, borderRadius: 3, bgcolor: "grey.50" }}>
+        <Paper elevation={3} sx={{ p: 2, borderRadius: 3, bgcolor: "background.default" }}>
           <Box
             sx={{
               display: "flex",
@@ -1040,7 +1068,11 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                   },
                 }}
               >
-                {loading ? <CircularProgress size={20} color="inherit" /> : "Submit"}
+                {loading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  "Submit"
+                )}
               </Button>
             ) : (
               <Button
@@ -1069,15 +1101,15 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
         fullWidth
       >
         <DialogTitle>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <WarningIcon color="warning" />
             Exit Quiz?
           </Box>
         </DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to exit the quiz? Your current progress will be saved, 
-            but you'll need to restart the attempt later.
+            Are you sure you want to exit the quiz? Your current progress will
+            be saved, but you'll need to restart the attempt later.
           </Typography>
         </DialogContent>
         <DialogActions>

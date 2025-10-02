@@ -199,6 +199,11 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
     };
   }, [socket, currentUserId]);
 
+  // Reset messages when groupId changes to maintain separate chats per group
+  useEffect(() => {
+    setMessages([]);
+  }, [groupId]);
+
   // Join group when groupId changes
   useEffect(() => {
     if (socket && groupId && isConnected) {
@@ -209,11 +214,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
       socket.emit('get_chat_history', { groupId, limit: 50, offset: 0 });
     }
   }, [socket, groupId, isConnected]);
-
-  // Reset messages when groupId changes to maintain separate chats per group
-  useEffect(() => {
-    setMessages([]);
-  }, [groupId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

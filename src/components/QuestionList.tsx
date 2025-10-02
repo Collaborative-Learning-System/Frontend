@@ -87,11 +87,11 @@ export default function QuestionList({
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Typography variant="h5" sx={{ color: "#083c70ff", fontWeight: "bold" }}>
+            <Typography variant="h5" sx={{ color: "primary.main", fontWeight: "bold" }}>
               Quiz Questions ({questions.length})
             </Typography>
             <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-              <Chip label={`Total Points: ${totalPoints}`} sx={{ bgcolor: "#083c70ff", color: "white" }} />
+              <Chip label={`Total Points: ${totalPoints}`} color="primary" />
             </Box>
           </Box>
         </CardContent>
@@ -224,7 +224,7 @@ export default function QuestionList({
                     onClick={() => handlePreview(question)}
                     variant="outlined"
                     size="small"
-                    sx={{ color: "#083c70ff", borderColor: "#083c70ff" }}
+                    color="primary"
                   >
                     Preview
                   </Button>
@@ -233,7 +233,7 @@ export default function QuestionList({
                     onClick={() => onEditQuestion(index, question)}
                     variant="outlined"
                     size="small"
-                    sx={{ color: "#083c70ff", borderColor: "#083c70ff" }}
+                    color="primary"
                   >
                     Edit
                   </Button>
