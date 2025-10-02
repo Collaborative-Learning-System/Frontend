@@ -50,19 +50,19 @@ export function EditableSection({
         >
           <Typography
             variant="h6"
-            sx={{ color: "#083c70ff", fontWeight: "bold" }}
+            sx={{ color: "primary.main", fontWeight: "bold" }}
           >
             {title}
           </Typography>
           <Box>
             {isEditing ? (
               <>
-                <IconButton onClick={handleSave} sx={{ color: "#4caf50" }}>
+                <IconButton onClick={handleSave} color="success">
                   <Save />
                 </IconButton>
                 <IconButton
                   onClick={() => setIsEditing(false)}
-                  sx={{ color: "#f44336" }}
+                  color="error"
                 >
                   <Cancel />
                 </IconButton>
@@ -70,7 +70,7 @@ export function EditableSection({
             ) : (
               <IconButton
                 onClick={() => setIsEditing(true)}
-                sx={{ color: "#083c70ff" }}
+                color="primary"
               >
                 <Edit />
               </IconButton>

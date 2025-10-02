@@ -24,6 +24,7 @@ import QuizMetadata from "../components/QuizMetadata"
 import QuestionBuilder, { type Question } from "../components/QuestionBuilder"
 import QuestionList from "../components/QuestionList"
 import { QuizService } from "../services/QuizService"
+import { useThemeContext } from "../context/ThemeContext"
 
 
 interface QuizData {
@@ -39,6 +40,7 @@ interface QuizData {
 
 export default function QuizCreator() {
   const theme = useTheme()
+  const { mode } = useThemeContext()
   const location = useLocation()
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(0)
@@ -295,7 +297,15 @@ export default function QuizCreator() {
               </Box>
 
               {quizData.metadata.instructions && (
-                <Box sx={{ bgcolor: theme.palette.primary.light + "20", p: 3, borderRadius: 1, mb: 3 }}>
+                <Box sx={{ 
+                  bgcolor: mode === 'dark' ? 'rgba(37, 99, 235, 0.1)' : 'rgba(37, 99, 235, 0.08)', 
+                  p: 3, 
+                  borderRadius: 1, 
+                  mb: 3,
+                  border: '1px solid',
+                  borderColor: 'primary.main',
+                  borderOpacity: 0.2
+                }}>
                   <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: "bold" }}>
                     Instructions:
                   </Typography>

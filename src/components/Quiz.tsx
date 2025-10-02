@@ -373,7 +373,7 @@ import React, { useState, useEffect , useRef } from "react";
                   startIcon={<RefreshIcon />}
                   onClick={fetchQuizzes}
                   disabled={loading}
-                  sx={{ color: "#083c70ff", borderColor: "#083c70ff" }}
+                  color="primary"
                 >
                   {loading ? "Refreshing..." : "Refresh"}
                 </Button>
@@ -381,11 +381,8 @@ import React, { useState, useEffect , useRef } from "react";
                 {workspaceData?.role === "admin" && (
                   <Button 
                     variant="contained" 
+                    color="primary"
                     onClick={() => navigate('/quiz-creator', { state: { groupId } })}
-                    sx={{ 
-                      bgcolor: "#083c70ff", 
-                      "&:hover": { bgcolor: "#062d52ff" } 
-                    }}
                   >
                     Create Quiz
                   </Button>
@@ -704,7 +701,7 @@ import React, { useState, useEffect , useRef } from "react";
                             sx={{
                               p: 2,
                               borderRadius: 2,
-                              bgcolor: "grey.50",
+                              bgcolor: "background.default",
                               border: "1px solid",
                               borderColor: "divider",
                             }}
@@ -863,9 +860,9 @@ import React, { useState, useEffect , useRef } from "react";
                   }}
                 >
                   <QuizIcon
-                    sx={{ fontSize: 80, color: "#083c70ff", mb: 2, opacity: 0.7 }}
+                    sx={{ fontSize: 80, color: "primary.main", mb: 2, opacity: 0.7 }}
                   />
-                  <Typography variant="h5" sx={{ color: "#083c70ff", fontWeight: "bold" }} gutterBottom>
+                  <Typography variant="h5" sx={{ color: "primary.main", fontWeight: "bold" }} gutterBottom>
                     No Quizzes Available Yet
                   </Typography>
                   <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
@@ -878,13 +875,10 @@ import React, { useState, useEffect , useRef } from "react";
                   {workspaceData?.role === "admin" && (
                     <Button
                       variant="contained"
+                      color="primary"
                       startIcon={<AssignmentIcon />}
                       onClick={() => navigate('/quiz-creator', { state: { groupId } })}
-                      sx={{ 
-                        bgcolor: "#083c70ff", 
-                        "&:hover": { bgcolor: "#062d52ff" },
-                        mt: 2
-                      }}
+                      sx={{ mt: 2 }}
                     >
                       Create Your First Quiz
                     </Button>
