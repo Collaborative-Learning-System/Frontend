@@ -19,12 +19,19 @@ import {
   useMediaQuery,
   CircularProgress,
   Alert,
+  IconButton,
+  Button,
+  Collapse,
 } from "@mui/material";
 import {
   EmojiEvents as TrophyIcon,
   Star as StarIcon,
   TrendingUp as TrendingUpIcon,
   Speed as SpeedIcon,
+  Info as InfoIcon,
+  Calculate as CalculateIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
 } from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
@@ -53,6 +60,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCriteria, setShowCriteria] = useState(false);
 
   const fetchLeaderboardData = async (groupId: string) => {
     try {
@@ -192,7 +200,139 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
               Leaderboard
             </Typography>
           </Box>
+
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<InfoIcon />}
+            endIcon={showCriteria ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            onClick={() => setShowCriteria(!showCriteria)}
+            sx={{
+              borderRadius: 2,
+              textTransform: "none",
+              minWidth: { xs: "auto", sm: "140px" },
+            }}
+          >
+            {isSmall ? "Info" : "How it works"}
+          </Button>
         </Box>
+
+        {/* Leaderboard Criteria Section - Collapsible */}
+        <Collapse in={showCriteria}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: { xs: 2, sm: 3 },
+              mb: 3,
+              borderRadius: 3,
+              bgcolor: "secondary.main",
+              color: "white",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <InfoIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+              <Typography
+                variant={isSmall ? "h6" : "h5"}
+                sx={{ fontWeight: 600 }}
+              >
+                How Rankings Are Calculated
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: { xs: 2, sm: 4 },
+                mb: 2,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    borderRadius: "50%",
+                    p: 0.5,
+                    minWidth: 24,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    🟢
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Easy Quiz: Score × 0.8
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex",alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    borderRadius: "50%",
+                    p: 0.5,
+                    minWidth: 24,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    🟡
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Medium Quiz: Score × 0.9
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    borderRadius: "50%",
+                    p: 0.5,
+                    minWidth: 24,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    🔴
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Hard Quiz: Score × 1.0
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                bgcolor: "rgba(255, 255, 255, 0.1)",
+                borderRadius: 2,
+                p: { xs: 1.5, sm: 2 },
+              }}
+            >
+              <CalculateIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                <strong>Final Score = </strong>
+                (Sum of all weighted quiz scores) ÷ (Number of quizzes
+                attempted)
+              </Typography>
+            </Box>
+          </Paper>
+        </Collapse>
 
         {loading ? (
           <Fade in={true}>
@@ -348,16 +488,19 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                       <TableCell sx={{ fontWeight: "bold" }}>
                         Total Score
                       </TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>
-                        Quizzes 
-                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Quizzes</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {leaderboardData.map((user) => (
-                      <TableRow key={`table-user-${user.rank}`} sx={{
-                        bgcolor: user.isCurrentUser ? "action.selected" : "inherit"
-                      }}>
+                      <TableRow
+                        key={`table-user-${user.rank}`}
+                        sx={{
+                          bgcolor: user.isCurrentUser
+                            ? "action.selected"
+                            : "inherit",
+                        }}
+                      >
                         <TableCell>
                           <Typography
                             variant="body1"
@@ -381,7 +524,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                               noWrap
                               fontSize={isSmall ? "0.85rem" : "1rem"}
                             >
-                              {user.isCurrentUser ? `${user.name} (You)` : user.name}
+                              {user.isCurrentUser
+                                ? `${user.name} (You)`
+                                : user.name}
                             </Typography>
                           </Box>
                         </TableCell>
@@ -395,7 +540,9 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                             />
                           </TableCell>
                         )}
-                        <TableCell sx={{ alignItems: "center" }}>{user.totalPoints}</TableCell>
+                        <TableCell sx={{ alignItems: "center" }}>
+                          {user.totalPoints}
+                        </TableCell>
                         <TableCell>{user.quizzesTaken}</TableCell>
                       </TableRow>
                     ))}
