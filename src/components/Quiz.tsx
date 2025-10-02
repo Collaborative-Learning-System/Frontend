@@ -50,7 +50,7 @@ import React, { useState, useEffect , useRef } from "react";
       completed: boolean;
       score?: number;
       maxScore: number;
-      percentage?: number; // Add percentage from backend
+      percentage?: number; 
       createdAt?: string;
       isNew?: boolean; 
     }
@@ -76,6 +76,14 @@ import React, { useState, useEffect , useRef } from "react";
       
      
       useEffect(() => {
+        // Clear previous data immediately when groupId changes
+        setQuizzes([]);
+        setSelectedQuiz(null);
+        setShowingResults(null);
+        setError(null);
+        setStartingQuiz(null);
+        isStartingRef.current = {};
+
         if (groupId) {
           fetchQuizzes();
         } else {
@@ -471,9 +479,9 @@ import React, { useState, useEffect , useRef } from "react";
                       mt: 2,
                       height: 8,
                       borderRadius: 4,
-                      bgcolor: "rgba(255,255,255,0.3)",
+                      bgcolor: "rgba(255,255,255,0.2)",
                       "& .MuiLinearProgress-bar": {
-                        bgcolor: "rgba(255,255,255,0.9)",
+                        bgcolor: "white",
                         borderRadius: 4,
                       },
                     }}
@@ -600,13 +608,13 @@ import React, { useState, useEffect , useRef } from "react";
                                   animation: 'pulse 2s infinite',
                                   '@keyframes pulse': {
                                     '0%': {
-                                      boxShadow: '0 0 0 0 rgba(244, 67, 54, 0.7)',
+                                      boxShadow: `0 0 0 0 ${theme.palette.error.main}70`,
                                     },
                                     '70%': {
-                                      boxShadow: '0 0 0 10px rgba(244, 67, 54, 0)',
+                                      boxShadow: `0 0 0 10px ${theme.palette.error.main}00`,
                                     },
                                     '100%': {
-                                      boxShadow: '0 0 0 0 rgba(244, 67, 54, 0)',
+                                      boxShadow: `0 0 0 0 ${theme.palette.error.main}00`,
                                     },
                                   },
                                 }}
@@ -748,7 +756,7 @@ import React, { useState, useEffect , useRef } from "react";
                               sx={{
                                 height: 8,
                                 borderRadius: 4,
-                                bgcolor: "grey.200",
+                                bgcolor: "action.disabled",
                                 "& .MuiLinearProgress-bar": {
                                   borderRadius: 4,
                                 },

@@ -25,7 +25,6 @@ import {
   AutoAwesome,
   Dashboard,
 } from "@mui/icons-material";
-import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import { AppContext } from "../context/AppContext";
 
 interface SidePanelProps {
@@ -80,15 +79,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         </Tooltip>
       ),
       path: "/document-summary",
-    },
-    {
-      text: "Real-Time Collaboration",
-      icon: (
-        <Tooltip title="Real-Time Collaboration">
-          <GroupWorkIcon />
-        </Tooltip>
-      ),
-      path: "/real-time-collaboration",
     },
   ];
 
