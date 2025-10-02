@@ -54,8 +54,8 @@ export default function ProfileHeader({
   return (
     <Box
       sx={{
-        bgcolor: "linear-gradient(135deg, #083c70ff 0%, #1565c0 100%)",
-        background: "linear-gradient(135deg, #083c70ff 0%, #1565c0 100%)",
+        bgcolor: "primary.main",
+        background: "linear-gradient(135deg, primary.main 0%, primary.dark 100%)",
         color: "white",
         p: 4,
         borderRadius: 2,

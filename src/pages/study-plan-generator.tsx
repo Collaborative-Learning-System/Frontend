@@ -7,6 +7,7 @@ import {
   Step,
   StepLabel,
   Card,
+  alpha,
   CardContent,
   useTheme,
   Alert,
@@ -95,10 +96,12 @@ export default function StudyPlanGenerator() {
         startDate: formData.startDate,
         endDate: formData.endDate,
         dailyHours: formData.dailyHours,
-        preferredTimeSlots: formData.preferredTimes,
+        preferredTimeSlots: formData.preferredTimes.length > 0 ? formData.preferredTimes : ["Morning (9-12 PM)"],
         includeRegularBreaks: formData.includeBreaks,
         studygoal: formData.studyGoal,
-        learningstyle: formData.learningStyle.join(", "),
+        learningstyle: formData.learningStyle.length > 0 ? formData.learningStyle.join(", ") : "Visual",
+        // Add difficulty level if needed by backend
+        difficultyLevel: formData.difficulty || "Intermediate",
       };
 
       console.log('Form data being sent:', requestData);

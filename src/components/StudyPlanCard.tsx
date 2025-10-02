@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   Typography,
-  LinearProgress,
   Box,
   Chip,
   IconButton,
@@ -11,9 +10,9 @@ import {
 } from "@mui/material";
 import {
   Schedule,
-  PlayArrow,
   Visibility,
   CalendarToday,
+  Delete,
 } from "@mui/icons-material";
 
 interface StudyPlanCardProps {
@@ -30,6 +29,7 @@ interface StudyPlanCardProps {
   completedTasks?: number;
   onView?: (planId: number) => void;
   onResume?: (planId: number) => void;
+  onDelete?: (planId: number) => void;
 }
 
 export default function StudyPlanCard({
@@ -40,14 +40,16 @@ export default function StudyPlanCard({
   startDate,
   endDate,
   dailyHours,
-  progress = 0,
-  totalTasks = 0,
-  completedTasks = 0,
   onView,
-  onResume,
+  onDelete,
 }: StudyPlanCardProps) {
   const theme = useTheme();
   
+  const getDisplayTitle = () => {
+    // Remove "Study Plan" prefix and any numbers at the end
+    return title.replace(/^Study Plan\s*\d*\s*/i, '').trim() || 'Study Plan';
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -103,7 +105,7 @@ export default function StudyPlanCard({
               lineHeight: 1.2,
             }}
           >
-            {title}
+            {getDisplayTitle()}
           </Typography>
           <Chip
             label={isActive() ? "Active" : "Scheduled"}
@@ -159,7 +161,7 @@ export default function StudyPlanCard({
           </Box>
         </Box>
 
-        {/* Progress */}
+        {/* Progress
         <Box sx={{ mb: 1.5 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
             <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
@@ -188,7 +190,7 @@ export default function StudyPlanCard({
           >
             {Math.round(progress)}% complete
           </Typography>
-        </Box>
+        </Box> */}
 
         {/* Schedule Info */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
@@ -246,20 +248,20 @@ export default function StudyPlanCard({
         >
           <Visibility fontSize="small" />
         </IconButton>
-        {isActive() && (
-          <IconButton
-            size="small"
-            onClick={() => onResume?.(planId)}
-            sx={{
-              color: theme.palette.success.main,
-              "&:hover": {
-                bgcolor: alpha(theme.palette.success.main, 0.1),
-              },
-            }}
-          >
-            <PlayArrow fontSize="small" />
-          </IconButton>
-        )}
+        
+        <IconButton
+          size="small"
+          onClick={() => onDelete?.(planId)}
+          sx={{
+            color: theme.palette.text.secondary,
+            "&:hover": {
+              color: theme.palette.error.main,
+              bgcolor: alpha(theme.palette.error.main, 0.1),
+            },
+          }}
+        >
+          <Delete fontSize="small" />
+        </IconButton>
       </Box>
     </Card>
   );

@@ -1,11 +1,10 @@
-import { useState, useEffect, useContext } from "react";
+
 import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  CardHeader,
   Chip,
   Avatar,
   List,
@@ -17,6 +16,11 @@ import {
   alpha,
   Paper,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
 } from "@mui/material";
 import {
   Group,
@@ -28,12 +32,16 @@ import {
   LocalActivity,
   Dashboard as DashboardIcon,
   AutoFixHigh,
+  AccessTime,
 } from "@mui/icons-material";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
+import { getUserStudyPlans, deleteStudyPlan } from "../services/StudyPlanService";
+import StudyPlanCard from "../components/StudyPlanCard";
+import StudyPlanViewModal from "../components/StudyPlanViewModal";
 
 interface WorkspaceData {
   count: number;
@@ -53,9 +61,8 @@ interface GroupData {
     name: string;
   }[];
 }
-import { AppContext } from "../context/AppContext";
-import { getUserStudyPlans } from "../services/StudyPlanService";
-import StudyPlanCard from "../components/StudyPlanCard";
+
+
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -68,10 +75,63 @@ const Dashboard = () => {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { userId } = useContext(AppContext);
+  
   
   const [studyPlans, setStudyPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
+  
+  // Modal state for viewing study plans
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  
+  // State for delete confirmation dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Handler functions for study plan modal
+  const handleViewPlan = (planId: number) => {
+    setSelectedPlanId(planId);
+    setViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedPlanId(null);
+  };
+  
+  // Handler functions for delete functionality
+  const handleDeletePlan = (planId: number) => {
+    setPlanToDelete(planId);
+    setDeleteDialogOpen(true);
+  };
+  
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setPlanToDelete(null);
+  };
+  
+  const handleConfirmDelete = async () => {
+    if (!planToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const response = await deleteStudyPlan(planToDelete);
+      if (response.success) {
+        // Remove the deleted plan from the local state
+        setStudyPlans(prev => prev.filter(plan => plan.planId !== planToDelete));
+        console.log('Study plan deleted successfully');
+        // You could show a success toast here
+      }
+    } catch (error: any) {
+      console.error('Failed to delete study plan:', error);
+      // You could show an error toast here
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setPlanToDelete(null);
+    }
+  };
 
   // Fetch user's study plans
   useEffect(() => {
@@ -121,21 +181,7 @@ const Dashboard = () => {
     },
   ];
 
-  // Recent activities data
-  const recentActivities = [
-    {
-      action: "Completed Quiz: JavaScript Fundamentals",
-      time: "2 hours ago",
-      avatar: "Q",
-      color: "#2196F3",
-    },
-    {
-      action: "Joined Workspace: React Development",
-      time: "5 hours ago",
-      avatar: "W",
-      color: "#2196F3",
-    },
-  ];
+
 
   // Upcoming activities data
   const upcomingActivities = [
@@ -785,12 +831,14 @@ const Dashboard = () => {
                     totalTasks={plan.totalTasks || Math.floor(Math.random() * 20) + 5}
                     completedTasks={plan.completedTasks || Math.floor(Math.random() * 15)}
                     onView={(planId) => {
-                      console.log('View plan:', planId);
-                      // Navigate to plan details
+                      handleViewPlan(planId);
                     }}
                     onResume={(planId) => {
                       console.log('Resume plan:', planId);
                       // Navigate to plan execution
+                    }}
+                    onDelete={(planId) => {
+                      handleDeletePlan(planId);
                     }}
                   />
                 </Box>
@@ -933,6 +981,49 @@ const Dashboard = () => {
           </Box>
         </CardContent>
       </Card>
+      
+      {/* Study Plan View Modal */}
+      <StudyPlanViewModal
+        open={viewModalOpen}
+        onClose={handleCloseViewModal}
+        planId={selectedPlanId}
+      />
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: theme.palette.error.main }}>
+          Delete Study Plan
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this study plan? This action cannot be undone.
+            All your progress and tasks will be permanently removed.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={handleCloseDeleteDialog}
+            variant="outlined"
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+            disabled={isDeleting}
+            startIcon={isDeleting ? <CircularProgress size={16} /> : null}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

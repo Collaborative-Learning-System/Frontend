@@ -419,10 +419,14 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                             borderRadius: "50%",
                             bgcolor: currentAnswer?.answer === option.optionText
                               ? "primary.main"
-                              : "grey.300",
+                              : "background.default",
                             color: currentAnswer?.answer === option.optionText
                               ? "white"
-                              : "text.secondary",
+                              : "text.primary",
+                            border: currentAnswer?.answer === option.optionText
+                              ? "none"
+                              : "1px solid",
+                            borderColor: "divider",
                             fontSize: "0.75rem",
                             fontWeight: "bold",
                             mr: 2,
@@ -669,7 +673,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
                     mt: 3,
                     height: 12,
                     borderRadius: 6,
-                    bgcolor: "grey.200",
+                    bgcolor: "background.default",
                     "& .MuiLinearProgress-bar": {
                       borderRadius: 6,
                     },
@@ -986,7 +990,7 @@ const QuizTakerNew: React.FC<QuizTakerProps> = ({ quizId, onComplete, onBack }) 
         )}
 
         {/* Navigation */}
-        <Paper elevation={3} sx={{ p: 2, borderRadius: 3, bgcolor: "grey.50" }}>
+        <Paper elevation={3} sx={{ p: 2, borderRadius: 3, bgcolor: "background.default" }}>
           <Box
             sx={{
               display: "flex",

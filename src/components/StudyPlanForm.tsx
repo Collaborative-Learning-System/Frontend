@@ -307,7 +307,7 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                     },
                   },
                   "& .MuiInputBase-input": {
-                    color: "#333",
+                    color: theme.palette.text.primary,
                     fontWeight: 500,
                   },
                 }}
@@ -341,7 +341,7 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                     },
                   },
                   "& .MuiInputBase-input": {
-                    color: "#333",
+                    color: theme.palette.text.primary,
                     fontWeight: 500,
                   },
                 }}
@@ -486,7 +486,14 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
               return (
                 <Alert 
                   severity="info" 
-                  sx={{ mb: 2, bgcolor: "#e3f2fd", border: "1px solid #2196f3" }}
+                  sx={{ 
+                    mb: 2, 
+                    bgcolor: theme.palette.mode === 'dark' 
+                      ? 'rgba(33, 150, 243, 0.1)' 
+                      : 'rgba(33, 150, 243, 0.08)',
+                    border: `1px solid ${theme.palette.primary.main}`,
+                    borderOpacity: 0.3
+                  }}
                 >
                   <Typography variant="body2">
                     Based on your {formData.dailyHours} daily hours, you can select up to{' '}

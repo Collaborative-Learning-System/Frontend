@@ -422,17 +422,17 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                      <TableCell sx={{ fontWeight: "bold", bgcolor: "background.default" }}>
                         Rank
                       </TableCell>
-                      <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                      <TableCell sx={{ fontWeight: "bold", bgcolor: "background.default" }}>
                         Student
                       </TableCell>
                       {!isSmall && (
                         <>
                           <TableCell
                             align="center"
-                            sx={{ fontWeight: "bold", bgcolor: "grey.50" }}
+                            sx={{ fontWeight: "bold", bgcolor: "background.default" }}
                           >
                             <Box
                               sx={{
@@ -448,7 +448,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                           </TableCell>
                           <TableCell
                             align="center"
-                            sx={{ fontWeight: "bold", bgcolor: "grey.50" }}
+                            sx={{ fontWeight: "bold", bgcolor: "background.default" }}
                           >
                             <Box
                               sx={{
@@ -466,7 +466,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                       )}
                       <TableCell
                         align="center"
-                        sx={{ fontWeight: "bold", bgcolor: "grey.50" }}
+                        sx={{ fontWeight: "bold", bgcolor: "background.default" }}
                       >
                         Average
                       </TableCell>
