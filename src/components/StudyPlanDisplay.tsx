@@ -8,9 +8,7 @@ import {
   Chip,
   Button,
   IconButton,
-  LinearProgress,
   useTheme,
-  Paper,
   Avatar,
   Divider,
 } from "@mui/material";
@@ -85,6 +83,20 @@ export default function StudyPlanDisplay({
     return date.toLocaleDateString();
   };
 
+  // Helper function to format duration from decimal hours to hours and minutes
+  const formatDuration = (decimalHours: number) => {
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    
+    if (hours === 0) {
+      return `${minutes}min`;
+    } else if (minutes === 0) {
+      return `${hours}h`;
+    } else {
+      return `${hours}h ${minutes}min`;
+    }
+  };
+
   const getTasksForDate = (date: string) => {
     return planData.schedule.find(day => day.date === date);
   };
@@ -151,43 +163,34 @@ export default function StudyPlanDisplay({
   const getTaskIcon = (type: string) => {
     switch (type) {
       case "study":
-        return <MenuBook sx={{ color: "#083c70ff" }} />;
+        return <MenuBook sx={{ color: "primary.main" }} />;
       case "review":
-        return <TrendingUp sx={{ color: "#4caf50" }} />;
+        return <TrendingUp sx={{ color: "success.main" }} />;
       case "practice":
-        return <Edit sx={{ color: "#ff9800" }} />;
+        return <Edit sx={{ color: "warning.main" }} />;
       case "break":
-        return <Timer sx={{ color: "#9e9e9e" }} />;
+        return <Timer sx={{ color: "text.disabled" }} />;
       default:
-        return <Schedule sx={{ color: "#083c70ff" }} />;
+        return <Schedule sx={{ color: "primary.main" }} />;
     }
   };
 
   const getTaskColor = (type: string) => {
     switch (type) {
       case "study":
-        return "#083c70ff";
+        return theme.palette.primary.main;
       case "review":
-        return "#4caf50";
+        return theme.palette.success?.main || "#4caf50";
       case "practice":
-        return "#ff9800";
+        return theme.palette.warning?.main || "#ff9800";
       case "break":
-        return "#9e9e9e";
+        return theme.palette.text.disabled;
       default:
-        return "#083c70ff";
+        return theme.palette.primary.main;
     }
   };
 
-  const completedTasks = planData.schedule.reduce(
-    (total, day) => total + day.tasks.filter((task) => task.completed).length,
-    0
-  );
-  const totalTasks = planData.schedule.reduce(
-    (total, day) => total + day.tasks.length,
-    0
-  );
-  const progressPercentage =
-    totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
 
   const handleExport = () => {
     const planText = `
@@ -200,7 +203,7 @@ ${planData.schedule
     (day) => `
 ${day.dayName} - ${day.date}
 ${day.tasks
-  .map((task) => `• ${task.topic} (${task.duration}h) - ${task.type}`)
+  .map((task) => `• ${task.topic} (${formatDuration(task.duration)}) - ${task.type}`)
   .join("\n")}
 `
   )
@@ -242,8 +245,8 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
           ? '0 10px 30px rgba(0,0,0,0.3)' 
           : '0 10px 30px rgba(0,0,0,0.1)',
         background: theme.palette.mode === 'dark'
-          ? 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)'
-          : 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+          ? `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.secondary.dark} 100%)`
+          : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
         color: 'white'
       }}>
         <CardContent sx={{ p: 4 }}>
@@ -283,7 +286,7 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
             </Box>
           </Box>
 
-          {/* Progress */}
+          {/* Progress
           <Box sx={{ mb: 3 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: "bold" }}>
@@ -307,7 +310,7 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
                 },
               }}
             />
-          </Box>
+          </Box> */}
 
           <Button
             variant="contained"
@@ -438,8 +441,12 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
                             mb: 0.5,
                             p: 0.5,
                             borderRadius: 1,
-                            bgcolor: task.completed ? '#d4edda' : getTaskColor(task.type),
-                            color: task.completed ? '#155724' : 'white',
+                            bgcolor: task.completed 
+                              ? (theme.palette.mode === 'dark' ? 'rgba(76, 175, 80, 0.2)' : '#d4edda')
+                              : getTaskColor(task.type),
+                            color: task.completed 
+                              ? (theme.palette.mode === 'dark' ? theme.palette.success?.main : '#155724')
+                              : 'white',
                             fontSize: '0.7rem',
                             cursor: 'pointer',
                             opacity: task.completed ? 0.8 : 1,
@@ -515,7 +522,9 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
                       <Card
                         variant="outlined"
                         sx={{
-                          borderColor: task.completed ? "#4caf50" : getTaskColor(task.type),
+                          borderColor: task.completed 
+                            ? (theme.palette.success?.main || "#4caf50")
+                            : getTaskColor(task.type),
                           borderWidth: 2,
                           borderRadius: 3,
                           transition: 'all 0.3s ease',
@@ -530,7 +539,9 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
                             <IconButton
                               onClick={() => toggleTaskCompletion(dayIndex, task.id)}
                               sx={{
-                                color: task.completed ? "#4caf50" : theme.palette.action.disabled,
+                                color: task.completed 
+                                  ? (theme.palette.success?.main || "#4caf50")
+                                  : theme.palette.action.disabled,
                                 bgcolor: task.completed 
                                   ? 'rgba(76, 175, 80, 0.1)' 
                                   : theme.palette.mode === 'dark' 
@@ -566,7 +577,7 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
                                 {task.topic}
                               </Typography>
                               <Chip
-                                label={`${task.type} • ${task.duration}h`}
+                                label={`${task.type} • ${formatDuration(task.duration)}`}
                                 size="small"
                                 sx={{
                                   bgcolor: getTaskColor(task.type),
@@ -593,75 +604,8 @@ ${planData.tips.map((tip) => `• ${tip}`).join("\n")}
         );
       })()}
 
-      {/* Study Tips */}
-      <Card sx={{ 
-        borderRadius: 4,
-        boxShadow: theme.palette.mode === 'dark' 
-          ? '0 10px 30px rgba(0,0,0,0.3)' 
-          : '0 10px 30px rgba(0,0,0,0.1)',
-        background: theme.palette.mode === 'dark'
-          ? 'linear-gradient(135deg, #374151 0%, #1f2937 100%)'
-          : 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
-      }}>
-        <CardContent sx={{ p: 4 }}>
-          <Typography variant="h4" gutterBottom sx={{ 
-            color: theme.palette.mode === 'dark' 
-              ? theme.palette.primary.light 
-              : '#8b4513', 
-            fontWeight: 'bold', 
-            mb: 3 
-          }}>
-            💡 Study Tips
-          </Typography>
-          <Grid container spacing={3}>
-            {planData.tips.map((tip, index) => (
-              <Grid size={{ xs: 12, md: 6 }} key={index}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 3,
-                    bgcolor: theme.palette.mode === 'dark'
-                      ? 'rgba(255,255,255,0.05)'
-                      : 'rgba(255,255,255,0.8)',
-                    borderRadius: 3,
-                    backdropFilter: 'blur(10px)',
-                    border: theme.palette.mode === 'dark'
-                      ? '1px solid rgba(255,255,255,0.1)'
-                      : '1px solid rgba(255,255,255,0.3)',
-                    '&:hover': { 
-                      transform: 'translateY(-2px)',
-                      boxShadow: theme.palette.mode === 'dark'
-                        ? '0 8px 25px rgba(0,0,0,0.3)'
-                        : '0 8px 25px rgba(0,0,0,0.15)'
-                    },
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
-                    <Avatar sx={{ 
-                      bgcolor: theme.palette.primary.main, 
-                      color: 'white',
-                      width: 32,
-                      height: 32,
-                      fontSize: '1rem',
-                      fontWeight: 'bold'
-                    }}>
-                      {index + 1}
-                    </Avatar>
-                    <Typography variant="body1" sx={{ 
-                      fontWeight: 500, 
-                      lineHeight: 1.6,
-                      color: theme.palette.text.primary
-                    }}>
-                      {tip}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-      </Card>
+       
+
 
       
     </Box>

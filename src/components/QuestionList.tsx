@@ -70,7 +70,7 @@ export default function QuestionList({
     return (
       <Card>
         <CardContent sx={{ textAlign: "center", py: 6 }}>
-          <QuizOutlined sx={{ fontSize: 64, color: "#ccc", mb: 2 }} />
+          <QuizOutlined sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
             No questions added yet
           </Typography>
