@@ -138,9 +138,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             />
             <Typography
               variant="h5"
-              sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+              sx={{ fontWeight: "bold", color: theme.palette.primary.dark }}
             >
-              EduCollab
+              EDUCollab
             </Typography>
             <IconButton onClick={onToggle} size="small">
               <ChevronLeft sx={{ color: theme.palette.primary.main }} />

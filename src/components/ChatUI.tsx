@@ -38,7 +38,7 @@ interface ChatUIProps {
 interface SocketMessage {
   chatId: string;
   userId: string;
-  username?: string;
+  userName?: string;
   text: string;
   sentAt: string;
   groupId: string;
@@ -123,7 +123,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
       const formattedMessage: Message = {
         id: message.chatId,
         sender: message.userId === currentUserId ? "user" : "member",
-        senderName: message.userId === currentUserId ? "You" : (message.username || "Anonymous"),
+        senderName: message.userId === currentUserId ? "You" : (message.userName || "Anonymous"),
         text: message.text,
         time: formatMessageTime(message.sentAt),
         avatar: message.userId === currentUserId ? "👤" : "👨‍💻",
@@ -157,7 +157,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
 
     // Listen for chat history
     const handleChatHistory = (data: { messages: SocketMessage[] }) => {
-      console.log('Chat history received:', data.messages.length, 'messages');
+      console.log('Chat history received:', data.messages, 'messages');
       
       // Sort messages by sentAt timestamp to ensure correct order
       const sortedMessages = data.messages.sort((a, b) => {
@@ -172,13 +172,12 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
         return dateA - dateB; // Sort in ascending order (oldest first)
       });
       
-      console.log('Messages sorted by timestamp, oldest to newest');
       
       const formattedMessages: Message[] = sortedMessages.map((message: SocketMessage) => {
         return {
           id: message.chatId,
           sender: message.userId === currentUserId ? "user" : "member",
-          senderName: message.userId === currentUserId ? "You" : (message.username || "Anonymous"),
+          senderName: message.userId === currentUserId ? "You" : (message.userName || "Anonymous"),
           text: message.text,
           time: formatMessageTime(message.sentAt),
           avatar: message.userId === currentUserId ? "👤" : "👨‍💻",
