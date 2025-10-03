@@ -181,7 +181,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
 
       {/* My Attempts */}
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-        <Box sx={{ p: 3, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ p: 3, bgcolor: 'background.default', borderBottom: 1, borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <HistoryIcon color="primary" />
             <Typography variant="h6" fontWeight="medium">

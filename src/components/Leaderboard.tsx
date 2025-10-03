@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Paper,
   Typography,
-  Button,
   Avatar,
   Chip,
   Table,
@@ -15,139 +14,101 @@ import {
   Card,
   CardContent,
   Container,
-  ButtonGroup,
   Fade,
   useTheme,
   useMediaQuery,
-  Stack,
-  LinearProgress,
+  CircularProgress,
+  Alert,
+  Button,
+  Collapse,
 } from "@mui/material";
 import {
   EmojiEvents as TrophyIcon,
   Star as StarIcon,
   TrendingUp as TrendingUpIcon,
   Speed as SpeedIcon,
-  Assignment as AssignmentIcon,
+  Info as InfoIcon,
+  Calculate as CalculateIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
 } from "@mui/icons-material";
+import axios from "axios";
+import { AppContext } from "../context/AppContext";
 
-interface UserScore {
-  id: number;
+interface LeaderboardData {
+  userId: string;
   name: string;
-  avatar: string;
-  totalScore: number;
-  quizzesCompleted: number;
-  averageScore: number;
+  totalPoints: number;
+  avgPoints: number;
+  quizzesTaken: number;
   rank: number;
+  avatar: string;
   isCurrentUser?: boolean;
 }
 
 interface LeaderboardProps {
-  groupId: string; // Changed from number to string
+  groupId: string;
 }
-
-// Updated to use string keys for the mock data
-const mockLeaderboardData: { [key: string]: UserScore[] } = {
-  // Default mock data for testing - you can remove these when integrating with real API
-  "default-group-1": [
-    {
-      id: 1,
-      name: "Alex Johnson",
-      avatar: "👨‍💻",
-      totalScore: 285,
-      quizzesCompleted: 15,
-      averageScore: 95,
-      rank: 1,
-      isCurrentUser: false,
-    },
-    {
-      id: 2,
-      name: "Sarah Chen",
-      avatar: "👩‍💼",
-      totalScore: 270,
-      quizzesCompleted: 14,
-      averageScore: 90,
-      rank: 2,
-      isCurrentUser: false,
-    },
-    {
-      id: 3,
-      name: "You",
-      avatar: "👤",
-      totalScore: 245,
-      quizzesCompleted: 12,
-      averageScore: 85,
-      rank: 3,
-      isCurrentUser: true,
-    },
-    {
-      id: 4,
-      name: "Mike Rodriguez",
-      avatar: "👨‍🎓",
-      totalScore: 220,
-      quizzesCompleted: 11,
-      averageScore: 82,
-      rank: 4,
-      isCurrentUser: false,
-    },
-    {
-      id: 5,
-      name: "Emma Wilson",
-      avatar: "👩‍🔬",
-      totalScore: 210,
-      quizzesCompleted: 10,
-      averageScore: 80,
-      rank: 5,
-      isCurrentUser: false,
-    },
-  ],
-  "default-group-2": [
-    {
-      id: 6,
-      name: "David Kim",
-      avatar: "👨‍💻",
-      totalScore: 295,
-      quizzesCompleted: 16,
-      averageScore: 92,
-      rank: 1,
-      isCurrentUser: false,
-    },
-    {
-      id: 7,
-      name: "Lisa Zhang",
-      avatar: "👩‍💻",
-      totalScore: 280,
-      quizzesCompleted: 15,
-      averageScore: 88,
-      rank: 2,
-      isCurrentUser: false,
-    },
-    {
-      id: 3,
-      name: "You",
-      avatar: "👤",
-      totalScore: 250,
-      quizzesCompleted: 13,
-      averageScore: 83,
-      rank: 3,
-      isCurrentUser: true,
-    },
-  ],
-};
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    "week" | "month" | "all"
-  >("all");
+  const { userId } = useContext(AppContext);
 
-  // Use groupId as string key, fallback to empty array if no data found
-  const leaderboardData = mockLeaderboardData[groupId] || [];
-  const topThreeRaw = leaderboardData.slice(0, 3);
-  const topThree = [topThreeRaw[1], topThreeRaw[0], topThreeRaw[2]].filter(
-    Boolean
-  );
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCriteria, setShowCriteria] = useState(false);
+
+  const fetchLeaderboardData = async (groupId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/quiz/results/${groupId}`
+      );
+
+      const responseData = response.data.data;
+      const data = responseData.success ? responseData.data : responseData;
+
+      const mappedData: LeaderboardData[] = (
+        Array.isArray(data) ? data : []
+      ).map((entry: any, index: number) => ({
+        userId: entry.userId,
+        name: entry.name.trim(),
+        totalPoints: parseFloat(entry.totalPoints),
+        avgPoints: parseFloat(entry.avgPoints) * 100,
+        quizzesTaken: entry.quizzesTaken,
+        rank: index + 1,
+        avatar: entry.name.trim().charAt(0).toUpperCase(),
+        isCurrentUser: entry.userId === (userId || "").trim(),
+      }));
+
+      mappedData.sort((a, b) => b.avgPoints - a.avgPoints);
+      mappedData.forEach((entry, index) => {
+        entry.rank = index + 1;
+      });
+
+      setLeaderboardData(mappedData);
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load leaderboard. Please Try again later."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Clear previous data immediately when groupId changes
+    setLeaderboardData([]);
+    setError(null);
+    fetchLeaderboardData(groupId);
+  }, [groupId]);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -165,11 +126,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
   const getRankColor = (rank: number) => {
     switch (rank) {
       case 1:
-        return theme.palette.warning.main; // Gold
+        return theme.palette.warning.main;
       case 2:
-        return theme.palette.grey[400]; // Silver
+        return theme.palette.grey[400];
       case 3:
-        return "#cd7f32"; // Bronze
+        return "#cd7f32";
       default:
         return theme.palette.primary.main;
     }
@@ -179,24 +140,24 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
     if (isSmall) {
       switch (rank) {
         case 1:
-          return 140;
+          return 150;
         case 2:
-          return 120;
+          return 130;
         case 3:
-          return 100;
+          return 120;
         default:
-          return 80;
+          return 100;
       }
     }
     switch (rank) {
       case 1:
-        return 160;
+        return 240;
       case 2:
-        return 140;
+        return 220;
       case 3:
-        return 120;
+        return 210;
       default:
-        return 100;
+        return 120;
     }
   };
 
@@ -207,13 +168,18 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
     return "error";
   };
 
+  const topThreeRaw = leaderboardData.slice(0, 3);
+  const topThree = [topThreeRaw[1], topThreeRaw[0], topThreeRaw[2]].filter(
+    Boolean
+  );
+
   return (
     <Box sx={{ width: "100%", height: "100%", overflow: "auto" }}>
       <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 } }}>
         {/* Header */}
         <Box
           sx={{
-            mb: 4,
+            mb: 3,
             display: "flex",
             flexDirection: { xs: "column", sm: "row" },
             justifyContent: "space-between",
@@ -223,10 +189,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <TrophyIcon
-              sx={{ color: "warning.main", fontSize: { xs: 28, sm: 32 } }}
+              sx={{ color: "warning.main", fontSize: { xs: 26, sm: 32 } }}
             />
             <Typography
-              variant={isSmall ? "h5" : "h4"}
+              variant={isSmall ? "h6" : "h4"}
               component="h2"
               fontWeight="bold"
             >
@@ -234,47 +200,170 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
             </Typography>
           </Box>
 
-          <ButtonGroup
-            variant="contained"
-            size={isSmall ? "small" : "medium"}
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<InfoIcon />}
+            endIcon={showCriteria ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            onClick={() => setShowCriteria(!showCriteria)}
             sx={{
-              "& .MuiButton-root": {
-                textTransform: "none",
-                fontWeight: "medium",
-              },
+              borderRadius: 2,
+              textTransform: "none",
+              minWidth: { xs: "auto", sm: "140px" },
             }}
           >
-            <Button
-              variant={selectedPeriod === "week" ? "contained" : "outlined"}
-              onClick={() => setSelectedPeriod("week")}
-            >
-              This Week
-            </Button>
-            <Button
-              variant={selectedPeriod === "month" ? "contained" : "outlined"}
-              onClick={() => setSelectedPeriod("month")}
-            >
-              This Month
-            </Button>
-            <Button
-              variant={selectedPeriod === "all" ? "contained" : "outlined"}
-              onClick={() => setSelectedPeriod("all")}
-            >
-              All Time
-            </Button>
-          </ButtonGroup>
+            {isSmall ? "Info" : "How it works"}
+          </Button>
         </Box>
 
-        {leaderboardData.length > 0 ? (
+        {/* Leaderboard Criteria Section - Collapsible */}
+        <Collapse in={showCriteria}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: { xs: 2, sm: 3 },
+              mb: 3,
+              borderRadius: 3,
+              bgcolor: "secondary.main",
+              color: "white",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <InfoIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
+              <Typography
+                variant={isSmall ? "h6" : "h5"}
+                sx={{ fontWeight: 600 }}
+              >
+                How Rankings Are Calculated
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: { xs: 2, sm: 4 },
+                mb: 2,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    borderRadius: "50%",
+                    p: 0.5,
+                    minWidth: 24,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    🟢
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Easy Quiz: Score × 0.8
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex",alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    borderRadius: "50%",
+                    p: 0.5,
+                    minWidth: 24,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    🟡
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Medium Quiz: Score × 0.9
+                </Typography>
+              </Box>
+
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    bgcolor: "rgba(255, 255, 255, 0.2)",
+                    borderRadius: "50%",
+                    p: 0.5,
+                    minWidth: 24,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    🔴
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  Hard Quiz: Score × 1.0
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                bgcolor: "rgba(255, 255, 255, 0.1)",
+                borderRadius: 2,
+                p: { xs: 1.5, sm: 2 },
+              }}
+            >
+              <CalculateIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                <strong>Final Score = </strong>
+                (Sum of all weighted quiz scores) ÷ (Number of quizzes
+                attempted)
+              </Typography>
+            </Box>
+          </Paper>
+        </Collapse>
+
+        {loading ? (
+          <Fade in={true}>
+            <Paper
+              elevation={3}
+              sx={{ p: { xs: 4, sm: 6 }, textAlign: "center", borderRadius: 3 }}
+            >
+              <CircularProgress size={50} sx={{ mb: 2 }} />
+              <Typography>Loading leaderboard...</Typography>
+            </Paper>
+          </Fade>
+        ) : error ? (
+          <Fade in={true}>
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 3 }}>
+              {error}
+            </Alert>
+          </Fade>
+        ) : leaderboardData.length > 0 ? (
           <>
             {/* Top 3 Podium */}
             <Paper
               elevation={3}
               sx={{ p: { xs: 2, sm: 3 }, mb: 4, borderRadius: 3 }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
-                <StarIcon sx={{ color: "warning.main" }} />
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
+                <StarIcon sx={{ color: "warning.main", fontSize: 22 }} />
+                <Typography
+                  variant={isSmall ? "h6" : "h5"}
+                  sx={{ fontWeight: 600 }}
+                >
                   Top Performers
                 </Typography>
               </Box>
@@ -282,332 +371,179 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
                 sx={{
                   display: "flex",
                   justifyContent: "center",
-                  alignItems: "end",
-                  gap: { xs: 1, sm: 2 },
-                  minHeight: { xs: 180, sm: 220 },
-                  flexWrap: { xs: "wrap", sm: "nowrap" },
-                  px: { xs: 1, sm: 0 },
+                  alignItems: "flex-end",
+                  gap: { xs: 1.5, sm: 3 },
+                  flexWrap: "wrap",
+                  minHeight: { xs: 170, sm: 240 },
                 }}
               >
-                {topThree.map((user, index) => (
-                  <Fade key={user.id} in={true} timeout={500 * (index + 1)}>
-                    <Card
-                      elevation={user.rank === 1 ? 8 : 4}
-                      sx={{
-                        textAlign: "center",
-                        minWidth: { xs: "100%", sm: 140, md: 160 },
-                        maxWidth: { xs: "100%", sm: 200 },
-                        height: getPodiumHeight(user.rank),
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        border: user.isCurrentUser ? "3px solid" : "1px solid",
-                        borderColor: user.isCurrentUser
-                          ? "primary.main"
-                          : "divider",
-                        bgcolor:
-                          user.rank === 1
-                            ? "rgba(255, 215, 0, 0.05)"
-                            : "background.paper",
-                        position: "relative",
-                        transition: "all 0.3s ease-in-out",
-                        "&:hover": {
-                          transform: "translateY(-4px) scale(1.02)",
-                          boxShadow: 8,
-                        },
-                        mb: { xs: 2, sm: 0 },
-                        "&::before":
-                          user.rank === 1
-                            ? {
-                                content: '""',
-                                position: "absolute",
-                                top: -12,
-                                left: "50%",
-                                transform: "translateX(-50%)",
-                                width: 24,
-                                height: 24,
-                                bgcolor: "warning.main",
-                                borderRadius: "50%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                zIndex: 1,
-                                boxShadow: 3,
-                              }
-                            : {},
-                      }}
-                    >
-                      <CardContent sx={{ p: { xs: 1.5, sm: 2 }, pb: 0 }}>
-                        <Typography
-                          variant="h3"
-                          sx={{
-                            color: getRankColor(user.rank),
-                            mb: 1,
-                            fontSize: { xs: "2rem", sm: "3rem" },
-                          }}
-                        >
-                          {getRankIcon(user.rank)}
-                        </Typography>
-                        <Avatar
-                          sx={{
-                            width: { xs: 50, sm: 60 },
-                            height: { xs: 50, sm: 60 },
-                            mx: "auto",
-                            mb: 1,
-                            fontSize: { xs: "1.5rem", sm: "1.8rem" },
-                            bgcolor: user.isCurrentUser
-                              ? "primary.light"
-                              : "grey.300",
-                            border: "3px solid",
-                            borderColor: "background.paper",
-                            boxShadow: 3,
-                          }}
-                        >
-                          {user.avatar}
-                        </Avatar>
-                        <Typography
-                          variant={isSmall ? "body1" : "h6"}
-                          fontWeight="bold"
-                          noWrap
-                          sx={{ fontSize: { xs: "0.9rem", sm: "1.1rem" } }}
-                        >
-                          {user.name}
-                        </Typography>
-                        {user.isCurrentUser && (
-                          <Chip
-                            label="YOU"
-                            color="primary"
-                            size="small"
-                            sx={{ mt: 0.5, fontWeight: "bold" }}
-                          />
-                        )}
-                      </CardContent>
-                      <CardContent sx={{ pt: 0, pb: 2 }}>
-                        <Typography variant="h6" fontWeight="bold" color="primary">
-                          {user.totalScore} pts
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {user.averageScore}% average
-                        </Typography>
-                        <LinearProgress
-                          variant="determinate"
-                          value={user.averageScore}
-                          sx={{
-                            mt: 1,
-                            height: 6,
-                            borderRadius: 3,
-                            bgcolor: "grey.200",
-                          }}
-                          color={getPerformanceColor(user.averageScore) as any}
+                {topThree.map((user) => (
+                  <Card
+                    key={`podium-${user.rank}`}
+                    elevation={user.rank === 1 ? 8 : 3}
+                    sx={{
+                      flex: "1 1 0",
+                      textAlign: "center",
+                      minWidth: { xs: 90, sm: 120 },
+                      maxWidth: { xs: 110, sm: 170 },
+                      height: getPodiumHeight(user.rank),
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      border: user.isCurrentUser ? "2px solid" : "1px solid",
+                      borderColor: user.isCurrentUser
+                        ? "primary.main"
+                        : "divider",
+                      bgcolor:
+                        user.rank === 1
+                          ? "rgba(255, 215, 0, 0.08)"
+                          : "background.paper",
+                    }}
+                  >
+                    <CardContent sx={{ p: 1.5, pb: 1 }}>
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          color: getRankColor(user.rank),
+                          mb: 0.5,
+                          fontSize: { xs: "1.6rem", sm: "2.2rem" },
+                        }}
+                      >
+                        {getRankIcon(user.rank)}
+                      </Typography>
+                      <Avatar
+                        sx={{
+                          width: { xs: 45, sm: 55 },
+                          height: { xs: 45, sm: 55 },
+                          mx: "auto",
+                          mb: 1,
+                          fontSize: { xs: "1.2rem", sm: "1.6rem" },
+                          bgcolor: user.isCurrentUser
+                            ? "primary.light"
+                            : "grey.300",
+                        }}
+                      >
+                        {user.avatar}
+                      </Avatar>
+                      <Typography
+                        variant={isSmall ? "body2" : "h6"}
+                        fontWeight="bold"
+                        noWrap
+                      >
+                        {user.name}
+                      </Typography>
+                      {user.isCurrentUser && (
+                        <Chip
+                          label="YOU"
+                          color="primary"
+                          size="small"
+                          sx={{ mt: 0.5 }}
                         />
-                      </CardContent>
-                    </Card>
-                  </Fade>
+                      )}
+                    </CardContent>
+                    <CardContent sx={{ pt: 0, pb: 1 }}>
+                      <Typography
+                        variant="body1"
+                        fontWeight="bold"
+                        color="primary"
+                      >
+                        {Math.round(user.avgPoints)}%
+                      </Typography>
+                    </CardContent>
+                  </Card>
                 ))}
               </Box>
             </Paper>
 
-            {/* Full Leaderboard Table */}
+            {/* Full Leaderboard */}
             <Paper elevation={3} sx={{ borderRadius: 3, overflow: "hidden" }}>
-              <Box sx={{ p: 3, pb: 1, bgcolor: "primary.main", color: "white" }}>
+              <Box
+                sx={{
+                  p: { xs: 2, sm: 3 },
+                  pb: 1,
+                  bgcolor: "primary.main",
+                  color: "white",
+                }}
+              >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <TrendingUpIcon />
-                  <Typography variant="h5" fontWeight="600">
+                  <TrendingUpIcon fontSize="small" />
+                  <Typography variant={isSmall ? "h6" : "h5"} fontWeight="600">
                     Full Rankings
                   </Typography>
                 </Box>
               </Box>
 
-              <TableContainer sx={{ maxHeight: isMobile ? 400 : 500 }}>
-                <Table stickyHeader>
+              <TableContainer sx={{ maxHeight: isMobile ? 350 : 500 }}>
+                <Table stickyHeader size={isSmall ? "small" : "medium"}>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
-                        Rank
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
-                        Student
-                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Rank</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Student</TableCell>
                       {!isSmall && (
-                        <>
-                          <TableCell
-                            align="center"
-                            sx={{ fontWeight: "bold", bgcolor: "grey.50" }}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 0.5,
-                              }}
-                            >
-                              <SpeedIcon fontSize="small" />
-                              Score
-                            </Box>
-                          </TableCell>
-                          <TableCell
-                            align="center"
-                            sx={{ fontWeight: "bold", bgcolor: "grey.50" }}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: 0.5,
-                              }}
-                            >
-                              <AssignmentIcon fontSize="small" />
-                              Quizzes
-                            </Box>
-                          </TableCell>
-                        </>
+                        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+                          <SpeedIcon fontSize="small" /> Score
+                        </TableCell>
                       )}
-                      <TableCell
-                        align="center"
-                        sx={{ fontWeight: "bold", bgcolor: "grey.50" }}
-                      >
-                        Average
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        Total Score
                       </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Quizzes</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {leaderboardData.map((user, index) => (
-                      <Fade key={user.id} in={true} timeout={200 * (index + 1)}>
-                        <TableRow
-                          sx={{
-                            bgcolor: user.isCurrentUser
-                              ? "primary.light"
-                              : "transparent",
-                            color: user.isCurrentUser
-                              ? "primary.contrastText"
-                              : "text.primary",
-                            "&:hover": {
-                              bgcolor: user.isCurrentUser
-                                ? "primary.main"
-                                : "action.hover",
-                              "& .MuiTableCell-root": {
-                                color: user.isCurrentUser
-                                  ? "white"
-                                  : "text.primary",
-                              },
-                            },
-                            transition: "all 0.2s ease-in-out",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <TableCell>
-                            <Box
-                              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    {leaderboardData.map((user) => (
+                      <TableRow
+                        key={`table-user-${user.rank}`}
+                        sx={{
+                          bgcolor: user.isCurrentUser
+                            ? "action.selected"
+                            : "inherit",
+                        }}
+                      >
+                        <TableCell>
+                          <Typography
+                            variant="body1"
+                            sx={{ color: getRankColor(user.rank) }}
+                          >
+                            {getRankIcon(user.rank)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <Avatar sx={{ width: 32, height: 32 }}>
+                              {user.avatar}
+                            </Avatar>
+                            <Typography
+                              noWrap
+                              fontSize={isSmall ? "0.85rem" : "1rem"}
                             >
-                              <Typography
-                                variant="h6"
-                                sx={{
-                                  color: getRankColor(user.rank),
-                                  fontWeight: "bold",
-                                  fontSize: { xs: "1rem", sm: "1.25rem" },
-                                }}
-                              >
-                                {getRankIcon(user.rank)}
-                              </Typography>
-                            </Box>
-                          </TableCell>
-
-                          <TableCell>
-                            <Box
-                              sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                            >
-                              <Avatar
-                                sx={{
-                                  bgcolor: user.isCurrentUser
-                                    ? "primary.dark"
-                                    : "grey.300",
-                                  width: { xs: 32, sm: 40 },
-                                  height: { xs: 32, sm: 40 },
-                                  fontSize: { xs: "1rem", sm: "1.2rem" },
-                                }}
-                              >
-                                {user.avatar}
-                              </Avatar>
-                              <Box>
-                                <Typography
-                                  variant="body1"
-                                  fontWeight="medium"
-                                  sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
-                                >
-                                  {user.name}
-                                </Typography>
-                                {user.isCurrentUser && (
-                                  <Chip
-                                    label="YOU"
-                                    color="secondary"
-                                    size="small"
-                                    sx={{
-                                      height: 20,
-                                      fontSize: "0.7rem",
-                                      fontWeight: "bold",
-                                    }}
-                                  />
-                                )}
-                              </Box>
-                            </Box>
-                          </TableCell>
-
-                          {!isSmall && (
-                            <>
-                              <TableCell align="center">
-                                <Stack alignItems="center" spacing={0.5}>
-                                  <Typography
-                                    variant="h6"
-                                    fontWeight="bold"
-                                    color="primary"
-                                  >
-                                    {user.totalScore}
-                                  </Typography>
-                                  <Typography
-                                    variant="caption"
-                                    color="text.secondary"
-                                  >
-                                    pts
-                                  </Typography>
-                                </Stack>
-                              </TableCell>
-
-                              <TableCell align="center">
-                                <Typography variant="body1" fontWeight="medium">
-                                  {user.quizzesCompleted}
-                                </Typography>
-                              </TableCell>
-                            </>
-                          )}
-
+                              {user.isCurrentUser
+                                ? `${user.name} (You)`
+                                : user.name}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        {!isSmall && (
                           <TableCell align="center">
-                            <Stack alignItems="center" spacing={1}>
-                              <Chip
-                                label={`${user.averageScore}%`}
-                                color={getPerformanceColor(user.averageScore) as any}
-                                variant={user.averageScore >= 80 ? "filled" : "outlined"}
-                                size="small"
-                                sx={{ fontWeight: "bold" }}
-                              />
-                              <LinearProgress
-                                variant="determinate"
-                                value={user.averageScore}
-                                sx={{
-                                  width: 60,
-                                  height: 4,
-                                  borderRadius: 2,
-                                  bgcolor: "grey.200",
-                                }}
-                                color={
-                                  getPerformanceColor(user.averageScore) as any
-                                }
-                              />
-                            </Stack>
+                            <Chip
+                              label={`${Math.round(user.avgPoints)}%`}
+                              color={getPerformanceColor(user.avgPoints) as any}
+                              size="small"
+                              variant="outlined"
+                            />
                           </TableCell>
-                        </TableRow>
-                      </Fade>
+                        )}
+                        <TableCell sx={{ alignItems: "center" }}>
+                          {user.totalPoints}
+                        </TableCell>
+                        <TableCell>{user.quizzesTaken}</TableCell>
+                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -618,21 +554,12 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ groupId }) => {
           <Fade in={true}>
             <Paper
               elevation={3}
-              sx={{
-                p: { xs: 4, sm: 6 },
-                textAlign: "center",
-                borderRadius: 3,
-              }}
+              sx={{ p: { xs: 4, sm: 6 }, textAlign: "center", borderRadius: 3 }}
             >
               <TrophyIcon
-                sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+                sx={{ fontSize: 60, color: "text.secondary", mb: 2 }}
               />
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                No leaderboard data available for this group yet.
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Complete some quizzes to see rankings!
-              </Typography>
+              <Typography>No leaderboard data available yet.</Typography>
             </Paper>
           </Fade>
         )}

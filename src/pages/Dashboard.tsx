@@ -1,3 +1,5 @@
+
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -14,23 +16,32 @@ import {
   alpha,
   Paper,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
 } from "@mui/material";
 import {
   Group,
   Quiz,
-  AccessTime,
   History,
   Schedule,
   Add,
   Workspaces,
   LocalActivity,
   Dashboard as DashboardIcon,
+  AutoFixHigh,
+  AccessTime,
 } from "@mui/icons-material";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
+import { getUserStudyPlans, deleteStudyPlan } from "../services/StudyPlanService";
+import StudyPlanCard from "../components/StudyPlanCard";
+import StudyPlanViewModal from "../components/StudyPlanViewModal";
 
 interface WorkspaceData {
   count: number;
@@ -51,6 +62,8 @@ interface GroupData {
   }[];
 }
 
+
+
 const Dashboard = () => {
   const theme = useTheme();
   const { userId } = useContext(AppContext);
@@ -61,6 +74,85 @@ const Dashboard = () => {
   const [groupData, setGroupData] = useState<GroupData | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+  
+  
+  const [studyPlans, setStudyPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+  
+  // Modal state for viewing study plans
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  
+  // State for delete confirmation dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Handler functions for study plan modal
+  const handleViewPlan = (planId: number) => {
+    setSelectedPlanId(planId);
+    setViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setViewModalOpen(false);
+    setSelectedPlanId(null);
+  };
+  
+  // Handler functions for delete functionality
+  const handleDeletePlan = (planId: number) => {
+    setPlanToDelete(planId);
+    setDeleteDialogOpen(true);
+  };
+  
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setPlanToDelete(null);
+  };
+  
+  const handleConfirmDelete = async () => {
+    if (!planToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const response = await deleteStudyPlan(planToDelete);
+      if (response.success) {
+        // Remove the deleted plan from the local state
+        setStudyPlans(prev => prev.filter(plan => plan.planId !== planToDelete));
+        console.log('Study plan deleted successfully');
+        // You could show a success toast here
+      }
+    } catch (error: any) {
+      console.error('Failed to delete study plan:', error);
+      // You could show an error toast here
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setPlanToDelete(null);
+    }
+  };
+
+  // Fetch user's study plans
+  useEffect(() => {
+    const fetchStudyPlans = async () => {
+      if (!userId) return;
+      
+      setLoadingPlans(true);
+      try {
+        const response = await getUserStudyPlans(userId);
+        if (response.success) {
+          setStudyPlans(response.data.slice(0, 4)); // Show max 4 plans
+        }
+      } catch (error) {
+        console.error('Failed to fetch study plans:', error);
+      } finally {
+        setLoadingPlans(false);
+      }
+    };
+
+    fetchStudyPlans();
+  }, [userId]);
 
   const stats = [
     {
@@ -88,6 +180,8 @@ const Dashboard = () => {
       color: "#9C27B0",
     },
   ];
+
+
 
   // Upcoming activities data
   const upcomingActivities = [
@@ -678,6 +772,120 @@ const Dashboard = () => {
         </Box>
       </Box>
 
+      {/* My Study Plans Section */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Schedule sx={{ mr: 1, color: theme.palette.primary.main }} />
+              <Typography variant="h6" fontWeight="600">
+                My Study Plans
+              </Typography>
+            </Box>
+            <Button 
+              variant="text" 
+              size="small"
+              onClick={() => navigate('/study-plans-generator')}
+              startIcon={<Add />}
+            >
+              Create New
+            </Button>
+          </Box>
+          
+          {loadingPlans ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : studyPlans.length > 0 ? (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(2, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: 3,
+              }}
+            >
+              {studyPlans.map((plan, index) => (
+                <Box key={plan.planId || index}>
+                  <StudyPlanCard
+                    planId={plan.planId}
+                    title={plan.title}
+                    subjects={plan.subjects}
+                    studyGoal={plan.studyGoal}
+                    startDate={plan.startDate}
+                    endDate={plan.endDate}
+                    dailyHours={plan.dailyHours}
+                    createdAt={plan.createdAt}
+                    progress={plan.progress || Math.floor(Math.random() * 100)}
+                    totalTasks={plan.totalTasks || Math.floor(Math.random() * 20) + 5}
+                    completedTasks={plan.completedTasks || Math.floor(Math.random() * 15)}
+                    onView={(planId) => {
+                      handleViewPlan(planId);
+                    }}
+                    onResume={(planId) => {
+                      console.log('Resume plan:', planId);
+                      // Navigate to plan execution
+                    }}
+                    onDelete={(planId) => {
+                      handleDeletePlan(planId);
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                textAlign: 'center',
+                py: 6,
+                px: 3,
+                borderRadius: 2,
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                border: `1px dashed ${alpha(theme.palette.primary.main, 0.3)}`,
+              }}
+            >
+              <AutoFixHigh 
+                sx={{ 
+                  fontSize: 48, 
+                  color: alpha(theme.palette.primary.main, 0.6),
+                  mb: 2 
+                }} 
+              />
+              <Typography variant="h6" sx={{ mb: 1, color: theme.palette.text.primary }}>
+                No Study Plans Yet
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 3, color: theme.palette.text.secondary }}>
+                Create your first study plan to start your learning journey
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<Add />}
+                onClick={() => navigate('/study-plans-generator')}
+                sx={{
+                  bgcolor: theme.palette.primary.main,
+                  '&:hover': {
+                    bgcolor: theme.palette.primary.dark,
+                  }
+                }}
+              >
+                Create Study Plan
+              </Button>
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Suggested Workspaces */}
       <Card>
         <CardContent>
@@ -773,6 +981,49 @@ const Dashboard = () => {
           </Box>
         </CardContent>
       </Card>
+      
+      {/* Study Plan View Modal */}
+      <StudyPlanViewModal
+        open={viewModalOpen}
+        onClose={handleCloseViewModal}
+        planId={selectedPlanId}
+      />
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: theme.palette.error.main }}>
+          Delete Study Plan
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this study plan? This action cannot be undone.
+            All your progress and tasks will be permanently removed.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={handleCloseDeleteDialog}
+            variant="outlined"
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="error"
+            disabled={isDeleting}
+            startIcon={isDeleting ? <CircularProgress size={16} /> : null}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

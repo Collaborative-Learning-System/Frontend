@@ -47,6 +47,9 @@ export default function RealTimeCollaboration({
   const [documentError, setDocumentError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Clear previous data immediately when groupId changes
+    setDocuments([]);
+    setDocumentError(null);
     fetchDocuments();
   }, [groupId]);
 
