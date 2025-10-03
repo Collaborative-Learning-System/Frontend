@@ -25,6 +25,8 @@ import QuestionBuilder, { type Question } from "../components/QuestionBuilder"
 import QuestionList from "../components/QuestionList"
 import { QuizService } from "../services/QuizService"
 import { useThemeContext } from "../context/ThemeContext"
+import { useGroup } from "../context/GroupContext"
+import { notifyUsers } from "../services/NotifyService"
 
 
 interface QuizData {
@@ -49,9 +51,17 @@ export default function QuizCreator() {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
   const [isPublishing, setIsPublishing] = useState(false)
+
+  const { fetchGroupMembers, groupMembers } = useGroup()
   
   // Get groupId from navigation state
   const groupId = location.state?.groupId
+
+  useEffect(() => {
+    if (groupId) {
+      fetchGroupMembers(groupId)
+    }
+  }, [groupId, fetchGroupMembers])
 
   
   useEffect(() => {
@@ -164,8 +174,12 @@ export default function QuizCreator() {
       await QuizService.createCompleteQuiz(groupId, quizData.metadata, quizData.questions)
       setPublishDialogOpen(false)
       showSnackbar("Quiz published successfully!")
-      
-      
+      let members: string[] = []
+      groupMembers.map((member) => {
+        members.push(member.userId)
+      })
+      notifyUsers(members, `A new quiz ${quizData.metadata.title}, has been published to your group`)
+
       setTimeout(() => {
         navigate(-1)
       }, 2000)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import ChatUI from "../components/ChatUI";
@@ -32,6 +32,8 @@ import {
   TextField,
   Drawer,
   useMediaQuery,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   Chat as ChatIcon,
@@ -46,6 +48,7 @@ import {
   PersonRemove as LeaveIcon,
   Close as CloseIcon,
   Menu as MenuIcon,
+  MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
@@ -54,14 +57,23 @@ import { useThemeContext } from "../context/ThemeContext";
 import { handleLogging } from "../services/LoggingService";
 import RealTimeCollaboration from "../components/RealTimeCollaboration/RealTimeCollaboration";
 import { useWorkspace } from "../context/WorkspaceContext";
+import { AppContext } from "../context/AppContext";
+import { notifyUsers } from "../services/NotifyService";
+
 
 interface WorkspaceData {
   id: string;
   name: string;
   description: string;
   adminId: string;
+  adminName: string;
   memberCount: number;
   role: string;
+}
+
+interface workspaceMemberData {
+  userId: string;
+  name: string;
 }
 
 interface Group {
@@ -78,6 +90,9 @@ const Workspace = () => {
   const [workspaceData, setWorkspaceData] = useState<WorkspaceData | null>(
     null
   );
+  const [workspaceMembers, setWorkspaceMembers] = useState<
+    workspaceMemberData[]
+  >([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [groupsLoading, setGroupsLoading] = useState(false);
@@ -89,7 +104,12 @@ const Workspace = () => {
   const [groupDescription, setGroupDescription] = useState("");
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  // Admin menu states
+  const [adminMenuAnchor, setAdminMenuAnchor] = useState<null | HTMLElement>(null);
+  const [adminRoleModalOpen, setAdminRoleModalOpen] = useState(false);
+  const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
 
+  const { userId } = useContext(AppContext);
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -137,6 +157,24 @@ const Workspace = () => {
     };
 
     fetchWorkspaceDetails();
+  }, [workspaceId]);
+
+  useEffect(() => {
+    const fetchWorkspaceMembers = async () => {
+      if (!workspaceId) return;
+      try {
+        const response = await axios.get(
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/workspaces/get-workspace-members/${workspaceId}`
+        );
+
+        setWorkspaceMembers(response.data.data);
+        console.log(response.data.data);
+      } catch (error) {}
+    };
+
+    fetchWorkspaceMembers();
   }, [workspaceId]);
 
   useEffect(() => {
@@ -528,6 +566,11 @@ const Workspace = () => {
   };
 
   const handleLeaveWorkspace = async () => {
+    if (workspaceData?.adminId === userId) {
+      return NotificationService.showError(
+        "Workspace admins cannot leave the workspace. Please transfer admin rights or delete the workspace."
+      );
+    }
     const confirmed = window.confirm(
       "Do you really want to leave the workspace?"
     );
@@ -563,6 +606,64 @@ const Workspace = () => {
       console.error("Error leaving workspace:", err);
     } finally {
       setIsLeaving(false);
+    }
+  };
+
+  // Admin menu handlers
+  const handleAdminMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAdminMenuAnchor(event.currentTarget);
+  };
+
+  const handleAdminMenuClose = () => {
+    setAdminMenuAnchor(null);
+  };
+
+  const handleOpenAdminRoleModal = () => {
+    setAdminRoleModalOpen(true);
+    handleAdminMenuClose();
+  };
+
+  const handleCloseAdminRoleModal = () => {
+    setAdminRoleModalOpen(false);
+    setAssigningAdmin(null);
+  };
+
+  const handleMakeAdmin = async (memberId: string) => {
+    if (!workspaceId) {
+      NotificationService.showError("Workspace ID not found");
+      return;
+    }
+
+    try {
+      setAssigningAdmin(memberId);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/assign-admin`,
+        { 
+          workspaceId: workspaceId,
+          newAdminId: memberId 
+        }
+      );
+
+      if (response.data.success) {
+        NotificationService.showSuccess("Admin role assigned successfully!");
+        handleLogging(`Assigned admin role to member ${memberId} in workspace ${workspaceData?.name}`);
+        let users: string[] = [];
+        users.push(memberId);
+        notifyUsers(users, 'You have been assigned as the new admin of the workspace ' + workspaceData?.name);
+        // Refresh workspace data to reflect changes
+        window.location.reload();
+      } else {
+        throw new Error(response.data.message || "Failed to assign admin role");
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to assign admin role";
+      NotificationService.showError(errorMessage);
+      console.error("Error assigning admin role:", err);
+    } finally {
+      setAssigningAdmin(null);
+      setAdminRoleModalOpen(false);
+
     }
   };
 
@@ -700,6 +801,29 @@ const Workspace = () => {
                 }}
               />
             )}
+            {workspaceData.role !== "admin" && (
+              <Tooltip
+                title={`Workspace Admin: ${workspaceData.adminName}`}
+                arrow
+              >
+                <Chip
+                  icon={<AdminIcon sx={{ color: "white" }} />}
+                  label={workspaceData.adminName}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "white",
+                    "& .MuiChip-icon": { color: "white" },
+                    maxWidth: "150px",
+                    "& .MuiChip-label": {
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    },
+                  }}
+                />
+              </Tooltip>
+            )}
             <Chip
               icon={<GroupIcon sx={{ color: "white" }} />}
               label={`${workspaceData.memberCount} Members`}
@@ -735,6 +859,22 @@ const Workspace = () => {
             >
               {isLeaving ? "Leaving..." : "Leave"}
             </Button>
+            
+            {workspaceData.role === "admin" && (
+              <Tooltip title="Admin Options" arrow>
+                <IconButton
+                  onClick={handleAdminMenuClick}
+                  sx={{
+                    color: "white",
+                    "&:hover": {
+                      bgcolor: "rgba(255,255,255,0.1)",
+                    },
+                  }}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </Box>
       </Paper>
@@ -1066,6 +1206,136 @@ const Workspace = () => {
             }}
           >
             {creatingGroup ? "Creating..." : "Create Group"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Admin Menu */}
+      <Menu
+        anchorEl={adminMenuAnchor}
+        open={Boolean(adminMenuAnchor)}
+        onClose={handleAdminMenuClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            minWidth: 200,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <MenuItem onClick={handleOpenAdminRoleModal}>
+          <AdminIcon sx={{ mr: 1 }} />
+          Grant Admin Role
+        </MenuItem>
+      </Menu>
+
+      {/* Admin Role Management Modal */}
+      <Dialog
+        open={adminRoleModalOpen}
+        onClose={handleCloseAdminRoleModal}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxHeight: "80vh",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            pb: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <AdminIcon color="primary" />
+            <Typography variant="h6">Grant Admin Role</Typography>
+          </Box>
+          <IconButton
+            onClick={handleCloseAdminRoleModal}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Select a member to grant admin privileges to this workspace.
+          </Typography>
+
+          {workspaceMembers.length === 1 ? (
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <Typography variant="body2" color="text.secondary">
+                No members found in this workspace.
+              </Typography>
+            </Box>
+          ) : (
+            <List sx={{ maxHeight: 400, overflow: "auto" }}>
+              {workspaceMembers
+                .filter((member) => member.userId !== userId) // Don't show current user
+                .map((member) => (
+                  <ListItem
+                    key={member.userId}
+                    sx={{
+                      bgcolor: "background.paper",
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      mb: 1,
+                      "&:last-child": { mb: 0 },
+                    }}
+                  >
+                    <ListItemIcon>
+                      <GroupIcon color="action" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={member.name}
+                      secondary={`User ID: ${member.userId}`}
+                    />
+                    <Button
+                      variant="contained"
+                      size="small"
+                      disabled={assigningAdmin === member.userId}
+                      startIcon={
+                        assigningAdmin === member.userId ? (
+                          <CircularProgress size={16} />
+                        ) : (
+                          <AdminIcon />
+                        )
+                      }
+                      onClick={() => handleMakeAdmin(member.userId)}
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: "none",
+                        minWidth: 120,
+                      }}
+                    >
+                      {assigningAdmin === member.userId
+                        ? "Assigning..."
+                        : "Make Admin"}
+                    </Button>
+                  </ListItem>
+                ))}
+            </List>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button
+            onClick={handleCloseAdminRoleModal}
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: "500",
+            }}
+          >
+            Close
           </Button>
         </DialogActions>
       </Dialog>
