@@ -57,6 +57,7 @@ import { useThemeContext } from "../context/ThemeContext";
 import { handleLogging } from "../services/LoggingService";
 import RealTimeCollaboration from "../components/RealTimeCollaboration/RealTimeCollaboration";
 import { useWorkspace } from "../context/WorkspaceContext";
+import { useGroup } from "../context/GroupContext";
 import { AppContext } from "../context/AppContext";
 import { notifyUsers } from "../services/NotifyService";
 
@@ -117,6 +118,24 @@ const Workspace = () => {
   const { mode } = useThemeContext();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { setWorkspaceData: setGlobalWorkspaceData } = useWorkspace();
+  const { setSelectedGroup: setGlobalSelectedGroup } = useGroup();
+
+  // Helper function to update both local and global selected group
+  const updateSelectedGroup = (groupId: string | null) => {
+    setSelectedGroup(groupId);
+    
+    if (groupId) {
+      const groupData = groups.find(g => g.id === groupId);
+      console.log("groupData", groupData);
+      if (groupData) {
+        setGlobalSelectedGroup(groupData);
+      } else {
+        setGlobalSelectedGroup(null);
+      }
+    } else {
+      setGlobalSelectedGroup(null);
+    }
+  };
 
   useEffect(() => {
     const fetchWorkspaceDetails = async () => {
@@ -196,9 +215,9 @@ const Workspace = () => {
             (group: Group) => group.isMember
           );
           if (joinedGroups.length > 0) {
-            setSelectedGroup(joinedGroups[0].id);
+            updateSelectedGroup(joinedGroups[0].id);
           } else if (response.data.data.groups.length > 0) {
-            setSelectedGroup(response.data.data.groups[0].id);
+            updateSelectedGroup(response.data.data.groups[0].id);
           }
         } else {
           throw new Error(response.data.message || "Failed to fetch groups");
@@ -250,9 +269,9 @@ const Workspace = () => {
             (group) => group.id !== groupId && group.isMember
           );
           if (remainingJoinedGroups.length > 0) {
-            setSelectedGroup(remainingJoinedGroups[0].id);
+            updateSelectedGroup(remainingJoinedGroups[0].id);
           } else {
-            setSelectedGroup(groups.length > 0 ? groups[0].id : null);
+            updateSelectedGroup(groups.length > 0 ? groups[0].id : null);
           }
         }
       } else {
@@ -308,7 +327,7 @@ const Workspace = () => {
         };
 
         setGroups((prevGroups) => [...prevGroups, newGroup]);
-        setSelectedGroup(newGroup.id);
+        updateSelectedGroup(newGroup.id);
 
         // Close dialog and reset form
         setCreateGroupOpen(false);
@@ -373,7 +392,7 @@ const Workspace = () => {
                   selected={selectedGroup === group.id}
                   onClick={() => {
                     if (group.isMember) {
-                      setSelectedGroup(group.id);
+                      updateSelectedGroup(group.id);
                       if (isInDrawer) setMobileDrawerOpen(false);
                     }
                   }}

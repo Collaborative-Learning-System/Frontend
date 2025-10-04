@@ -8,13 +8,23 @@ interface GroupMember {
   name: string;
 }
 
+interface GroupData {
+  description: string;
+  id: string;
+  isMember: boolean;
+  name: string;
+  workspaceId: string;
+}
+
 interface GroupContextType {
   // State
+  selectedGroup: GroupData | null;
   groupMembers: GroupMember[];
   loading: boolean;
   error: string | null;
 
   // Actions
+  setSelectedGroup: (group: GroupData | null) => void;
   fetchGroupMembers: (groupId: string) => Promise<void>;
 }
 
@@ -28,6 +38,7 @@ interface GroupProviderProps {
 
 // Group Context Provider component
 export const GroupProvider: React.FC<GroupProviderProps> = ({ children }) => {
+  const [selectedGroup, setSelectedGroup] = useState<GroupData | null>(null);
   const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,10 +85,12 @@ export const GroupProvider: React.FC<GroupProviderProps> = ({ children }) => {
   // Context value object
   const value: GroupContextType = {
     // State
+    selectedGroup,
     groupMembers,
     loading,
     error,
     // Actions
+    setSelectedGroup,
     fetchGroupMembers,
   };
 

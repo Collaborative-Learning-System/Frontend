@@ -207,21 +207,42 @@ interface Notification {
         PaperProps={{
           sx: {
             borderRadius: 2,
-            // minWidth: 380,
-            maxWidth: 400,
+            minWidth: 320,
+            maxWidth: { xs: "90vw", sm: 400 },
             maxHeight: 500,
             mt: 1,
+            overflow: "hidden", 
           },
         }}
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <Box sx={{ p: 2, pb: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Box sx={{ 
+          p: 2, 
+          pb: 1,
+          overflow: "hidden",
+        }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+            }}
+          >
             Notifications
           </Typography>
           {notifications.length > 0 && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+              }}
+            >
               {unreadCount > 0 ? `${unreadCount} unread` : "All read"} • {notifications.length} total
             </Typography>
           )}
@@ -235,30 +256,52 @@ interface Notification {
             </Typography>
           </Box>
         ) : (
-          <Box sx={{ maxHeight: 400, overflow: "auto" }}>
+          <Box sx={{ 
+            maxHeight: 400, 
+            overflow: "auto",
+            overflowX: "hidden", 
+            px: 1, 
+            py: 0.5,
+          }}>
             {notifications.map((notification, index) => (
                 <Box key={notification.notificationId}>
                   <MenuItem
                     sx={{
                       px: 2,
                       py: 1.5,
+                      borderRadius: 1,
                       alignItems: "flex-start",
                       backgroundColor: notification.isRead ? "background.default" : "action.hover",
                       "&:hover": {
                         backgroundColor: notification.isRead ? "action.hover" : "action.selected",
                       },
+                      minWidth: 0, // Allow shrinking
+                      width: "100%", // Take full width
+                      minHeight: "auto", // Allow natural height
+                      whiteSpace: "normal", // Allow text wrapping
                     }}
                     onClick={() => handleNotificationRedirect(notification)}
                   >
                     <ListItemText
+                      sx={{ 
+                        margin: 0,
+                        minWidth: 0, // Allow shrinking
+                      }}
                       primary={
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ 
+                          display: "flex", 
+                          alignItems: "flex-start", 
+                          gap: 1,
+                          minWidth: 0, // Allow shrinking
+                          width: "100%", // Take full width
+                        }}>
                           {!notification.isRead && (
                             <Circle 
                               sx={{ 
                                 fontSize: 8, 
                                 color: "primary.main",
-                                mt: 0.5
+                                mt: 0.5,
+                                flexShrink: 0, // Don't shrink the dot
                               }} 
                             />
                           )}
@@ -266,9 +309,13 @@ interface Notification {
                             variant="body2"
                             sx={{
                               fontWeight: notification.isRead ? 400 : 600,
-                              mb: 0.5,
                               opacity: notification.isRead ? 0.7 : 1,
                               flex: 1,
+                              minWidth: 0, // Allow shrinking
+                              wordBreak: "break-word", // Break long words
+                              overflowWrap: "break-word", // Break long words
+                              hyphens: "auto", // Add hyphens for better wrapping
+                              lineHeight: 1.4, // Better line spacing
                             }}
                           >
                             {notification.notification}
@@ -282,6 +329,10 @@ interface Notification {
                           sx={{ 
                             fontSize: "0.75rem",
                             opacity: notification.isRead ? 0.6 : 0.8,
+                            display: "block",
+                            mt: 0.5,
+                            wordBreak: "break-word", // Break long words
+                            overflowWrap: "break-word", // Break long words
                           }}
                         >
                           {notification.timestamp

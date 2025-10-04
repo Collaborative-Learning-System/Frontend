@@ -48,7 +48,7 @@ export default function RealTimeCollaboration({
   const [documents, setDocuments] = useState<Documents[]>([]);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
   const [documentError, setDocumentError] = useState<string | null>(null);
-  const { fetchGroupMembers, groupMembers } = useGroup();
+  const { fetchGroupMembers, groupMembers, selectedGroup } = useGroup();
   const { workspaceData } = useWorkspace();
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export default function RealTimeCollaboration({
       });
       notifyUsers(
         members,
-        `A new document ${response.data.document.title}, has been created in your group`,
+        `A new document, ${response.data.document.title} has been created in your group ${selectedGroup?.name || ''}`,
         `/workspace/${workspaceData?.id}`
       );
 
