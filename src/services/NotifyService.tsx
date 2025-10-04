@@ -1,11 +1,12 @@
 import axios from "axios";
 
-export const notifyUsers = async (users: string[], notification: string) => {
+export const notifyUsers = async (users: string[], notification: string, link?: string) => {
   const notifyData = {
     users: users,
     notification: notification,
     timestamp: new Date().toISOString(),
-   // isRead: false,
+    isRead: false,
+    link: link || "", 
   };
   try {
     if (notifyData.users.length === 0 || !notifyData.notification || !notifyData.timestamp)

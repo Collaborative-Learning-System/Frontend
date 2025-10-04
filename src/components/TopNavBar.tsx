@@ -17,6 +17,7 @@ import {
   LightMode,
   DarkMode,
   Menu as MenuIcon,
+  Circle,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import IconButton from "@mui/material/IconButton";
@@ -25,6 +26,7 @@ import { useThemeContext } from "../context/ThemeContext";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface TopNavBarProps {
   onSidebarToggle?: () => void;
@@ -42,20 +44,24 @@ interface Notification {
   notification: string;
   timestamp: string;
   userId: string;
+  isRead: boolean;
+  link?: string;
 }
 
-const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
+  const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
   const { mode, toggleTheme } = useThemeContext();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { userId } = useContext(AppContext);
+  const navigate = useNavigate();
 
   // Notification state
   const [notificationAnchor, setNotificationAnchor] =
     useState<null | HTMLElement>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // Notification handlers
+  
+  // Calculate unread notifications count
+  const unreadCount = notifications.filter(n => !n.isRead).length; 
   const handleNotificationClick = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -66,32 +72,58 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
     setNotificationAnchor(null);
   };
 
-  useEffect(() => {
-    const getNotifications = async () => {
-      try {
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/notification/get-notifications/${userId}`
-        );
+  const getNotifications = async () => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/notification/get-notifications/${userId}`
+      );
 
-        // Access the data array from the response
-        if (response.data && response.data.success && response.data.data) {
-          setNotifications(response.data.data);
-        } else {
-          setNotifications([]);
-        }
-        console.log(response.data);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
+      // Access the data array from the response
+      if (response.data && response.data.success && response.data.data) {
+        setNotifications(response.data.data);
+      } else {
         setNotifications([]);
       }
-    };
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      setNotifications([]);
+    }
+  };
 
+  useEffect(() => {
     if (userId) {
       getNotifications();
     }
   }, [userId]);
+
+  const handleNotificationRedirect = async (notification: Notification) => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/notification/mark-as-read/${
+          notification.notificationId
+        }`
+      );
+      
+      // Update local state to mark notification as read
+      setNotifications(prevNotifications =>
+        prevNotifications.map(n =>
+          n.notificationId === notification.notificationId
+            ? { ...n, isRead: true }
+            : n
+        )
+      );
+      
+      if (notification.link) {
+        navigate(`${notification.link}`);
+      }
+      handleNotificationClose();
+    } catch (error) {
+      console.error("Error updating notification:", error);
+    }
+  };
 
   return (
     <AppBar
@@ -158,7 +190,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
             >
               <Notifications />
               <CartBadge
-                badgeContent={notifications.length}
+                badgeContent={unreadCount}
                 color="error"
                 overlap="circular"
               />
@@ -190,8 +222,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
           </Typography>
           {notifications.length > 0 && (
             <Typography variant="body2" color="text.secondary">
-              {notifications.length} notification
-              {notifications.length !== 1 ? "s" : ""}
+              {unreadCount > 0 ? `${unreadCount} unread` : "All read"} • {notifications.length} total
             </Typography>
           )}
         </Box>
@@ -206,74 +237,89 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onSidebarToggle }) => {
         ) : (
           <Box sx={{ maxHeight: 400, overflow: "auto" }}>
             {notifications.map((notification, index) => (
-              <Box key={notification.notificationId}>
-                <MenuItem
-                  sx={{
-                    px: 2,
-                    py: 1.5,
-                    alignItems: "flex-start",
-                    backgroundColor: "action.hover",
-                    "&:hover": {
-                      backgroundColor: "action.selected",
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: 600,
-                          mb: 0.5,
-                        }}
-                      >
-                        {notification.notification}
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ fontSize: "0.75rem" }}
-                      >
-                        {notification.timestamp
-                          ? formatDistanceToNow(
-                              new Date(notification.timestamp),
-                              {
-                                addSuffix: true,
-                              }
-                            )
-                          : "No timestamp"}
-                      </Typography>
-                    }
-                  />
-                </MenuItem>
-                {index < notifications.length - 1 && <Divider />}
-              </Box>
-            ))}
+                <Box key={notification.notificationId}>
+                  <MenuItem
+                    sx={{
+                      px: 2,
+                      py: 1.5,
+                      alignItems: "flex-start",
+                      backgroundColor: notification.isRead ? "background.default" : "action.hover",
+                      "&:hover": {
+                        backgroundColor: notification.isRead ? "action.hover" : "action.selected",
+                      },
+                    }}
+                    onClick={() => handleNotificationRedirect(notification)}
+                  >
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          {!notification.isRead && (
+                            <Circle 
+                              sx={{ 
+                                fontSize: 8, 
+                                color: "primary.main",
+                                mt: 0.5
+                              }} 
+                            />
+                          )}
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: notification.isRead ? 400 : 600,
+                              mb: 0.5,
+                              opacity: notification.isRead ? 0.7 : 1,
+                              flex: 1,
+                            }}
+                          >
+                            {notification.notification}
+                          </Typography>
+                        </Box>
+                      }
+                      secondary={
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ 
+                            fontSize: "0.75rem",
+                            opacity: notification.isRead ? 0.6 : 0.8,
+                          }}
+                        >
+                          {notification.timestamp
+                            ? formatDistanceToNow(
+                                new Date(notification.timestamp),
+                                {
+                                  addSuffix: true,
+                                }
+                              )
+                            : "No timestamp"}
+                        </Typography>
+                      }
+                    />
+                  </MenuItem>
+                  {index < notifications.length - 1 && <Divider />}
+                </Box>
+              ))}
           </Box>
         )}
 
-        {notifications.length > 0 && (
-          <>
-            <Divider />
-            <Box sx={{ p: 1 }}>
-              <MenuItem
-                sx={{
-                  justifyContent: "center",
-                  color: "primary.main",
-                  fontWeight: 500,
-                  "&:hover": {
-                    backgroundColor: "primary.light",
-                    color: "primary.contrastText",
-                  },
-                }}
-              >
-                View all notifications
-              </MenuItem>
-            </Box>
-          </>
-        )}
+        {notifications.length > 0 && [
+          <Divider key="divider" />,
+          <Box key="view-all" sx={{ p: 1 }}>
+            <MenuItem
+              sx={{
+                justifyContent: "center",
+                color: "primary.main",
+                fontWeight: 500,
+                "&:hover": {
+                  backgroundColor: "primary.light",
+                  color: "primary.contrastText",
+                },
+              }}
+            >
+              View all notifications
+            </MenuItem>
+          </Box>
+        ]}
       </Menu>
     </AppBar>
   );

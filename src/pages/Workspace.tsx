@@ -60,7 +60,6 @@ import { useWorkspace } from "../context/WorkspaceContext";
 import { AppContext } from "../context/AppContext";
 import { notifyUsers } from "../services/NotifyService";
 
-
 interface WorkspaceData {
   id: string;
   name: string;
@@ -105,7 +104,9 @@ const Workspace = () => {
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   // Admin menu states
-  const [adminMenuAnchor, setAdminMenuAnchor] = useState<null | HTMLElement>(null);
+  const [adminMenuAnchor, setAdminMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
   const [adminRoleModalOpen, setAdminRoleModalOpen] = useState(false);
   const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
 
@@ -639,31 +640,38 @@ const Workspace = () => {
 
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/assign-admin`,
-        { 
+        {
           workspaceId: workspaceId,
-          newAdminId: memberId 
+          newAdminId: memberId,
         }
       );
 
       if (response.data.success) {
         NotificationService.showSuccess("Admin role assigned successfully!");
-        handleLogging(`Assigned admin role to member ${memberId} in workspace ${workspaceData?.name}`);
+        handleLogging(
+          `Assigned admin role to member ${memberId} in workspace ${workspaceData?.name}`
+        );
         let users: string[] = [];
         users.push(memberId);
-        notifyUsers(users, 'You have been assigned as the new admin of the workspace ' + workspaceData?.name);
+        notifyUsers(
+          users,
+          "You have been assigned as the new admin of the workspace " +
+            workspaceData?.name,
+          `/workspace/${workspaceData?.id}`
+        );
         // Refresh workspace data to reflect changes
         window.location.reload();
       } else {
         throw new Error(response.data.message || "Failed to assign admin role");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to assign admin role";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to assign admin role";
       NotificationService.showError(errorMessage);
       console.error("Error assigning admin role:", err);
     } finally {
       setAssigningAdmin(null);
       setAdminRoleModalOpen(false);
-
     }
   };
 
@@ -859,7 +867,7 @@ const Workspace = () => {
             >
               {isLeaving ? "Leaving..." : "Leave"}
             </Button>
-            
+
             {workspaceData.role === "admin" && (
               <Tooltip title="Admin Options" arrow>
                 <IconButton
@@ -1066,8 +1074,10 @@ const Workspace = () => {
             sx={{
               flex: 1,
               p: { xs: 2, sm: 3 },
-              overflow: "auto",
+              overflow: "hidden",
               minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             {getTabContent()}

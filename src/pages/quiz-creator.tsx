@@ -27,6 +27,7 @@ import { QuizService } from "../services/QuizService"
 import { useThemeContext } from "../context/ThemeContext"
 import { useGroup } from "../context/GroupContext"
 import { notifyUsers } from "../services/NotifyService"
+import { useWorkspace } from "../context/WorkspaceContext"
 
 
 interface QuizData {
@@ -53,6 +54,7 @@ export default function QuizCreator() {
   const [isPublishing, setIsPublishing] = useState(false)
 
   const { fetchGroupMembers, groupMembers } = useGroup()
+  const { workspaceData } = useWorkspace()
   
   // Get groupId from navigation state
   const groupId = location.state?.groupId
@@ -178,8 +180,12 @@ export default function QuizCreator() {
       groupMembers.map((member) => {
         members.push(member.userId)
       })
-      notifyUsers(members, `A new quiz ${quizData.metadata.title}, has been published to your group`)
-
+      notifyUsers(
+        members,
+        `A new quiz ${quizData.metadata.title}, has been published to your group`,
+        `/workspace/${workspaceData?.id}`
+      );
+      
       setTimeout(() => {
         navigate(-1)
       }, 2000)
