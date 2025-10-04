@@ -22,6 +22,9 @@ import { AppContext } from "../../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import { handleLogging } from "../../services/LoggingService";
+import { useGroup } from "../../context/GroupContext";
+import { notifyUsers } from "../../services/NotifyService";
+import { useWorkspace } from "../../context/WorkspaceContext";
 
 interface Documents {
   documentId: string;
@@ -45,6 +48,14 @@ export default function RealTimeCollaboration({
   const [documents, setDocuments] = useState<Documents[]>([]);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
   const [documentError, setDocumentError] = useState<string | null>(null);
+  const { fetchGroupMembers, groupMembers } = useGroup();
+  const { workspaceData } = useWorkspace();
+
+  useEffect(() => {
+    if (groupId) {
+      fetchGroupMembers(groupId);
+    }
+  }, [groupId, fetchGroupMembers]);
 
   useEffect(() => {
     // Clear previous data immediately when groupId changes
@@ -82,12 +93,22 @@ export default function RealTimeCollaboration({
         }/documents/create-document/${groupId}`,
         { userId: userId }
       );
-      handleLogging("Created a new collaborative document")
+      handleLogging("Created a new collaborative document");
+      let members: string[] = [];
+      groupMembers.map((member) => {
+        members.push(member.userId);
+      });
+      notifyUsers(
+        members,
+        `A new document ${response.data.document.title}, has been created in your group`,
+        `/workspace/${workspaceData?.id}`
+      );
+
       const newDocId = response.data.document.docId;
       const docData = {
         documentId: newDocId,
         groupId: groupId,
-      }
+      };
       navigate(`/documents/${newDocId}`, { state: docData });
     } catch (error) {
       console.error(error);
@@ -119,7 +140,9 @@ export default function RealTimeCollaboration({
         console.error("Failed to add collaborator", error);
       }
     }
-    handleLogging(`Joined with collaborative document: ${selectedDoc.documentTitle}`)
+    handleLogging(
+      `Joined with collaborative document: ${selectedDoc.documentTitle}`
+    );
     // Navigate to editor
     const docData = {
       documentId: selectedDoc?.documentId,
