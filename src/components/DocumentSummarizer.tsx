@@ -29,6 +29,7 @@ import {
   Download,
   Refresh
 } from '@mui/icons-material';
+import axios from 'axios';
 
 interface SummarySettings {
   summaryLength: 'short' | 'medium' | 'detailed';
@@ -55,23 +56,24 @@ const DocumentSummarizer = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-  
     setUploadedFileName(file.name);
     setError('');
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      setDocumentText(text);
-      setWordCount(text.split(/\s+/).filter(word => word.length > 0).length);
-    };
-
-    if (file.type === 'text/plain') {
-      reader.readAsText(file);
-    } else {
-      // For other file types, show message that text extraction is needed
-      setError('PDF and Word document parsing requires backend integration. Please paste text manually or upload a .txt file.');
+    
+    const supportedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
+    const supportedExtensions = ['.txt', '.pdf', '.docx', '.doc'];
+    
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    const isSupported = supportedTypes.includes(file.type) || supportedExtensions.includes(fileExtension);
+    
+    if (!isSupported) {
+      setError('Unsupported file type. Please upload .txt, .pdf, .doc, or .docx files.');
+      return;
     }
+
+    
+    setDocumentText('');
+    setWordCount(0);
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -81,7 +83,117 @@ const DocumentSummarizer = () => {
     setError('');
   };
 
-  
+  const handleSummarizeUnified = async () => {
+    
+    const file = fileInputRef.current?.files?.[0];
+    
+    if (file) {
+    
+      await handlesummerizefile();
+    } else if (documentText.trim()) {
+    
+      await handleSummarize();
+    } else {
+      setError('Please provide text to summarize or upload a file');
+    }
+  };
+
+  const handleSummarize = async () => {
+    if (!documentText.trim()) {
+      setError('Please provide text to summarize');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/study-plans/summarize/text`,
+        {
+          text: documentText,
+          Length: settings.summaryLength,
+          focus: settings.focusArea,
+          tone: settings.tone
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+     
+      
+      if (response.data && response.data.success && response.data.data && response.data.data.summary) {
+        
+        setSummary(response.data.data.summary);
+      } else {
+        console.log('Response structure:', response.data);
+        setError(response.data?.message || 'Failed to generate summary');
+      }
+    } catch (error: any) {
+      console.error('Summarization error:', error);
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.message) {
+        setError(`Network error: ${error.message}`);
+      } else {
+        setError('Failed to generate summary. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlesummerizefile = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) {
+      setError('Please select a file to summarize');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/study-plans/summarize/file?length=${settings.summaryLength}&focus=${settings.focusArea}&tone=${settings.tone}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        }
+      );
+
+      if (response.data && response.data.success && response.data.data && response.data.data.summary) {
+        setSummary(response.data.data.summary);
+        
+        if (response.data.data.originalText) {
+          setDocumentText(response.data.data.originalText);
+          setWordCount(response.data.data.originalLength || 0);
+        }
+      } else {
+        console.log('Full response:', response.data);
+        setError(response.data?.message || 'Failed to generate summary');
+      }
+    } catch (error: any) {
+      console.error('File summarization error:', error);
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.message) {
+        setError(`Network error: ${error.message}`);
+      } else {
+        setError('Failed to summarize file. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(summary);
@@ -151,17 +263,23 @@ const DocumentSummarizer = () => {
                 </Button>
                 
                 {uploadedFileName && (
-                  <Chip
-                    label={uploadedFileName}
-                    onDelete={() => {
-                      setUploadedFileName('');
-                      setDocumentText('');
-                      setWordCount(0);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
-                    }}
-                    color="primary"
-                    variant="outlined"
-                  />
+                  <Box sx={{ mt: 1 }}>
+                    <Chip
+                      label={uploadedFileName}
+                      onDelete={() => {
+                        setUploadedFileName('');
+                        setDocumentText('');
+                        setWordCount(0);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }}
+                      color="primary"
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                    />
+                    <Typography variant="caption" display="block" color="text.secondary">
+                      File ready for summarization. Click "Generate Summary" to process.
+                    </Typography>
+                  </Box>
                 )}
               </Box>
 
@@ -253,13 +371,10 @@ const DocumentSummarizer = () => {
               <Button
                 variant="contained"
                 size="large"
-                disabled={loading || !documentText.trim()}
+                disabled={loading || (!documentText.trim() && !fileInputRef.current?.files?.[0])}
                 startIcon={loading ? <CircularProgress size={20} /> : <AutoAwesome />}
                 sx={{ mt: 3, width: '100%' }}
-                onClick={() => {
-                  // Simulate summary generation
-                  setLoading(true);
-                }}
+                onClick={handleSummarizeUnified}
               >
                 {loading ? 'Generating Summary...' : 'Generate Summary'}
               </Button>
@@ -289,7 +404,7 @@ const DocumentSummarizer = () => {
                     <IconButton size="small" onClick={downloadSummary} title="Download summary">
                       <Download />
                     </IconButton>
-                    <IconButton size="small" title="Regenerate summary">
+                    <IconButton size="small" onClick={handleSummarizeUnified} title="Regenerate summary" disabled={loading}>
                       <Refresh />
                     </IconButton>
                   </Box>
