@@ -15,6 +15,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
 import Dashboard from "./pages/Dashboard";
+import ViewAll from "./pages/ViewAll";
 import CollaborativeDocumentEditor from "./components/RealTimeCollaboration/CollaborativeDocumentEditor";
 import { PrivateRoute } from "./Routes/ProtectedRoutes";
 
@@ -102,6 +103,14 @@ const App = () => {
           element={
             <MainLayout>
               <Dashboard />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/view-all"
+          element={
+            <MainLayout>
+              <ViewAll />
             </MainLayout>
           }
         />

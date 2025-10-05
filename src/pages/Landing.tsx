@@ -25,6 +25,7 @@ import {
   AccessTime,
   TrendingUp,
   Dashboard,
+  ArrowForward,
 } from "@mui/icons-material";
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
@@ -730,20 +731,22 @@ const Landing = () => {
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {logs.length > 0 ? (
-                logs
-                  .sort(
-                    (a, b) =>
-                      new Date(b.timestamp).getTime() -
-                      new Date(a.timestamp).getTime()
-                  ) // newest first
-                  .filter((log) => {
-                    const logTime = new Date(log.timestamp);
-                    return (
-                      new Date().getTime() - logTime.getTime() <=
-                      24 * 60 * 60 * 1000
-                    ); // last 24 hour
-                  })
-                  .map((activity, index) => (
+                <>
+                  {logs
+                    .sort(
+                      (a, b) =>
+                        new Date(b.timestamp).getTime() -
+                        new Date(a.timestamp).getTime()
+                    ) // newest first
+                    .filter((log) => {
+                      const logTime = new Date(log.timestamp);
+                      return (
+                        new Date().getTime() - logTime.getTime() <=
+                        24 * 60 * 60 * 1000
+                      ); // last 24 hour
+                    })
+                    .slice(0, 5) // Limit to 5 recent activities
+                    .map((activity, index) => (
                     <Slide
                       in={mounted}
                       direction="up"
@@ -797,9 +800,30 @@ const Landing = () => {
                           </Stack>
                         </CardContent>
                       </Card>
-                    </Slide>
-                  ))
-
+                      </Slide>
+                    ))}
+                  
+                  {/* View All Button */}
+                  {logs.length > 5 && (
+                    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                      <Button
+                        variant="outlined"
+                        endIcon={<ArrowForward />}
+                        onClick={() => navigate("/view-all")}
+                        sx={{
+                          borderRadius: 2,
+                          px: 3,
+                          py: 1,
+                          textTransform: "none",
+                          fontSize: "1rem",
+                          fontWeight: 500,
+                        }}
+                      >
+                        View All Activities
+                      </Button>
+                    </Box>
+                  )}
+                </>
               ) : (
                 <Card sx={glassCardStyles}>
                   <CardContent sx={{ textAlign: "center", p: 4 }}>
