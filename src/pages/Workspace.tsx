@@ -46,6 +46,7 @@ import {
   PersonRemove as LeaveIcon,
   Close as CloseIcon,
   Menu as MenuIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
@@ -84,6 +85,7 @@ const Workspace = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLeaving, setIsLeaving] = useState(false);
   const [joiningGroups, setJoiningGroups] = useState<Set<string>>(new Set());
+  const [deletingGroups, setDeletingGroups] = useState<Set<string>>(new Set());
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [groupDescription, setGroupDescription] = useState("");
@@ -288,6 +290,52 @@ const Workspace = () => {
     }
   };
 
+  // Add missing handleDeleteGroup function
+  const handleDeleteGroup = async (groupId: string) => {
+    if (!window.confirm("Are you sure you want to delete this group?")) return;
+    if (!workspaceId) {
+      NotificationService.showError("Workspace ID not found");
+      return;
+    }
+    try {
+      setDeletingGroups((prev) => new Set(prev).add(groupId));
+      const response = await axios.post(
+        `http://localhost:3000/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        NotificationService.showInfo("Group deleted successfully");
+        handleLogging(
+          `Deleted the group ${
+            groups.find((g) => g.id === groupId)?.name || ""
+          } in the workspace ${workspaceData?.name}`
+        );
+        setGroups((prevGroups) =>
+          prevGroups.filter((group) => group.id !== groupId)
+        );
+        if (selectedGroup === groupId) {
+          const joinedGroups = groups.filter(
+            (group) => group.id !== groupId && group.isMember
+          );
+          setSelectedGroup(joinedGroups.length > 0 ? joinedGroups[0].id : groups.length > 0 ? groups[0].id : null);
+        }
+      } else {
+        throw new Error(response.data.message || "Failed to delete group");
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete group";
+      NotificationService.showError(errorMessage);
+      console.error("Error deleting group:", err);
+    } finally {
+      setDeletingGroups((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(groupId);
+        return newSet;
+      });
+    }
+  };
+
   const handleCloseCreateDialog = () => {
     setCreateGroupOpen(false);
     setGroupName("");
@@ -387,7 +435,7 @@ const Workspace = () => {
                       fontSize: { xs: "0.7rem", sm: "0.75rem" },
                     }}
                   />
-                  <Box sx={{ ml: { xs: 0.5, sm: 1 } }}>
+                  <Box sx={{ ml: { xs: 0.5, sm: 1 }, display: "flex", gap: 0.5 }}>
                     {joiningGroups.has(group.id) ? (
                       <CircularProgress size={16} />
                     ) : group.isMember ? (
@@ -437,6 +485,38 @@ const Workspace = () => {
                           }}
                         >
                           <JoinIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {/* Delete button - only for workspace admins */}
+                    {workspaceData?.role === "admin" && (
+                      <Tooltip title="Delete Group">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteGroup(group.id);
+                          }}
+                          disabled={deletingGroups.has(group.id)}
+                          sx={{
+                            color:
+                              selectedGroup === group.id
+                                ? "primary.contrastText"
+                                : "error.main",
+                            p: { xs: 0.5, sm: 1 },
+                            "&:hover": {
+                              bgcolor: "rgba(211, 47, 47, 0.1)",
+                            },
+                            "&.Mui-disabled": {
+                              opacity: 0.5,
+                            },
+                          }}
+                        >
+                          {deletingGroups.has(group.id) ? (
+                            <CircularProgress size={16} />
+                          ) : (
+                            <DeleteIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />
+                          )}
                         </IconButton>
                       </Tooltip>
                     )}
