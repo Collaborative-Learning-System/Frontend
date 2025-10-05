@@ -217,7 +217,8 @@ const Workspace = () => {
           if (joinedGroups.length > 0) {
             updateSelectedGroup(joinedGroups[0].id);
           } else if (response.data.data.groups.length > 0) {
-            updateSelectedGroup(response.data.data.groups[0].id);
+            // updateSelectedGroup(response.data.data.groups[0].id);
+            setSelectedGroup(null);
           }
         } else {
           throw new Error(response.data.message || "Failed to fetch groups");
@@ -271,7 +272,8 @@ const Workspace = () => {
           if (remainingJoinedGroups.length > 0) {
             updateSelectedGroup(remainingJoinedGroups[0].id);
           } else {
-            updateSelectedGroup(groups.length > 0 ? groups[0].id : null);
+            // updateSelectedGroup(groups.length > 0 ? groups[0].id : null);
+            setSelectedGroup(null);
           }
         }
       } else {
