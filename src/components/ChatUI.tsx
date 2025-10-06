@@ -6,7 +6,6 @@ import {
   TextField,
   IconButton,
   Avatar,
-  Divider,
   Popper,
   ClickAwayListener,
   Fade,
@@ -54,6 +53,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -202,6 +202,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   // Reset messages when groupId changes to maintain separate chats per group
   useEffect(() => {
     setMessages([]);
+    setIsInitialLoad(true); // Reset initial load state for new group
   }, [groupId]);
 
   // Join group when groupId changes
@@ -216,8 +217,23 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   }, [socket, groupId, isConnected]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    // Only auto-scroll if there are messages and it's not the initial load
+    if (messages.length > 0 && !isInitialLoad) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+    
+    // After first messages load, set initial load to false
+    if (messages.length > 0 && isInitialLoad) {
+      setTimeout(() => {
+        setIsInitialLoad(false);
+        // Scroll without animation on initial load
+        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+      }, 500);
+    }
+  }, [messages, isInitialLoad]);
 
   const handleSend = () => {
     if (input.trim() === "" || !socket || !groupId) return;
@@ -292,8 +308,8 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: { xs: "70vh", sm: "500px" },
-        minHeight: "400px",
+        height: "100%",
+        maxHeight: "100%",
         borderRadius: 3,
         overflow: "hidden",
         bgcolor: "background.paper",
@@ -306,9 +322,12 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
         <Box
           sx={{
             p: 1,
-            bgcolor: "warning.light",
-            color: "warning.contrastText",
+            bgcolor: "action.hover",
+            color: "text.secondary",
             textAlign: "center",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            transition: "all 0.3s ease-in-out",
           }}
         >
           <Typography variant="caption">Connecting to chat...</Typography>
@@ -319,35 +338,28 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
       <Box
         sx={{
           flex: 1,
-          overflow: "hidden",
+          overflowY: "auto",
+          p: { xs: 2, sm: 3 },
           display: "flex",
           flexDirection: "column",
+          gap: 2,
+          minHeight: 0, // Important for flex scrolling
+          "&::-webkit-scrollbar": {
+            width: "6px",
+          },
+          "&::-webkit-scrollbar-track": {
+            bgcolor: "rgba(0,0,0,0.05)",
+            borderRadius: "3px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            bgcolor: "primary.light",
+            borderRadius: "3px",
+            "&:hover": {
+              bgcolor: "primary.main",
+            },
+          },
         }}
       >
-        <Box
-          sx={{
-            flex: 1,
-            overflowY: "auto",
-            p: { xs: 2, sm: 3 },
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            "&::-webkit-scrollbar": {
-              width: "6px",
-            },
-            "&::-webkit-scrollbar-track": {
-              bgcolor: "rgba(0,0,0,0.05)",
-              borderRadius: "3px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              bgcolor: "primary.light",
-              borderRadius: "3px",
-              "&:hover": {
-                bgcolor: "primary.main",
-              },
-            },
-          }}
-        >
           {messages.map((msg, index) => (
             <Fade key={msg.id} in={true} timeout={300 * (index + 1)}>
               <Box
@@ -468,19 +480,17 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
             </Fade>
           ))}
 
-          <div ref={messagesEndRef} />
-        </Box>
+        <div ref={messagesEndRef} />
       </Box>
 
       {/* Input Area */}
-      <Divider />
       <Box
         sx={{
           p: { xs: 1.5, sm: 2 },
-          bgcolor: "grey.50",
+          bgcolor: "background.paper",
           borderTop: "1px solid",
           borderColor: "divider",
-          backgroundColor: theme.palette.background.paper,
+          flexShrink: 0, // Prevent input area from shrinking
         }}
       >
         <input

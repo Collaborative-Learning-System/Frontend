@@ -397,7 +397,7 @@ export default function UserProfile() {
               color="primary"
               disabled={isEditing}
               onClick={() => {
-                navigate("/reset-password");
+                navigate(`/reset-password/${userData?.userId}`);
               }}
             >
               Reset Password

@@ -107,12 +107,14 @@ export default function CollaborativeDocumentEditor() {
 
     // Listen for initialDoc send by the server when user join a document
     socket.on("initDoc", (data: { update: Uint8Array }) => {
+      console.log("Received initial document from server");
       if (data.update) {
         Y.applyUpdate(ydoc, new Uint8Array(data.update));
       }
     });
 
     socket.on("syncUpdate", (data: { content: Uint8Array }) => {
+      console.log("Received update from server");
       if (data.content) {
         Y.applyUpdate(ydoc, new Uint8Array(data.content));
       }
@@ -256,7 +258,9 @@ export default function CollaborativeDocumentEditor() {
   };
 
   const handleRemoveEmail = (emailToRemove: string) => {
-    setGroupMembers(groupMembers.filter((member) => member.email !== emailToRemove));
+    setGroupMembers(
+      groupMembers.filter((member) => member.email !== emailToRemove)
+    );
   };
 
   const handleShareWithEmails = async () => {
@@ -275,7 +279,6 @@ export default function CollaborativeDocumentEditor() {
     } finally {
       setShareModalOpen(false);
       setEmailList([]);
-     
     }
   };
   if (!editor) {
@@ -433,7 +436,7 @@ export default function CollaborativeDocumentEditor() {
                   fontWeight: "bold",
                   margin: "2em 0 0.5em 0",
                   color: theme.palette.primary.main,
-                  "&:first-child": { marginTop: 0 },
+                  "&:first-of-type": { marginTop: 0 },
                 },
                 "& h2": {
                   fontSize: "2em",
@@ -536,7 +539,6 @@ export default function CollaborativeDocumentEditor() {
           </Typography>
 
           <Stack spacing={2}>
-
             {groupMembers.length > 0 && (
               <Box>
                 <Typography

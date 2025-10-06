@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { ThemeContextProvider } from "./context/ThemeContext";
+import { GroupProvider } from "./context/GroupContext";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import MainLayout from "./layouts/MainLayout";
@@ -20,7 +21,8 @@ import { PrivateRoute } from "./Routes/ProtectedRoutes";
 const App = () => {
   return (
     <ThemeContextProvider>
-      <Routes>
+      <GroupProvider>
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route
@@ -106,7 +108,8 @@ const App = () => {
         <Route path="/reset-password/:userId" element={<ResetPassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
-      </Routes>
+        </Routes>
+      </GroupProvider>
     </ThemeContextProvider>
   );
 };
