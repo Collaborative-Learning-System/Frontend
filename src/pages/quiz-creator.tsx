@@ -179,7 +179,6 @@ export default function QuizCreator() {
       groupMembers.map((member) => {
         members.push(member.userId);
       });
-      console.log(selectedGroup);
       notifyUsers(
         members,
         `A new quiz, ${
