@@ -33,7 +33,6 @@ import {
   AutoFixHigh,
   AccessTime,
 } from "@mui/icons-material";
-import AssessmentIcon from "@mui/icons-material/Assessment";
 import { useContext, useEffect, useState, useCallback } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
@@ -44,6 +43,7 @@ import {
 } from "../services/StudyPlanService";
 import StudyPlanCard from "../components/StudyPlanCard";
 import StudyPlanViewModal from "../components/StudyPlanViewModal";
+import PageHeader from "../components/PageHeader";
 import { handleLogging } from "../services/LoggingService";
 
 interface WorkspaceData {
@@ -268,7 +268,7 @@ const Dashboard = () => {
     if (!userId) return;
 
     console.log("Fetching suggested workspaces for user:", userId);
-    
+
     try {
       const response = await axios.get(
         `${
@@ -336,22 +336,13 @@ const Dashboard = () => {
       }}
     >
       {/* Header Section */}
-      <Box
-        sx={{
-          mb: 3,
-          p: 1,
-          borderBottom: `2px solid ${theme.palette.divider}`,
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <AssessmentIcon
-          sx={{ fontSize: 30, color: theme.palette.primary.main, mr: 1 }}
-        />
-        <Typography variant="h5" fontWeight={700} display="inline">
-          Dashboard Overview
-        </Typography>
-      </Box>
+      <PageHeader
+        title="Dashboard Overview"
+        subtitle="Track your learning progress, manage study plans, and stay connected with your collaborative workspace"
+        //  icon={<AssessmentIcon fontSize="large" />}
+        gradient={true}
+        centerAlign={true}
+      />
 
       {/* Top 4 Stats Cards */}
       <Box
@@ -945,7 +936,11 @@ const Dashboard = () => {
                 Suggested Workspaces to Join
               </Typography>
             </Box>
-            <Button variant="text" size="small" onClick={fetchSuggestedWorkspaces}>
+            <Button
+              variant="text"
+              size="small"
+              onClick={fetchSuggestedWorkspaces}
+            >
               Get Suggestions
             </Button>
           </Box>

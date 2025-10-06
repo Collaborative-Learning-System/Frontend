@@ -154,8 +154,11 @@ export default function RealTimeCollaboration({
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        //minHeight: "100vh",
         backgroundColor: theme.palette.background.default,
+        width: "100%",
+        height: "100%",
+        overflow: "auto",
       }}
     >
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -224,9 +227,6 @@ export default function RealTimeCollaboration({
               >
                 {isCreatingDocument ? "Creating..." : "New Document"}
               </Button>
-              {/* <Button variant="outlined" startIcon={<Folder />}>
-                  Import
-                </Button> */}
             </Stack>
           </Stack>
         </Paper>
