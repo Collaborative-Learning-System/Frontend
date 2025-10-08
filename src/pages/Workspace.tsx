@@ -60,6 +60,7 @@ import { useWorkspace } from "../context/WorkspaceContext";
 import { useGroup } from "../context/GroupContext";
 import { AppContext } from "../context/AppContext";
 import { notifyUsers } from "../services/NotifyService";
+import WorkspaceInviteModal from "../components/WorkspaceInviteModal";
 
 interface WorkspaceData {
   id: string;
@@ -110,6 +111,7 @@ const Workspace = () => {
   );
   const [adminRoleModalOpen, setAdminRoleModalOpen] = useState(false);
   const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
   const { userId } = useContext(AppContext);
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -123,9 +125,9 @@ const Workspace = () => {
   // Helper function to update both local and global selected group
   const updateSelectedGroup = (groupId: string | null) => {
     setSelectedGroup(groupId);
-    
+
     if (groupId) {
-      const groupData = groups.find(g => g.id === groupId);
+      const groupData = groups.find((g) => g.id === groupId);
       console.log("groupData", groupData);
       if (groupData) {
         setGlobalSelectedGroup(groupData);
@@ -648,6 +650,30 @@ const Workspace = () => {
   const handleCloseAdminRoleModal = () => {
     setAdminRoleModalOpen(false);
     setAssigningAdmin(null);
+  };
+
+  const handleOpenInviteModal = () => {
+    setInviteModalOpen(true);
+    handleAdminMenuClose();
+  };
+
+  const handleCloseInviteModal = () => {
+    setInviteModalOpen(false);
+  };
+
+  const handleInviteSuccess = async () => {
+    // Refresh workspace members after successful invitations
+    if (!workspaceId) return;
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/workspaces/get-workspace-members/${workspaceId}`
+      );
+      setWorkspaceMembers(response.data.data);
+    } catch (error) {
+      console.error("Error refreshing workspace members:", error);
+    }
   };
 
   const handleMakeAdmin = async (memberId: string) => {
@@ -1254,6 +1280,10 @@ const Workspace = () => {
           },
         }}
       >
+        <MenuItem onClick={handleOpenInviteModal}>
+          <JoinIcon sx={{ mr: 1 }} />
+          Invite Members
+        </MenuItem>
         <MenuItem onClick={handleOpenAdminRoleModal}>
           <AdminIcon sx={{ mr: 1 }} />
           Grant Admin Role
@@ -1370,6 +1400,15 @@ const Workspace = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Workspace Invite Modal */}
+      <WorkspaceInviteModal
+        open={inviteModalOpen}
+        onClose={handleCloseInviteModal}
+        workspaceId={workspaceId || ""}
+        workspaceName={workspaceData?.name || ""}
+        onInviteSuccess={handleInviteSuccess}
+      />
     </Box>
   );
 };
