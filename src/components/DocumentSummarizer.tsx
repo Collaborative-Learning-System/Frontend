@@ -224,16 +224,7 @@ const DocumentSummarizer = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
-      <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <AutoAwesome color="primary" />
-        Document Summarizer
-      </Typography>
-      
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Upload a document or paste text to generate an AI-powered summary using Google Gemini
-      </Typography>
-
+    <Box sx={{ maxWidth: 1300, mx: 'auto', }}>
       <Grid container spacing={3}>
         {/* Input Section */}
         <Grid size={{ xs: 12, md: 6 }}>

@@ -6,15 +6,11 @@ import {
   CardContent,
   Grid,
   useTheme,
-  alpha
-} from '@mui/material';
-import {
-  AutoAwesome,
-  Speed,
-  Security,
-  CloudQueue
-} from '@mui/icons-material';
-import DocumentSummarizer from '../components/DocumentSummarizer';
+  alpha,
+} from "@mui/material";
+import { AutoAwesome, Speed, Security, CloudQueue } from "@mui/icons-material";
+import DocumentSummarizer from "../components/DocumentSummarizer";
+import PageHeader from "../components/PageHeader";
 
 const DocumentSummary = () => {
   const theme = useTheme();
@@ -22,24 +18,25 @@ const DocumentSummary = () => {
   const features = [
     {
       icon: <AutoAwesome />,
-      title: 'AI-Powered',
-      description: 'Leverages Google Gemini AI for intelligent document analysis and summarization'
+      title: "AI-Powered",
+      description:
+        "Leverages Google Gemini AI for intelligent document analysis and summarization",
     },
     {
       icon: <Speed />,
-      title: 'Fast Processing',
-      description: 'Get comprehensive summaries in seconds, not hours'
+      title: "Fast Processing",
+      description: "Get comprehensive summaries in seconds, not hours",
     },
     {
       icon: <Security />,
-      title: 'Secure & Private',
-      description: 'Your documents are processed securely with privacy in mind'
+      title: "Secure & Private",
+      description: "Your documents are processed securely with privacy in mind",
     },
     {
       icon: <CloudQueue />,
-      title: 'Multiple Formats',
-      description: 'Supports text files, PDFs, and Word documents'
-    }
+      title: "Multiple Formats",
+      description: "Supports text files, PDFs, and Word documents",
+    },
   ];
 
   return (
@@ -71,39 +68,13 @@ const DocumentSummary = () => {
       }}
     >
       {/* Header Section */}
-      <Box sx={{ textAlign: "center", mb: 0 }}>
-        <Typography
-          variant="h4"
-          component="h1"
-          gutterBottom
-          sx={{
-            fontWeight: "bold",
-            background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          AI Document Summarizer
-        </Typography>
-        <Typography
-          variant="h6"
-          color="text.secondary"
-          sx={{ maxWidth: 800, mx: "auto", mb: 4 }}
-        >
-          Transform lengthy documents into clear, concise summaries using
-          advanced AI technology. Perfect for research papers, reports,
-          articles, and study materials.
-        </Typography>
-      </Box>
-
-      {/* Success Message */}
-      {/* <Fade in={showSuccessMessage}>
-        <Alert severity="success" sx={{ mb: 0, maxWidth: 600, mx: "auto" }}>
-          Summary generated successfully! Your document has been processed and
-          summarized.
-        </Alert>
-      </Fade> */}
+      <PageHeader
+        title="AI Document Summarizer"
+        subtitle="Transform lengthy documents into clear, concise summaries using advanced AI technology. Perfect for research papers, reports, articles, and study materials."
+        icon={<AutoAwesome />}
+        gradient={true}
+        centerAlign={true}
+      />
 
       {/* Main Summarizer Component */}
       <DocumentSummarizer />
