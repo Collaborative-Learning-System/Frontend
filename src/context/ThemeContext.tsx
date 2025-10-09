@@ -3,6 +3,16 @@ import type { ReactNode } from "react";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import type { PaletteMode } from "@mui/material";
 
+declare module '@mui/material/styles' {
+  interface PaletteColor {
+    chatBackground?: string;
+  }
+
+  interface SimplePaletteColorOptions {
+    chatBackground?: string;
+  }
+}
+
 interface ThemeContextType {
   mode: PaletteMode;
   toggleTheme: () => void;
@@ -37,9 +47,10 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
         palette: {
           mode,
           primary: {
-            main: "#2563eb",      // Main blue for actions
+            main: "#0084FF",      // Main blue for actions
             light: "#60a5fa",     // Lighter blue for hover/focus
-            dark: "#1e40af",      // Darker blue for emphasis
+            dark: "#1e40af",     // Darker blue for emphasis
+            chatBackground: "#1E90FF", // Dark blue for chat background
           },
           secondary: {
             main: "#2563eb",      // Use same blue for secondary

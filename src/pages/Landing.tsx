@@ -296,7 +296,7 @@ const Landing = () => {
                   variant="h3"
                   fontWeight="700"
                   sx={{
-                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.main})`,
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
@@ -381,7 +381,7 @@ const Landing = () => {
                       px: 4,
                       py: 1.5,
                       fontSize: "1.1rem",
-                      background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                      background: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.main})`,
                       boxShadow: `0 4px 20px ${alpha(
                         theme.palette.primary.main,
                         0.4
@@ -441,7 +441,7 @@ const Landing = () => {
                       px: 4,
                       py: 1.5,
                       fontSize: "1.1rem",
-                      background: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
+                      background: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.main})`,
                       boxShadow: `0 4px 20px ${alpha(
                         theme.palette.secondary.main,
                         0.4
