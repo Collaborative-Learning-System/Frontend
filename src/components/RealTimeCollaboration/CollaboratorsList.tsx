@@ -90,29 +90,13 @@ const CollaboratorsList: React.FC<CollaboratorsListProps> = ({
                       )}
                     </Typography>
                   }
-                  // variant={collaborator.isActive ? 'filled' : 'outlined'}
+        
                   size="small"
-                  // sx={{
-                  //   bgcolor: collaborator.isActive 
-                  //     ? alpha(collaborator.color, 0.1) 
-                  //     : 'transparent',
-                  //   borderColor: collaborator.color,
-                  //   opacity: collaborator.isActive ? 1 : 0.6,
-                  //   '&:hover': {
-                  //     opacity: 1,
-                  //   },
-                  // }}
                 />
               </Badge>
             </Box>
           </Tooltip>
         ))}
-        
-        {/* {collaborators.filter(c => c.isActive).length === 0 && (
-          <Typography variant="body2" sx={{ opacity: 0.6, fontStyle: 'italic' }}>
-            No active collaborators
-          </Typography>
-        )} */}
       </Stack>
     </Box>
   );

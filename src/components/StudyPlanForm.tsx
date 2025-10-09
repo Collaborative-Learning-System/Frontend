@@ -175,15 +175,6 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
   return (
     <Card>
       <CardContent sx={{ p: 4 }}>
-        <Box sx={{ mb: 3 }}>
-          <Typography
-            variant="h5"
-            sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
-          >
-            AI Study Plan Generator
-          </Typography>
-        </Box>
-
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -260,22 +251,6 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                 </Select>
               </FormControl>
             </Grid>
-
-            {/* Timeframe
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>Timeframe</InputLabel>
-                <Select
-                  value={formData.timeframe}
-                  label="Timeframe"
-                  onChange={(e) => setFormData(prev => ({ ...prev, timeframe: e.target.value }))}
-                >
-                  {timeframes.map((time) => (
-                    <MenuItem key={time} value={time}>{time}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid> */}
 
             {/* Start Date */}
             <Grid size={{ xs: 12, sm: 6 }}>

@@ -6,7 +6,6 @@ import {
   TextField,
   IconButton,
   Avatar,
-  Divider,
   Popper,
   ClickAwayListener,
   Fade,
@@ -320,6 +319,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
 
   useEffect(() => {
     setMessages([]);
+    setIsInitialLoad(true); // Reset initial load state for new group
   }, [groupId]);
 
   useEffect(() => {
@@ -330,8 +330,23 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   }, [socket, groupId, isConnected]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    // Only auto-scroll if there are messages and it's not the initial load
+    if (messages.length > 0 && !isInitialLoad) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+    
+    // After first messages load, set initial load to false
+    if (messages.length > 0 && isInitialLoad) {
+      setTimeout(() => {
+        setIsInitialLoad(false);
+        // Scroll without animation on initial load
+        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+      }, 500);
+    }
+  }, [messages, isInitialLoad]);
 
   const handleEmojiClick = (emoji: string) => {
     setInput((prev) => prev + emoji);
@@ -611,9 +626,12 @@ const sendMessage = async () => {
         <Box
           sx={{
             p: 1,
-            bgcolor: "warning.light",
-            color: "warning.contrastText",
+            bgcolor: "action.hover",
+            color: "text.secondary",
             textAlign: "center",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            transition: "all 0.3s ease-in-out",
           }}
         >
           <Typography variant="caption">Connecting to chat...</Typography>
@@ -755,10 +773,10 @@ const sendMessage = async () => {
       <Box
         sx={{
           p: { xs: 1.5, sm: 2 },
-          bgcolor: "grey.50",
+          bgcolor: "background.paper",
           borderTop: "1px solid",
           borderColor: "divider",
-          backgroundColor: theme.palette.background.paper,
+          flexShrink: 0, // Prevent input area from shrinking
         }}
       >
         <input
