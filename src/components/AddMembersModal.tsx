@@ -126,6 +126,7 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({
         }/api/workspaces/add-members/${entityId}`,
         {
           emails: emailList,
+          workspaceName: entityName,
         }
       );
       if (response.data.success) {
@@ -136,16 +137,6 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({
           failedUsers: failedUsers || [],
           alreadyMembers: alreadyMembers || [],
         });
-
-        // Check if all users were successfully added
-        const successfullyAdded =
-          emailList.length -
-          (failedUsers?.length || 0) -
-          (alreadyMembers?.length || 0);
-
-        if (successfullyAdded > 0) {
-          setSuccess(true);
-        }
 
         // Show results
         setShowResults(true);
