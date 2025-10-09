@@ -462,9 +462,9 @@ const sendMessage = async () => {
 
   const renderResourceContent = (resource: ResourceMessage, isOwnMessage: boolean) => {
     const chip = getResourceChip(resource.type);
-    const sharedOn = resource.uploadedAt
-      ? new Date(resource.uploadedAt).toLocaleString()
-      : "";
+    // const sharedOn = resource.uploadedAt
+    //   ? new Date(resource.uploadedAt).toLocaleString()
+    //   : "";
 
     return (
       <Stack spacing={1.2} sx={{ mt: resource.description || resource.title ? 1 : 0 }}>
