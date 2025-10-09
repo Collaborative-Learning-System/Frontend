@@ -867,7 +867,7 @@ const Workspace = () => {
             p: { xs: 2, sm: 3 },
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
+            alignItems: { xs: "stretch", sm: "flex-start" },
             flexDirection: { xs: "column", sm: "row" },
             gap: { xs: 2, sm: 0 },
           }}
@@ -876,28 +876,41 @@ const Workspace = () => {
             <Box
               sx={{
                 display: "flex",
-                alignItems: "center",
-                gap: 1,
-                mb: 1,
-                flexWrap: "wrap",
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: { xs: 1, sm: 1.5 },
+                mb: { xs: 1.5, sm: 1 },
+                flexDirection: { xs: "column", sm: "row" },
               }}
             >
-              <SchoolIcon
+              <Box
                 sx={{
-                  fontSize: { xs: 24, sm: 28, md: 32 },
-                  color: mode === "dark" ? theme.palette.primary.main : "white",
-                }}
-              />
-              <Typography
-                variant="h4"
-                sx={{
-                  color: mode === "dark" ? theme.palette.primary.main : "white",
-                  fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2.125rem" },
-                  wordBreak: "break-word",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  width: "100%",
                 }}
               >
-                {workspaceData.name}
-              </Typography>
+                <SchoolIcon
+                  sx={{
+                    fontSize: { xs: 28, sm: 28, md: 32 },
+                    color: mode === "dark" ? theme.palette.primary.main : "white",
+                    flexShrink: 0,
+                  }}
+                />
+                <Typography
+                  variant="h4"
+                  sx={{
+                    color: mode === "dark" ? theme.palette.primary.main : "white",
+                    fontSize: { xs: "1.4rem", sm: "1.75rem", md: "2.125rem" },
+                    fontWeight: { xs: 600, sm: 400 },
+                    lineHeight: { xs: 1.2, sm: 1.4 },
+                    wordBreak: "break-word",
+                    flex: 1,
+                  }}
+                >
+                  {workspaceData.name}
+                </Typography>
+              </Box>
             </Box>
             <Typography
               variant="body1"
@@ -905,7 +918,9 @@ const Workspace = () => {
                 opacity: 0.9,
                 color: mode === "dark" ? "inherit" : "white",
                 fontSize: { xs: "0.875rem", sm: "1rem" },
+                lineHeight: { xs: 1.4, sm: 1.5 },
                 wordBreak: "break-word",
+                display: { xs: "none", sm: "block" },
               }}
             >
               {workspaceData.description || "No description available"}
@@ -915,101 +930,135 @@ const Workspace = () => {
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
+              alignItems: { xs: "stretch", sm: "center" },
               gap: { xs: 1, sm: 1.5 },
               flexDirection: { xs: "column", sm: "row" },
-              flexWrap: "wrap",
               justifyContent: { xs: "stretch", sm: "flex-end" },
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            {workspaceData.role === "admin" && (
+            {/* Info Chips Row */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                justifyContent: { xs: "space-between", sm: "flex-end" },
+                flexWrap: { xs: "nowrap", sm: "wrap" },
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              {workspaceData.role === "admin" && (
+                <Chip
+                  icon={<AdminIcon sx={{ color: "white" }} />}
+                  label="Admin"
+                  color="secondary"
+                  size={isMobile ? "small" : "small"}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    color: "white",
+                    "& .MuiChip-icon": { color: "white" },
+                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                    height: { xs: 28, sm: 32 },
+                  }}
+                />
+              )}
+              {workspaceData.role !== "admin" && (
+                <Tooltip
+                  title={`Workspace Admin: ${workspaceData.adminName}`}
+                  arrow
+                >
+                  <Chip
+                    icon={<AdminIcon sx={{ color: "white" }} />}
+                    label={workspaceData.adminName}
+                    variant="outlined"
+                    size={isMobile ? "small" : "small"}
+                    sx={{
+                      borderColor: "rgba(255,255,255,0.3)",
+                      color: "white",
+                      "& .MuiChip-icon": { color: "white" },
+                      maxWidth: { xs: "120px", sm: "150px" },
+                      "& .MuiChip-label": {
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      },
+                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                      height: { xs: 28, sm: 32 },
+                    }}
+                  />
+                </Tooltip>
+              )}
               <Chip
-                icon={<AdminIcon sx={{ color: "white" }} />}
-                label="Admin"
+                icon={<GroupIcon sx={{ color: "white" }} />}
+                label={`${workspaceData.memberCount} Members`}
                 color="secondary"
-                size="small"
+                size={isMobile ? "small" : "small"}
                 sx={{
                   bgcolor: "rgba(255,255,255,0.2)",
                   color: "white",
                   "& .MuiChip-icon": { color: "white" },
+                  fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                  height: { xs: 28, sm: 32 },
                 }}
               />
-            )}
-            {workspaceData.role !== "admin" && (
-              <Tooltip
-                title={`Workspace Admin: ${workspaceData.adminName}`}
-                arrow
-              >
-                <Chip
-                  icon={<AdminIcon sx={{ color: "white" }} />}
-                  label={workspaceData.adminName}
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: "white",
-                    "& .MuiChip-icon": { color: "white" },
-                    maxWidth: "150px",
-                    "& .MuiChip-label": {
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    },
-                  }}
-                />
-              </Tooltip>
-            )}
-            <Chip
-              icon={<GroupIcon sx={{ color: "white" }} />}
-              label={`${workspaceData.memberCount} Members`}
-              color="secondary"
-              size="small"
-              sx={{
-                bgcolor: "rgba(255,255,255,0.2)",
-                color: "white",
-                "& .MuiChip-icon": { color: "white" },
-              }}
-            />
-            <Button
-              variant="outlined"
-              color="warning"
-              size="small"
-              startIcon={<ExitIcon />}
-              disabled={isLeaving}
-              sx={{
-                borderColor: "rgba(255,255,255,0.5)",
-                color: "white",
-                minWidth: { xs: "100%", sm: "auto" },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                "&:hover": {
-                  borderColor: "white",
-                  bgcolor: "rgba(255,255,255,0.1)",
-                },
-                "&:disabled": {
-                  borderColor: "rgba(255,255,255,0.3)",
-                  color: "rgba(255,255,255,0.5)",
-                },
-              }}
-              onClick={handleLeaveWorkspace}
-            >
-              {isLeaving ? "Leaving..." : "Leave"}
-            </Button>
+            </Box>
 
-            {workspaceData.role === "admin" && (
-              <Tooltip title="Admin Options" arrow>
-                <IconButton
-                  onClick={handleAdminMenuClick}
-                  sx={{
-                    color: "white",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.1)",
-                    },
-                  }}
-                >
-                  <MoreVertIcon />
-                </IconButton>
-              </Tooltip>
-            )}
+            {/* Action Buttons Row */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 1, sm: 1.5 },
+                justifyContent: { xs: "stretch", sm: "flex-end" },
+                width: { xs: "100%", sm: "auto" },
+              }}
+            >
+              <Button
+                variant="outlined"
+                color="warning"
+                size={isMobile ? "medium" : "small"}
+                startIcon={<ExitIcon />}
+                disabled={isLeaving}
+                sx={{
+                  borderColor: "rgba(255,255,255,0.5)",
+                  color: "white",
+                  flex: { xs: 1, sm: "none" },
+                  minWidth: { xs: "auto", sm: "auto" },
+                  fontSize: { xs: "0.8rem", sm: "0.8rem" },
+                  py: { xs: 1, sm: 0.5 },
+                  "&:hover": {
+                    borderColor: "white",
+                    bgcolor: "rgba(255,255,255,0.1)",
+                  },
+                  "&:disabled": {
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "rgba(255,255,255,0.5)",
+                  },
+                }}
+                onClick={handleLeaveWorkspace}
+              >
+                {isLeaving ? "Leaving..." : "Leave"}
+              </Button>
+
+              {workspaceData.role === "admin" && (
+                <Tooltip title="Admin Options" arrow>
+                  <IconButton
+                    onClick={handleAdminMenuClick}
+                    sx={{
+                      color: "white",
+                      bgcolor: { xs: "rgba(255,255,255,0.1)", sm: "transparent" },
+                      border: { xs: "1px solid rgba(255,255,255,0.3)", sm: "none" },
+                      minWidth: { xs: 48, sm: "auto" },
+                      "&:hover": {
+                        bgcolor: "rgba(255,255,255,0.2)",
+                      },
+                    }}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
           </Box>
         </Box>
       </Paper>
@@ -1089,39 +1138,101 @@ const Workspace = () => {
         >
           {/* Mobile Group Selector Header */}
           {isMobile && (
-            <Box
+            <Paper
+              elevation={1}
               sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                p: 2,
+                p: { xs: 1.5, sm: 2 },
                 borderBottom: 1,
                 borderColor: "divider",
                 bgcolor: "background.paper",
+                borderRadius: 0,
+                position: "sticky",
+                top: 0,
+                zIndex: 1,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <IconButton onClick={handleDrawerToggle} sx={{ mr: 1 }}>
-                  <MenuIcon />
-                </IconButton>
-                <GroupIcon color="primary" />
-                <Typography variant="h6" sx={{ fontSize: "1rem" }}>
-                  {selectedGroup
-                    ? groups.find((g) => g.id === selectedGroup)?.name ||
-                      "Select Group"
-                    : "Select Group"}
-                </Typography>
-              </Box>
-              {workspaceData?.role === "admin" && (
-                <IconButton
-                  onClick={() => setCreateGroupOpen(true)}
-                  color="primary"
+              <Box 
+                sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: 1,
+                  flex: 1,
+                  minWidth: 0,
+                }}
+              >
+                <IconButton 
+                  onClick={handleDrawerToggle} 
+                  sx={{ 
+                    bgcolor: theme.palette.primary.main + "10",
+                    "&:hover": {
+                      bgcolor: theme.palette.primary.main + "20",
+                    },
+                  }}
                   size="small"
                 >
-                  <AddIcon />
+                  <MenuIcon color="primary" />
                 </IconButton>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    flex: 1,
+                    minWidth: 0,
+                    bgcolor: theme.palette.grey[100],
+                    borderRadius: 2,
+                    px: 1.5,
+                    py: 1,
+                    ...(mode === "dark" && {
+                      bgcolor: theme.palette.grey[800],
+                    }),
+                  }}
+                >
+                  <GroupIcon 
+                    color="primary" 
+                    sx={{ fontSize: 20, flexShrink: 0 }}
+                  />
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      fontSize: "0.9rem",
+                      fontWeight: 500,
+                      color: "text.primary",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {selectedGroup
+                      ? groups.find((g) => g.id === selectedGroup)?.name ||
+                        "Select Group"
+                      : "Select Group"}
+                  </Typography>
+                </Box>
+              </Box>
+              {workspaceData?.role === "admin" && (
+                <Tooltip title="Create New Group" arrow>
+                  <IconButton
+                    onClick={() => setCreateGroupOpen(true)}
+                    color="primary"
+                    size="small"
+                    sx={{
+                      bgcolor: theme.palette.primary.main,
+                      color: "white",
+                      ml: 1,
+                      "&:hover": {
+                        bgcolor: theme.palette.primary.dark,
+                      },
+                    }}
+                  >
+                    <AddIcon sx={{ fontSize: 20 }} />
+                  </IconButton>
+                </Tooltip>
               )}
-            </Box>
+            </Paper>
           )}
 
           {/* Tabs */}
