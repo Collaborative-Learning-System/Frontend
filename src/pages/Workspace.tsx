@@ -60,7 +60,7 @@ import { useWorkspace } from "../context/WorkspaceContext";
 import { useGroup } from "../context/GroupContext";
 import { AppContext } from "../context/AppContext";
 import { notifyUsers } from "../services/NotifyService";
-import WorkspaceInviteModal from "../components/WorkspaceInviteModal";
+import AddMembersModal from "../components/AddMembersModal";
 
 interface WorkspaceData {
   id: string;
@@ -1282,7 +1282,7 @@ const Workspace = () => {
       >
         <MenuItem onClick={handleOpenInviteModal}>
           <JoinIcon sx={{ mr: 1 }} />
-          Invite Members
+          Add Members
         </MenuItem>
         <MenuItem onClick={handleOpenAdminRoleModal}>
           <AdminIcon sx={{ mr: 1 }} />
@@ -1401,13 +1401,16 @@ const Workspace = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Workspace Invite Modal */}
-      <WorkspaceInviteModal
+      {/* Add Members Modal */}
+      <AddMembersModal
         open={inviteModalOpen}
         onClose={handleCloseInviteModal}
-        workspaceId={workspaceId || ""}
-        workspaceName={workspaceData?.name || ""}
-        onInviteSuccess={handleInviteSuccess}
+        entityId={workspaceId || ""}
+        entityName={workspaceData?.name || ""}
+        entityType="workspace"
+        title="Add Members to Workspace"
+        description={`Add new members to the "${workspaceData?.name || ""}" workspace.`}
+        onAddSuccess={handleInviteSuccess}
       />
     </Box>
   );
