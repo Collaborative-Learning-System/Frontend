@@ -17,6 +17,7 @@ import {
   Alert,
   CircularProgress,
   Tooltip,
+  Divider,
 } from "@mui/material";
 import {
   AttachFile as AttachFileIcon,
@@ -196,6 +197,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFilePreview, setSelectedFilePreview] = useState<string | null>(null);
   const [selectedFileMime, setSelectedFileMime] = useState<string | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
