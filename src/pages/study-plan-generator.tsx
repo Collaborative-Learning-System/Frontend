@@ -12,15 +12,12 @@ import {
   useTheme,
   Alert,
 } from "@mui/material";
-import {
-  AutoAwesome,
-  Schedule,
-  CheckCircle,
-} from "@mui/icons-material";
+import { AutoAwesome, Schedule, CheckCircle } from "@mui/icons-material";
 import { toast } from "react-toastify";
 
 import StudyPlanForm from "../components/StudyPlanForm";
 import StudyPlanDisplay from "../components/StudyPlanDisplay";
+import PageHeader from "../components/PageHeader";
 import { AppContext } from "../context/AppContext";
 import { generateStudyPlan as apiGenerateStudyPlan } from "../services/StudyPlanService";
 
@@ -96,39 +93,45 @@ export default function StudyPlanGenerator() {
         startDate: formData.startDate,
         endDate: formData.endDate,
         dailyHours: formData.dailyHours,
-        preferredTimeSlots: formData.preferredTimes.length > 0 ? formData.preferredTimes : ["Morning (9-12 PM)"],
+        preferredTimeSlots:
+          formData.preferredTimes.length > 0
+            ? formData.preferredTimes
+            : ["Morning (9-12 PM)"],
         includeRegularBreaks: formData.includeBreaks,
         studygoal: formData.studyGoal,
-        learningstyle: formData.learningStyle.length > 0 ? formData.learningStyle.join(", ") : "Visual",
+        learningstyle:
+          formData.learningStyle.length > 0
+            ? formData.learningStyle.join(", ")
+            : "Visual",
         // Add difficulty level if needed by backend
         difficultyLevel: formData.difficulty || "Intermediate",
       };
 
-      console.log('Form data being sent:', requestData);
-      console.log('userId type:', typeof userId, 'value:', userId);
+      console.log("Form data being sent:", requestData);
+      console.log("userId type:", typeof userId, "value:", userId);
 
       const response = await apiGenerateStudyPlan(requestData);
-      
-      console.log('API Response:', response);
-      
+
+      console.log("API Response:", response);
+
       if (response && response.success && response.data) {
         // Transform API response to match UI expectations
         const apiData = response.data;
-        
+
         // Transform tasks array to schedule format expected by UI
         const schedule = transformTasksToSchedule(apiData.tasks);
-        
+
         const transformedPlan = {
           planId: apiData.planId.toString(),
           title: apiData.title,
           duration: calculateDuration(formData),
           totalHours: calculateTotalHours(formData),
-          subjects: apiData.subjects.split(',').map((s: string) => s.trim()),
+          subjects: apiData.subjects.split(",").map((s: string) => s.trim()),
           schedule: schedule,
           tips: generateTips(formData), // Generate tips since API doesn't provide them
         };
-        
-        console.log('Transformed plan for UI:', transformedPlan);
+
+        console.log("Transformed plan for UI:", transformedPlan);
         setGeneratedPlan(transformedPlan);
         setCurrentStep(2);
         toast.success("Study plan generated successfully!");
@@ -138,16 +141,24 @@ export default function StudyPlanGenerator() {
     } catch (error: any) {
       const errorMessage = error.message || "Failed to generate study plan";
       console.error("Study plan generation failed:", error);
-      
+
       // Check if it's just a display issue but database was updated
-      if (error.message && !error.message.includes('400') && !error.message.includes('Network')) {
-        console.log("API call may have succeeded but response parsing failed. Generating plan with form data...");
+      if (
+        error.message &&
+        !error.message.includes("400") &&
+        !error.message.includes("Network")
+      ) {
+        console.log(
+          "API call may have succeeded but response parsing failed. Generating plan with form data..."
+        );
         await generateMockStudyPlan(formData);
-        toast.warning("Study plan created successfully! (Using local generation due to response format)");
+        toast.warning(
+          "Study plan created successfully! (Using local generation due to response format)"
+        );
       } else {
         setError(errorMessage);
         toast.error(errorMessage);
-        
+
         // Fallback to mock generation for demo purposes
         console.log("Falling back to mock generation...");
         await generateMockStudyPlan(formData);
@@ -197,7 +208,7 @@ export default function StudyPlanGenerator() {
       }
       acc[date].push({
         id: task.id.toString(),
-        subject: task.title.split(':')[0] || 'Study', // Extract subject from title
+        subject: task.title.split(":")[0] || "Study", // Extract subject from title
         topic: task.title,
         duration: task.durationMinutes / 60, // Convert minutes to hours
         type: task.type as "study" | "review" | "practice" | "break",
@@ -208,21 +219,29 @@ export default function StudyPlanGenerator() {
     }, {});
 
     // Convert to array format expected by UI
-    return Object.entries(tasksByDate).map(([date, dayTasks]: [string, any]) => {
-      const totalHours = dayTasks.reduce((sum: number, task: any) => sum + task.duration, 0);
-      
-      // Calculate day name based on date
-      const taskDate = new Date(date);
-      const startDate = new Date(tasks[0]?.date || date);
-      const dayNumber = Math.ceil((taskDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      
-      return {
-        date: new Date(date).toLocaleDateString(),
-        dayName: `Day ${dayNumber}`,
-        tasks: dayTasks,
-        totalHours: Math.round(totalHours * 10) / 10, // Round to 1 decimal
-      };
-    });
+    return Object.entries(tasksByDate).map(
+      ([date, dayTasks]: [string, any]) => {
+        const totalHours = dayTasks.reduce(
+          (sum: number, task: any) => sum + task.duration,
+          0
+        );
+
+        // Calculate day name based on date
+        const taskDate = new Date(date);
+        const startDate = new Date(tasks[0]?.date || date);
+        const dayNumber =
+          Math.ceil(
+            (taskDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+          ) + 1;
+
+        return {
+          date: new Date(date).toLocaleDateString(),
+          dayName: `Day ${dayNumber}`,
+          tasks: dayTasks,
+          totalHours: Math.round(totalHours * 10) / 10, // Round to 1 decimal
+        };
+      }
+    );
   };
 
   const calculateDuration = (formData: StudyPlanFormData) => {
@@ -274,7 +293,10 @@ export default function StudyPlanGenerator() {
             duration: studyTime,
             type: "study",
             completed: false,
-            description: getTaskDescription(subject, formData.learningStyle[0] || 'Visual'),
+            description: getTaskDescription(
+              subject,
+              formData.learningStyle[0] || "Visual"
+            ),
           });
           remainingHours -= studyTime;
 
@@ -361,28 +383,42 @@ export default function StudyPlanGenerator() {
   const generateTips = (formData: StudyPlanFormData) => {
     // Generate learning style specific tips
     const learningStyleTips = [];
-    
+
     if (formData.learningStyle.includes("Visual")) {
-      learningStyleTips.push("Use diagrams, charts, mind maps, and color-coding to organize information visually.");
+      learningStyleTips.push(
+        "Use diagrams, charts, mind maps, and color-coding to organize information visually."
+      );
     }
     if (formData.learningStyle.includes("Auditory")) {
-      learningStyleTips.push("Record yourself explaining concepts and listen back, or discuss topics with study partners.");
+      learningStyleTips.push(
+        "Record yourself explaining concepts and listen back, or discuss topics with study partners."
+      );
     }
     if (formData.learningStyle.includes("Kinesthetic")) {
-      learningStyleTips.push("Use hands-on practice, write notes by hand, and take movement breaks during study sessions.");
+      learningStyleTips.push(
+        "Use hands-on practice, write notes by hand, and take movement breaks during study sessions."
+      );
     }
     if (formData.learningStyle.includes("Reading/Writing")) {
-      learningStyleTips.push("Take detailed notes, rewrite key concepts, and create written summaries of what you learn.");
+      learningStyleTips.push(
+        "Take detailed notes, rewrite key concepts, and create written summaries of what you learn."
+      );
     }
     if (formData.learningStyle.includes("Social/Group Learning")) {
-      learningStyleTips.push("Join study groups, teach others, and participate in collaborative learning activities.");
+      learningStyleTips.push(
+        "Join study groups, teach others, and participate in collaborative learning activities."
+      );
     }
     if (formData.learningStyle.includes("Logical/Mathematical")) {
-      learningStyleTips.push("Break down complex topics into logical steps and use problem-solving approaches.");
+      learningStyleTips.push(
+        "Break down complex topics into logical steps and use problem-solving approaches."
+      );
     }
-    
+
     const tips = [
-      `Your learning styles (${formData.learningStyle.join(", ")}) suggest a multi-modal approach to studying.`,
+      `Your learning styles (${formData.learningStyle.join(
+        ", "
+      )}) suggest a multi-modal approach to studying.`,
       ...learningStyleTips,
       `Study during your preferred times: ${formData.preferredTimes
         .join(", ")
@@ -449,6 +485,15 @@ export default function StudyPlanGenerator() {
       }}
     >
       <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Header Section */}
+        <PageHeader
+          title="AI Study Plan Generator"
+          subtitle="Create personalized study plans tailored to your learning style, schedule, and goals using advanced AI technology"
+          icon={<AutoAwesome />}
+          gradient={true}
+          centerAlign={true}
+        />
+
         {/* Progress Stepper */}
         <Card sx={{ mb: 4 }}>
           <CardContent>

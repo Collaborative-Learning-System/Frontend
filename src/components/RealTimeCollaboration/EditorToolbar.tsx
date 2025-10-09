@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Editor } from '@tiptap/react';
+import React, { useState } from "react";
+import { Editor } from "@tiptap/react";
 import {
   Box,
   ButtonGroup,
@@ -19,7 +19,7 @@ import {
   alpha,
   ToggleButtonGroup,
   ToggleButton,
-} from '@mui/material';
+} from "@mui/material";
 import {
   FormatBold,
   FormatItalic,
@@ -39,7 +39,11 @@ import {
   LinkOff,
   Highlight,
   FormatColorText,
-} from '@mui/icons-material';
+  TableChart,
+  TableRows,
+  ViewColumn,
+  DeleteOutline,
+} from "@mui/icons-material";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -48,8 +52,10 @@ interface EditorToolbarProps {
 const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   const theme = useTheme();
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
-  const [linkUrl, setLinkUrl] = useState('');
+  const [linkUrl, setLinkUrl] = useState("");
   const [colorAnchorEl, setColorAnchorEl] = useState<null | HTMLElement>(null);
+  const [highlightColorAnchorEl, setHighlightColorAnchorEl] =
+    useState<null | HTMLElement>(null);
 
   if (!editor) {
     return null;
@@ -58,7 +64,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   const handleAddLink = () => {
     if (linkUrl) {
       editor.chain().focus().setLink({ href: linkUrl }).run();
-      setLinkUrl('');
+      setLinkUrl("");
       setLinkDialogOpen(false);
     }
   };
@@ -68,40 +74,113 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   };
 
   const colors = [
-    '#000000', '#333333', '#666666', '#999999', '#cccccc',
-    '#ff0000', '#ff6600', '#ffcc00', '#33cc33', '#0066cc',
-    '#6600cc', '#cc0066', '#ff3366', '#33ccff', '#66ff66'
+    "#000000",
+    "#333333",
+    "#666666",
+    "#999999",
+    "#cccccc",
+    "#ff0000",
+    "#ff6600",
+    "#ffcc00",
+    "#33cc33",
+    "#0066cc",
+    "#6600cc",
+    "#cc0066",
+    "#ff3366",
+    "#33ccff",
+    "#66ff66",
   ];
+
+  const highlightColors = [
+    "#ffff00",
+    "#ffcc99",
+    "#99ccff",
+    "#ccffcc",
+    "#ffccff",
+    "#ff9999",
+    "#99ffcc",
+    "#ccccff",
+    "#ffffcc",
+    "#ffcccc",
+    "#ccffff",
+    "#ffcccc",
+    "#ccff99",
+    "#ff99cc",
+    "#99cccc",
+  ];
+
+  const insertTable = () => {
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+      .run();
+  };
+
+  const addColumnBefore = () => {
+    editor.chain().focus().addColumnBefore().run();
+  };
+
+  const addColumnAfter = () => {
+    editor.chain().focus().addColumnAfter().run();
+  };
+
+  const deleteColumn = () => {
+    editor.chain().focus().deleteColumn().run();
+  };
+
+  const addRowBefore = () => {
+    editor.chain().focus().addRowBefore().run();
+  };
+
+  const addRowAfter = () => {
+    editor.chain().focus().addRowAfter().run();
+  };
+
+  const deleteRow = () => {
+    editor.chain().focus().deleteRow().run();
+  };
+
+  const deleteTable = () => {
+    editor.chain().focus().deleteTable().run();
+  };
 
   return (
     <>
       <Box
         sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
           gap: 1,
           p: 1,
           borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
           backgroundColor: alpha(theme.palette.background.paper, 0.8),
-          minHeight: '56px',
+          minHeight: "56px",
         }}
       >
         {/* Heading Selector */}
         <FormControl size="small" sx={{ minWidth: 120 }}>
           <Select
             value={
-              editor.isActive('heading', { level: 1 }) ? 'h1' :
-              editor.isActive('heading', { level: 2 }) ? 'h2' :
-              editor.isActive('heading', { level: 3 }) ? 'h3' :
-              'paragraph'
+              editor.isActive("heading", { level: 1 })
+                ? "h1"
+                : editor.isActive("heading", { level: 2 })
+                ? "h2"
+                : editor.isActive("heading", { level: 3 })
+                ? "h3"
+                : "paragraph"
             }
             onChange={(e) => {
-              if (e.target.value === 'paragraph') {
+              if (e.target.value === "paragraph") {
                 editor.chain().focus().setParagraph().run();
               } else {
-                const level = parseInt(e.target.value.replace('h', ''));
-                editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 }).run();
+                const level = parseInt(e.target.value.replace("h", ""));
+                editor
+                  .chain()
+                  .focus()
+                  .toggleHeading({ level: level as 1 | 2 | 3 })
+                  .run();
               }
             }}
             displayEmpty
@@ -121,7 +200,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleBold().run()}
-              color={editor.isActive('bold') ? 'primary' : 'default'}
+              color={editor.isActive("bold") ? "primary" : "default"}
             >
               <FormatBold />
             </IconButton>
@@ -130,7 +209,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              color={editor.isActive('italic') ? 'primary' : 'default'}
+              color={editor.isActive("italic") ? "primary" : "default"}
             >
               <FormatItalic />
             </IconButton>
@@ -139,7 +218,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleUnderline().run()}
-              color={editor.isActive('underline') ? 'primary' : 'default'}
+              color={editor.isActive("underline") ? "primary" : "default"}
             >
               <FormatUnderlined />
             </IconButton>
@@ -148,7 +227,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleStrike().run()}
-              color={editor.isActive('strike') ? 'primary' : 'default'}
+              color={editor.isActive("strike") ? "primary" : "default"}
             >
               <FormatStrikethrough />
             </IconButton>
@@ -170,8 +249,8 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
         <Tooltip title="Highlight">
           <IconButton
             size="small"
-            onClick={() => editor.chain().focus().toggleHighlight({ color: '#ffff00' }).run()}
-            color={editor.isActive('highlight') ? 'primary' : 'default'}
+            onClick={(e) => setHighlightColorAnchorEl(e.currentTarget)}
+            color={editor.isActive("highlight") ? "primary" : "default"}
           >
             <Highlight />
           </IconButton>
@@ -185,7 +264,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
-              color={editor.isActive('bulletList') ? 'primary' : 'default'}
+              color={editor.isActive("bulletList") ? "primary" : "default"}
             >
               <FormatListBulleted />
             </IconButton>
@@ -194,7 +273,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              color={editor.isActive('orderedList') ? 'primary' : 'default'}
+              color={editor.isActive("orderedList") ? "primary" : "default"}
             >
               <FormatListNumbered />
             </IconButton>
@@ -208,11 +287,15 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
           size="small"
           exclusive
           value={
-            editor.isActive({ textAlign: 'left' }) ? 'left' :
-            editor.isActive({ textAlign: 'center' }) ? 'center' :
-            editor.isActive({ textAlign: 'right' }) ? 'right' :
-            editor.isActive({ textAlign: 'justify' }) ? 'justify' :
-            'left'
+            editor.isActive({ textAlign: "left" })
+              ? "left"
+              : editor.isActive({ textAlign: "center" })
+              ? "center"
+              : editor.isActive({ textAlign: "right" })
+              ? "right"
+              : editor.isActive({ textAlign: "justify" })
+              ? "justify"
+              : "left"
           }
           onChange={(_, value) => {
             if (value) {
@@ -242,7 +325,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              color={editor.isActive('blockquote') ? 'primary' : 'default'}
+              color={editor.isActive("blockquote") ? "primary" : "default"}
             >
               <FormatQuote />
             </IconButton>
@@ -251,7 +334,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              color={editor.isActive('codeBlock') ? 'primary' : 'default'}
+              color={editor.isActive("codeBlock") ? "primary" : "default"}
             >
               <Code />
             </IconButton>
@@ -260,13 +343,60 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
 
         <Divider orientation="vertical" flexItem />
 
+        {/* Table Controls */}
+        <ButtonGroup>
+          <Tooltip title="Insert Table">
+            <IconButton size="small" onClick={insertTable}>
+              <TableChart />
+            </IconButton>
+          </Tooltip>
+          {editor.isActive("table") && (
+            <>
+              <Tooltip title="Add Column Before">
+                <IconButton size="small" onClick={addColumnBefore}>
+                  <ViewColumn />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Add Column After">
+                <IconButton size="small" onClick={addColumnAfter}>
+                  <ViewColumn />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Add Row Before">
+                <IconButton size="small" onClick={addRowBefore}>
+                  <TableRows />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Add Row After">
+                <IconButton size="small" onClick={addRowAfter}>
+                  <TableRows />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete Column">
+                <IconButton size="small" onClick={deleteColumn} color="error">
+                  <ViewColumn />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete Row">
+                <IconButton size="small" onClick={deleteRow} color="error">
+                  <TableRows />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete Table">
+                <IconButton size="small" onClick={deleteTable} color="error">
+                  <DeleteOutline />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </ButtonGroup>
+
+        <Divider orientation="vertical" flexItem />
+
         {/* Links */}
         <ButtonGroup>
           <Tooltip title="Add Link">
-            <IconButton
-              size="small"
-              onClick={() => setLinkDialogOpen(true)}
-            >
+            <IconButton size="small" onClick={() => setLinkDialogOpen(true)}>
               <Link />
             </IconButton>
           </Tooltip>
@@ -274,7 +404,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             <IconButton
               size="small"
               onClick={handleRemoveLink}
-              disabled={!editor.isActive('link')}
+              disabled={!editor.isActive("link")}
             >
               <LinkOff />
             </IconButton>
@@ -307,7 +437,12 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
       </Box>
 
       {/* Link Dialog */}
-      <Dialog open={linkDialogOpen} onClose={() => setLinkDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={linkDialogOpen}
+        onClose={() => setLinkDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Add Link</DialogTitle>
         <DialogContent>
           <TextField
@@ -323,19 +458,21 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setLinkDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddLink} variant="contained">Add Link</Button>
+          <Button onClick={handleAddLink} variant="contained">
+            Add Link
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Color Picker Menu */}
-      <Dialog 
-        open={Boolean(colorAnchorEl)} 
+      <Dialog
+        open={Boolean(colorAnchorEl)}
         onClose={() => setColorAnchorEl(null)}
         maxWidth="xs"
       >
         <DialogTitle>Choose Text Color</DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, p: 1 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, p: 1 }}>
             {colors.map((color) => (
               <Box
                 key={color}
@@ -345,14 +482,47 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
                   backgroundColor: color,
                   border: `2px solid ${theme.palette.divider}`,
                   borderRadius: 1,
-                  cursor: 'pointer',
-                  '&:hover': {
-                    transform: 'scale(1.1)',
+                  cursor: "pointer",
+                  "&:hover": {
+                    transform: "scale(1.1)",
                   },
                 }}
                 onClick={() => {
                   editor.chain().focus().setColor(color).run();
                   setColorAnchorEl(null);
+                }}
+              />
+            ))}
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* Highlight Color Picker Menu */}
+      <Dialog
+        open={Boolean(highlightColorAnchorEl)}
+        onClose={() => setHighlightColorAnchorEl(null)}
+        maxWidth="xs"
+      >
+        <DialogTitle>Choose Highlight Color</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, p: 1 }}>
+            {highlightColors.map((color) => (
+              <Box
+                key={color}
+                sx={{
+                  width: 32,
+                  height: 32,
+                  backgroundColor: color,
+                  border: `2px solid ${theme.palette.divider}`,
+                  borderRadius: 1,
+                  cursor: "pointer",
+                  "&:hover": {
+                    transform: "scale(1.1)",
+                  },
+                }}
+                onClick={() => {
+                  editor.chain().focus().toggleHighlight({ color }).run();
+                  setHighlightColorAnchorEl(null);
                 }}
               />
             ))}

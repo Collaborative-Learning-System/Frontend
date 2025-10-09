@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Highlight from "@tiptap/extension-highlight";
@@ -7,6 +7,10 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import * as Y from "yjs";
@@ -30,6 +34,8 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import {
   Save,
@@ -70,28 +76,67 @@ export default function CollaborativeDocumentEditor() {
   const groupId = location.state?.groupId;
 
   const [documentData, setDocumentData] = useState<any>(null);
-  const [title, setTitle] = useState(
-    documentData?.title || "Untitled Document"
-  );
+  const [title, setTitle] = useState("Untitled Document");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [groupMembers, setGroupMembers] = useState<GroupMembers[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [isTitleSyncing, setIsTitleSyncing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDocumentReady, setIsDocumentReady] = useState(false);
 
   // Share modal state
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [emailList, setEmailList] = useState<string[]>([]);
 
-  const ydocRef = useRef<Y.Doc>(new Y.Doc());
+  const ydocRef = useRef<Y.Doc | null>(null);
   if (!ydocRef.current) {
     ydocRef.current = new Y.Doc();
   }
   const ydoc = ydocRef.current;
 
+  // Cleanup Yjs document on unmount
+  useEffect(() => {
+    return () => {
+      if (ydocRef.current) {
+        ydocRef.current.destroy();
+        ydocRef.current = null;
+      }
+    };
+  }, []);
+
   if (!docId) {
     navigate("/workspace");
     return null;
   }
+
+  // Function to refresh collaborators
+  const refreshCollaborators = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL_WS
+        }/collaborators/get-collaborators/${docId}`
+      );
+      setCollaborators(response.data.data.collaborators || []);
+    } catch (error) {
+      console.error("Error refreshing collaborators:", error);
+    }
+  }, [docId]);
+
+  // Timeout for loading state
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (isLoading && !isDocumentReady) {
+        console.warn("Document loading timeout - forcing load completion");
+        setIsLoading(false);
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [isLoading, isDocumentReady]);
 
   // -- SOCKET.IO CONNECTION -- //
   useEffect(() => {
@@ -99,31 +144,104 @@ export default function CollaborativeDocumentEditor() {
       return;
     }
 
-    // Connect to socket server
-    socket.on("connect", () => {
+    // Socket connection handlers
+    const handleConnect = () => {
+      console.log("Connected to socket server");
+      setIsConnected(true);
+      setConnectionError(null);
       // join a document
       socket.emit("joinDoc", { docId: docId, userId: userId });
-    });
+
+      // Refresh collaborators when connected
+      refreshCollaborators();
+    };
+
+    const handleDisconnect = () => {
+      console.log("Disconnected from socket server");
+      setIsConnected(false);
+    };
+
+    const handleConnectError = (error: any) => {
+      console.error("Socket connection error:", error);
+      setConnectionError("Failed to connect to collaboration server");
+      setIsConnected(false);
+      setIsLoading(false); // Stop loading on connection error
+    };
 
     // Listen for initialDoc send by the server when user join a document
-    socket.on("initDoc", (data: { update: Uint8Array }) => {
-      if (data.update) {
-        Y.applyUpdate(ydoc, new Uint8Array(data.update));
+    const handleInitDoc = (data: { update: Uint8Array; title?: string }) => {
+      console.log("Received initial document from server");
+      try {
+        if (data.update) {
+          Y.applyUpdate(ydoc, new Uint8Array(data.update));
+        }
+        if (data.title) {
+          setTitle(data.title);
+        }
+        setIsDocumentReady(true);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error applying initial document update:", error);
+        setIsLoading(false);
       }
-    });
+    };
 
-    socket.on("syncUpdate", (data: { content: Uint8Array }) => {
-      if (data.content) {
-        Y.applyUpdate(ydoc, new Uint8Array(data.content));
+    const handleSyncUpdate = (data: { content: Uint8Array }) => {
+      console.log("Received content update from server");
+      try {
+        if (data.content) {
+          Y.applyUpdate(ydoc, new Uint8Array(data.content));
+        }
+      } catch (error) {
+        console.error("Error applying document update:", error);
       }
-    });
+    };
+
+    // Listen for title updates from other users
+    const handleTitleUpdate = (data: { title: string; userId: string }) => {
+      console.log("Received title update from server");
+      if (data.userId !== userId) {
+        setTitle(data.title);
+      }
+    };
+
+    const handleError = (error: any) => {
+      console.error("Socket error:", error);
+      setConnectionError(error.message || "An error occurred");
+    };
+
+    // Attach event listeners
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("connect_error", handleConnectError);
+    socket.on("initDoc", handleInitDoc);
+    socket.on("syncUpdate", handleSyncUpdate);
+    socket.on("titleUpdate", handleTitleUpdate);
+    socket.on("error", handleError);
+
+    // If already connected, trigger the connect handler
+    if (socket.connected) {
+      handleConnect();
+    } else {
+      // If not connected after a delay, try to connect
+      setTimeout(() => {
+        if (!socket.connected && !connectionError) {
+          console.log("Attempting to connect to socket...");
+          socket.connect();
+        }
+      }, 1000);
+    }
 
     return () => {
-      socket.off("connect");
-      socket.off("initDoc");
-      socket.off("syncUpdate");
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("connect_error", handleConnectError);
+      socket.off("initDoc", handleInitDoc);
+      socket.off("syncUpdate", handleSyncUpdate);
+      socket.off("titleUpdate", handleTitleUpdate);
+      socket.off("error", handleError);
     };
-  }, [docId, userId]);
+  }, [docId, userId, ydoc]);
 
   // --- SEND LOCAL YJS UPDATES TO SERVER --- //
   useEffect(() => {
@@ -144,87 +262,136 @@ export default function CollaborativeDocumentEditor() {
     };
   }, [ydoc, docId, userId]);
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Highlight.configure({
-        multicolor: true,
-      }),
-      TextAlign.configure({
-        types: ["heading", "paragraph"],
-      }),
-      Underline,
-      TextStyle,
-      Color,
-      Link.configure({
-        openOnClick: false,
-      }),
-      Collaboration.configure({
-        document: ydoc,
-      }),
-      CollaborationCursor.configure({
-        provider: { awareness: new Awareness(ydoc) },
-        user: {
-          userId: userId,
-          name: "User " + userId,
-          color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-        },
-      }),
-    ],
-    editable: true,
-    onUpdate: ({ editor }) => {
-      // Count words
-      const text = editor.getText();
-      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-      setWordCount(words);
+  const editor = useEditor(
+    {
+      extensions: [
+        StarterKit,
+        Highlight.configure({
+          multicolor: true,
+        }),
+        TextAlign.configure({
+          types: ["heading", "paragraph"],
+        }),
+        Underline,
+        TextStyle,
+        Color,
+        Link.configure({
+          openOnClick: false,
+        }),
+        Table.configure({
+          resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
+        Collaboration.configure({
+          document: ydoc,
+        }),
+        CollaborationCursor.configure({
+          provider: { awareness: new Awareness(ydoc) },
+          user: {
+            userId: userId,
+            name: "User " + userId,
+            color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+          },
+        }),
+      ],
+      editable: true,
+      onUpdate: ({ editor }) => {
+        // Count words
+        const text = editor.getText();
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        setWordCount(words);
+      },
     },
-  });
+    [ydoc, userId]
+  ); // Add dependencies to recreate editor when these change
 
   // --Fetch Collaborators and Doc data -- //
   useEffect(() => {
-    const fetchCollaborators = async () => {
-      try {
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_BACKEND_URL_WS
-          }/collaborators/get-collaborators/${docId}`
-        );
+    const fetchAllData = async () => {
+      if (!docId) return;
 
-        setCollaborators(response.data.data.collaborators);
+      setIsLoading(true);
+
+      try {
+        // Fetch all data in parallel
+        const [docResponse, collaboratorsResponse, groupMembersResponse] =
+          await Promise.allSettled([
+            axios.get(
+              `${
+                import.meta.env.VITE_BACKEND_URL_WS
+              }/documents/get-document-data/${docId}`
+            ),
+            axios.get(
+              `${
+                import.meta.env.VITE_BACKEND_URL_WS
+              }/collaborators/get-collaborators/${docId}`
+            ),
+            groupId
+              ? axios.get(
+                  `${
+                    import.meta.env.VITE_BACKEND_URL
+                  }/api/workspaces/get-group-members/${groupId}`
+                )
+              : Promise.resolve(null),
+          ]);
+
+        // Handle document data
+        if (docResponse.status === "fulfilled") {
+          const docData = docResponse.value.data.data;
+          setDocumentData(docData);
+          // Only set title if we haven't received it from socket yet
+          if (docData?.title && !isDocumentReady) {
+            setTitle(docData.title);
+          }
+        } else {
+          console.error("Error fetching document data:", docResponse.reason);
+        }
+
+        // Handle collaborators
+        if (collaboratorsResponse.status === "fulfilled") {
+          setCollaborators(
+            collaboratorsResponse.value.data.data.collaborators || []
+          );
+        } else {
+          console.error(
+            "Error fetching collaborators:",
+            collaboratorsResponse.reason
+          );
+        }
+
+        // Handle group members
+        if (
+          groupMembersResponse &&
+          groupMembersResponse.status === "fulfilled" &&
+          groupMembersResponse.value
+        ) {
+          setGroupMembers(groupMembersResponse.value.data.data || []);
+        } else if (
+          groupMembersResponse &&
+          groupMembersResponse.status === "rejected"
+        ) {
+          console.error(
+            "Error fetching group members:",
+            groupMembersResponse.reason
+          );
+        }
+
+        // If socket hasn't provided document ready state yet, set loading to false after a timeout
+        if (!isDocumentReady) {
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 2000); // Wait 2 seconds for socket connection
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching data:", error);
+        setIsLoading(false);
       }
     };
 
-    const fetchDocData = async () => {
-      try {
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_BACKEND_URL_WS
-          }/documents/get-document-data/${docId}`
-        );
-        setDocumentData(response.data.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const fetchGroupMembers = async () => {
-      try {
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_BACKEND_URL
-          }/api/workspaces/get-group-members/${groupId}`
-        );
-        setGroupMembers(response.data.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchDocData();
-    fetchCollaborators();
-    fetchGroupMembers();
-  }, [docId]);
+    fetchAllData();
+  }, [docId, groupId, isDocumentReady]);
 
   const handleSaveDocument = () => {};
 
@@ -247,8 +414,59 @@ export default function CollaborativeDocumentEditor() {
     }
   };
 
+  // Debounced title update function
+  const debouncedTitleUpdate = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (newTitle: string) => {
+        clearTimeout(timeoutId);
+        setIsTitleSyncing(true);
+        timeoutId = setTimeout(async () => {
+          if (!newTitle.trim()) {
+            setIsTitleSyncing(false);
+            return; // Don't update empty titles
+          }
+
+          try {
+            // Emit title change to other users via socket
+            socket.emit("titleUpdate", {
+              docId: docId,
+              title: newTitle.trim(),
+              userId: userId,
+            });
+
+            // Also update the title in the backend
+            await axios.post(
+              `${
+                import.meta.env.VITE_BACKEND_URL_WS
+              }/documents/update-title/${docId}`,
+              { title: newTitle.trim() }
+            );
+          } catch (error) {
+            console.error("Error updating document title:", error);
+            setConnectionError("Failed to update document title");
+          } finally {
+            setIsTitleSyncing(false);
+          }
+        }, 500); // Debounce for 500ms
+      };
+    })(),
+    [docId, userId]
+  );
+
   const handleTitleSubmit = () => {
     setIsEditingTitle(false);
+
+    if (title.trim()) {
+      debouncedTitleUpdate(title);
+    } else {
+      // Reset to previous title if empty
+      if (documentData?.title) {
+        setTitle(documentData.title);
+      } else {
+        setTitle("Untitled Document");
+      }
+    }
   };
 
   const handleSave = () => {
@@ -256,7 +474,9 @@ export default function CollaborativeDocumentEditor() {
   };
 
   const handleRemoveEmail = (emailToRemove: string) => {
-    setGroupMembers(groupMembers.filter((member) => member.email !== emailToRemove));
+    setGroupMembers(
+      groupMembers.filter((member) => member.email !== emailToRemove)
+    );
   };
 
   const handleShareWithEmails = async () => {
@@ -275,20 +495,56 @@ export default function CollaborativeDocumentEditor() {
     } finally {
       setShareModalOpen(false);
       setEmailList([]);
-     
     }
   };
-  if (!editor) {
+  if (!editor || isLoading) {
     return (
       <Box
         sx={{
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          height: 400,
+          height: "100vh",
+          gap: 2,
         }}
       >
-        <Typography>Loading editor...</Typography>
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            border: `4px solid ${theme.palette.primary.main}`,
+            borderTop: `4px solid transparent`,
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+            "@keyframes spin": {
+              "0%": { transform: "rotate(0deg)" },
+              "100%": { transform: "rotate(360deg)" },
+            },
+          }}
+        />
+        <Typography variant="h6" sx={{ opacity: 0.7 }}>
+          {!editor ? "Loading editor..." : "Loading document..."}
+        </Typography>
+        <Typography variant="body2" sx={{ opacity: 0.5 }}>
+          {isConnected
+            ? "Syncing with collaborators..."
+            : "Connecting to collaboration server..."}
+        </Typography>
+        {connectionError && (
+          <>
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {connectionError}
+            </Typography>
+            <Button
+              variant="outlined"
+              onClick={() => window.location.reload()}
+              sx={{ mt: 1 }}
+            >
+              Retry Connection
+            </Button>
+          </>
+        )}
       </Box>
     );
   }
@@ -317,12 +573,30 @@ export default function CollaborativeDocumentEditor() {
             {isEditingTitle ? (
               <TextField
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => {
+                  const newTitle = e.target.value;
+                  setTitle(newTitle);
+                  // Trigger real-time sync while typing (with debounce)
+                  if (newTitle.trim() && newTitle !== documentData?.title) {
+                    debouncedTitleUpdate(newTitle);
+                  }
+                }}
                 onBlur={handleTitleSubmit}
-                onKeyDown={(e) => e.key === "Enter" && handleTitleSubmit()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleTitleSubmit();
+                  } else if (e.key === "Escape") {
+                    setIsEditingTitle(false);
+                    // Reset title to the document data title if available
+                    if (documentData?.title) {
+                      setTitle(documentData.title);
+                    }
+                  }
+                }}
                 variant="standard"
                 autoFocus
                 sx={{ fontSize: "1.25rem", fontWeight: "bold" }}
+                placeholder="Enter document title..."
               />
             ) : (
               <Typography
@@ -333,23 +607,58 @@ export default function CollaborativeDocumentEditor() {
                   alignItems: "center",
                   gap: 1,
                   "&:hover": { opacity: 0.7 },
+                  opacity: isTitleSyncing ? 0.6 : 1,
                 }}
                 onClick={() => setIsEditingTitle(true)}
               >
                 {title}
-
-                <EditIcon fontSize="small" sx={{ opacity: 0.5 }} />
+                {isTitleSyncing ? (
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      border: `2px solid ${theme.palette.primary.main}`,
+                      borderTop: `2px solid transparent`,
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                      "@keyframes spin": {
+                        "0%": { transform: "rotate(0deg)" },
+                        "100%": { transform: "rotate(360deg)" },
+                      },
+                    }}
+                  />
+                ) : (
+                  <EditIcon fontSize="small" sx={{ opacity: 0.5 }} />
+                )}
               </Typography>
             )}
 
             <Stack direction="row" spacing={1}>
-              {/* <Chip
-                icon={readOnly ? <Visibility /> : <EditIcon />}
-                label={readOnly ? "View Only" : "Editing"}
+              <Chip
+                label={isConnected ? "Connected" : "Disconnected"}
                 size="small"
-                color={readOnly ? "default" : "primary"}
+                color={isConnected ? "success" : "error"}
                 variant="outlined"
-              /> */}
+                sx={{
+                  "& .MuiChip-label": {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                  },
+                }}
+                icon={
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      backgroundColor: isConnected
+                        ? theme.palette.success.main
+                        : theme.palette.error.main,
+                    }}
+                  />
+                }
+              />
               <Chip
                 label={`${wordCount} words`}
                 size="small"
@@ -433,7 +742,7 @@ export default function CollaborativeDocumentEditor() {
                   fontWeight: "bold",
                   margin: "2em 0 0.5em 0",
                   color: theme.palette.primary.main,
-                  "&:first-child": { marginTop: 0 },
+                  "&:first-of-type": { marginTop: 0 },
                 },
                 "& h2": {
                   fontSize: "2em",
@@ -536,7 +845,6 @@ export default function CollaborativeDocumentEditor() {
           </Typography>
 
           <Stack spacing={2}>
-
             {groupMembers.length > 0 && (
               <Box>
                 <Typography
@@ -584,6 +892,22 @@ export default function CollaborativeDocumentEditor() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Connection Error Notification */}
+      <Snackbar
+        open={!!connectionError}
+        autoHideDuration={6000}
+        onClose={() => setConnectionError(null)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setConnectionError(null)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {connectionError}
+        </Alert>
+      </Snackbar>
 
       {/* Floating Back Button */}
       <IconButton
