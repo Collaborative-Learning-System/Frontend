@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -32,6 +32,8 @@ import {
   Error,
 } from "@mui/icons-material";
 import axios from "axios";
+import { notifyUsers } from "../services/NotifyService";
+import { AppContext } from "../context/AppContext";
 
 interface AddMembersModalProps {
   open: boolean;
@@ -69,6 +71,7 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({
     useState<AddMembersResult | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [originalEmailList, setOriginalEmailList] = useState<string[]>([]);
+  const { userData } = useContext(AppContext);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -147,6 +150,18 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({
         if (successfullyAdded > 0) {
           setSuccess(true);
         }
+
+        const usersToNotify = emailList.filter(
+          (email) =>
+            !(failedUsers?.includes(email) || alreadyMembers?.includes(email))
+        );
+        notifyUsers(
+          usersToNotify,
+          `You have been added to the ${entityType} "${entityName}" by ${
+            userData?.fullName || "the admin"
+          }`,
+          `/${entityType}s/${entityId}`
+        );
 
         // Show results
         setShowResults(true);
