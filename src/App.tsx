@@ -24,99 +24,96 @@ const App = () => {
     <ThemeContextProvider>
       <GroupProvider>
         <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route
-          path="/landing"
-          element={
-            <MainLayout>
-              <Landing />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/study-plans-generator"
-          element={
-            <MainLayout>
-              <StudyPlanGenerator />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/groups"
-          element={
-            <MainLayout>
-              <Groups />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/workspace/:workspaceId"
-          element={
-            <MainLayout>
-              <Workspace />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/quiz-creator"
-          element={
-            <MainLayout>
-              <QuizCreator />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/contact-us"
-          element={
-            <MainLayout>
-              <ContactForm />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/document-summary"
-          element={
-            <MainLayout>
-              <DocumentSummary />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/documents/:docId"
-          element={
-            <PrivateRoute>
-              <CollaborativeDocumentEditor />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/view-all"
-          element={
-            <MainLayout>
-              <ViewAll />
-            </MainLayout>
-          }
-        />
-        <Route path="/reset-password/:userId" element={<ResetPassword />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        
+          <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/landing"
+            element={
+              <MainLayout>
+                <Landing />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/study-plans-generator"
+            element={
+              <MainLayout>
+                <StudyPlanGenerator />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/groups"
+            element={
+              <MainLayout>
+                <Groups />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/workspace/:workspaceId"
+            element={
+              <MainLayout>
+                <PrivateRoute>
+                  <Workspace />
+                </PrivateRoute>
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/quiz-creator"
+            element={
+              <MainLayout>
+                <QuizCreator />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <MainLayout>
+                <Profile />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/contact-us"
+            element={
+              <MainLayout>
+                <ContactForm />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/document-summary"
+            element={
+              <MainLayout>
+                <DocumentSummary />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/documents/:docId"
+            element={<CollaborativeDocumentEditor />}
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/view-all"
+            element={
+              <MainLayout>
+                <ViewAll />
+              </MainLayout>
+            }
+          />
+          <Route path="/reset-password/:userId" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </GroupProvider>
     </ThemeContextProvider>

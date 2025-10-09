@@ -277,7 +277,7 @@ export default function ViewAll() {
               <CircularProgress />
             </Box>
           ) : notifications.length === 0 ? (
-            <Card>
+            <Card sx={{ mx: 2 }}>
               <CardContent sx={{ textAlign: 'center', py: 6 }}>
                 <Notifications sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
                 <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -372,7 +372,7 @@ export default function ViewAll() {
               <CircularProgress />
             </Box>
           ) : activities.length === 0 ? (
-            <Card>
+            <Card sx={{ mx: 2 }}>
               <CardContent sx={{ textAlign: 'center', py: 6 }}>
                 <History sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
                 <Typography variant="h6" color="text.secondary" gutterBottom>
