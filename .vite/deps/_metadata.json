@@ -1,0 +1,160 @@
+{
+  "hash": "eb7a4dc3",
+  "configHash": "68db0c4b",
+  "lockfileHash": "c2d4efc4",
+  "browserHash": "46331dee",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "7ef0fae3",
+      "needsInterop": true
+    },
+    "react-dom": {
+      "src": "../../node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "03c84431",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "4e6fdc24",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../node_modules/react/jsx-runtime.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "beb725c3",
+      "needsInterop": true
+    },
+    "@mui/icons-material": {
+      "src": "../../node_modules/@mui/icons-material/esm/index.js",
+      "file": "@mui_icons-material.js",
+      "fileHash": "da88c72c",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Add": {
+      "src": "../../node_modules/@mui/icons-material/esm/Add.js",
+      "file": "@mui_icons-material_Add.js",
+      "fileHash": "29ae3398",
+      "needsInterop": false
+    },
+    "@mui/material": {
+      "src": "../../node_modules/@mui/material/esm/index.js",
+      "file": "@mui_material.js",
+      "fileHash": "064a9add",
+      "needsInterop": false
+    },
+    "@mui/material/Badge": {
+      "src": "../../node_modules/@mui/material/esm/Badge/index.js",
+      "file": "@mui_material_Badge.js",
+      "fileHash": "e53ad294",
+      "needsInterop": false
+    },
+    "@mui/material/IconButton": {
+      "src": "../../node_modules/@mui/material/esm/IconButton/index.js",
+      "file": "@mui_material_IconButton.js",
+      "fileHash": "e37b43fe",
+      "needsInterop": false
+    },
+    "@mui/material/styles": {
+      "src": "../../node_modules/@mui/material/esm/styles/index.js",
+      "file": "@mui_material_styles.js",
+      "fileHash": "b912c2bb",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "71935e80",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "f67a5d3b",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "1c80f4e8",
+      "needsInterop": false
+    },
+    "react-toastify": {
+      "src": "../../node_modules/react-toastify/dist/index.mjs",
+      "file": "react-toastify.js",
+      "fileHash": "45a5028a",
+      "needsInterop": false
+    },
+    "sweetalert2": {
+      "src": "../../node_modules/sweetalert2/dist/sweetalert2.esm.all.js",
+      "file": "sweetalert2.js",
+      "fileHash": "db4db004",
+      "needsInterop": false
+    },
+    "sweetalert2-react-content": {
+      "src": "../../node_modules/sweetalert2-react-content/dist/sweetalert2-react-content.es.js",
+      "file": "sweetalert2-react-content.js",
+      "fileHash": "02eb2d81",
+      "needsInterop": false
+    },
+    "@mui/icons-material/KeyboardBackspace": {
+      "src": "../../node_modules/@mui/icons-material/esm/KeyboardBackspace.js",
+      "file": "@mui_icons-material_KeyboardBackspace.js",
+      "fileHash": "24801106",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-FCSVVNGY": {
+      "file": "chunk-FCSVVNGY.js"
+    },
+    "chunk-DUPOWEYI": {
+      "file": "chunk-DUPOWEYI.js"
+    },
+    "chunk-D7UROTDY": {
+      "file": "chunk-D7UROTDY.js"
+    },
+    "chunk-C6WWHQR7": {
+      "file": "chunk-C6WWHQR7.js"
+    },
+    "chunk-RQL3KTS5": {
+      "file": "chunk-RQL3KTS5.js"
+    },
+    "chunk-2TKXEARY": {
+      "file": "chunk-2TKXEARY.js"
+    },
+    "chunk-PFG2UKEP": {
+      "file": "chunk-PFG2UKEP.js"
+    },
+    "chunk-MDOGSD5V": {
+      "file": "chunk-MDOGSD5V.js"
+    },
+    "chunk-5NWCZ5ZJ": {
+      "file": "chunk-5NWCZ5ZJ.js"
+    },
+    "chunk-G4FQZWC4": {
+      "file": "chunk-G4FQZWC4.js"
+    },
+    "chunk-CKXHGEVW": {
+      "file": "chunk-CKXHGEVW.js"
+    },
+    "chunk-QBDUTSCF": {
+      "file": "chunk-QBDUTSCF.js"
+    },
+    "chunk-2KHBIA62": {
+      "file": "chunk-2KHBIA62.js"
+    },
+    "chunk-2FIHDXPZ": {
+      "file": "chunk-2FIHDXPZ.js"
+    },
+    "chunk-32EALFBN": {
+      "file": "chunk-32EALFBN.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
+}

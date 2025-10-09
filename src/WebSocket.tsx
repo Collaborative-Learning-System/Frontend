@@ -1,0 +1,39 @@
+// socket.js
+import { io } from "socket.io-client";
+
+export const socket = io(`${import.meta.env.VITE_BACKEND_URL_WS}`, {
+  transports: ["websocket"],
+  autoConnect: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  timeout: 20000,
+  forceNew: false,
+});
+
+// Add global error handling
+socket.on("connect_error", (error) => {
+  console.error("Socket connection error:", error.message);
+});
+
+socket.on("disconnect", (reason) => {
+  console.log("Socket disconnected:", reason);
+  if (reason === "io server disconnect") {
+    // the disconnection was initiated by the server, you need to reconnect manually
+    socket.connect();
+  }
+  // else the socket will automatically try to reconnect
+});
+
+socket.on("reconnect", (attemptNumber) => {
+  console.log("Socket reconnected after", attemptNumber, "attempts");
+});
+
+socket.on("reconnect_error", (error) => {
+  console.error("Socket reconnection error:", error.message);
+});
+
+socket.on("reconnect_failed", () => {
+  console.error("Socket reconnection failed after maximum attempts");
+});
