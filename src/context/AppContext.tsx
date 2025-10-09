@@ -65,7 +65,7 @@ export const AppContextProvider = ({
           logout();
         }
       } else {
-        toast.error("Something went wrong. Please try again later.");
+        toast.error("Something went wrong. Please log in again.");
         navigate("/auth");
         logout();
       }
