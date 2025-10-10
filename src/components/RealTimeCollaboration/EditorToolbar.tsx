@@ -401,13 +401,15 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Remove Link">
-            <IconButton
-              size="small"
-              onClick={handleRemoveLink}
-              disabled={!editor.isActive("link")}
-            >
-              <LinkOff />
-            </IconButton>
+            <span>
+              <IconButton
+                size="small"
+                onClick={handleRemoveLink}
+                disabled={!editor.isActive("link")}
+              >
+                <LinkOff />
+              </IconButton>
+            </span>
           </Tooltip>
         </ButtonGroup>
 
@@ -416,22 +418,26 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
         {/* Undo/Redo */}
         <ButtonGroup>
           <Tooltip title="Undo">
-            <IconButton
-              size="small"
-              onClick={() => editor.chain().focus().undo().run()}
-              disabled={!editor.can().undo()}
-            >
-              <Undo />
-            </IconButton>
+            <span>
+              <IconButton
+                size="small"
+                onClick={() => editor.chain().focus().undo().run()}
+                disabled={!editor.can().undo()}
+              >
+                <Undo />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title="Redo">
-            <IconButton
-              size="small"
-              onClick={() => editor.chain().focus().redo().run()}
-              disabled={!editor.can().redo()}
-            >
-              <Redo />
-            </IconButton>
+            <span>
+              <IconButton
+                size="small"
+                onClick={() => editor.chain().focus().redo().run()}
+                disabled={!editor.can().redo()}
+              >
+                <Redo />
+              </IconButton>
+            </span>
           </Tooltip>
         </ButtonGroup>
       </Box>
