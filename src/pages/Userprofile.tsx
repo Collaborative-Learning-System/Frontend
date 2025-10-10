@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -39,6 +39,9 @@ export default function UserProfile() {
   const [editData, setEditData] = useState(userData);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [profilePicture, setProfilePicture] = useState<string>(userData?.profilePicture || "");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -107,6 +110,108 @@ export default function UserProfile() {
     setIsEditing(false);
   };
 
+  const fetchProfilePicture = async () => {
+    try {
+      if (!userData?.userId) return;
+      
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/profile-picture/${userData.userId}`
+      );
+      
+      if (response.data.success && response.data.data.profilePicUrl) {
+        setProfilePicture(response.data.data.profilePicUrl);
+        
+        // Update the user data context with the profile picture
+        if (userData) {
+          setUserData({
+            ...userData,
+            profilePicture: response.data.data.profilePicUrl
+          });
+        }
+      }
+    } catch (err) {
+      // Silently handle errors - user might not have a profile picture yet
+      console.log('No profile picture found or error fetching:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfilePicture();
+  }, [userData?.userId]);
+
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file.');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File size should be less than 5MB.');
+        return;
+      }
+
+      setIsUploading(true);
+      setError('');
+      setSuccess('');
+
+      try {
+        // Create FormData to send file to backend
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('userId', userData?.userId || '');
+
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/update-profile-picture`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        if (response.data.success) {
+          // Update profile picture with the URL returned from backend
+          setProfilePicture(response.data.data.profilePicUrl);
+          setSuccess('Profile picture updated successfully!');
+          
+          // Optionally update the user data context with the new profile picture URL
+          if (userData) {
+            setUserData({
+              ...userData,
+              profilePicture: response.data.data.profilePicUrl
+            });
+          }
+        }
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response) {
+          setError(err.response.data.message || 'Failed to upload profile picture.');
+        } else {
+          setError('Failed to upload profile picture. Please try again.');
+        }
+      } finally {
+        setIsUploading(false);
+        setTimeout(() => {
+          setError('');
+          setSuccess('');
+        }, 4000);
+      }
+
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -148,7 +253,7 @@ export default function UserProfile() {
         <Stack direction="row" spacing={3} alignItems="center">
           <Box sx={{ position: "relative" }}>
             <Avatar
-              src={""}
+              src={profilePicture || ""}
               sx={{
                 width: 100,
                 height: 100,
@@ -157,13 +262,15 @@ export default function UserProfile() {
                 color: theme.palette.primary.main,
               }}
             >
-              {userData?.fullName
+              {!profilePicture && userData?.fullName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </Avatar>
             <IconButton
               size="small"
+              onClick={handleProfilePictureClick}
+              disabled={isUploading}
               sx={{
                 position: "absolute",
                 bottom: -5,
@@ -171,10 +278,22 @@ export default function UserProfile() {
                 bgcolor: theme.palette.primary.main,
                 color: "white",
                 "&:hover": { bgcolor: theme.palette.primary.dark },
+                "&:disabled": { 
+                  bgcolor: theme.palette.action.disabled,
+                  color: theme.palette.action.disabled 
+                },
               }}
             >
               <PhotoCamera fontSize="small" />
             </IconButton>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              style={{ display: 'none' }}
+            />
           </Box>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h4" fontWeight="600" sx={{ mb: 1 }}>
