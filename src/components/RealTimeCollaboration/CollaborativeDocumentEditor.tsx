@@ -265,7 +265,9 @@ export default function CollaborativeDocumentEditor() {
   const editor = useEditor(
     {
       extensions: [
-        StarterKit,
+        StarterKit.configure({
+          history: false,
+        }),
         Highlight.configure({
           multicolor: true,
         }),

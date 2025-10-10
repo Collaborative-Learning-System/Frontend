@@ -4,7 +4,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Chip,
   Avatar,
   List,
   ListItem,
@@ -23,7 +22,6 @@ import {
 } from "@mui/material";
 import {
   Group,
-  Quiz,
   History,
   Schedule,
   Add,
@@ -31,7 +29,6 @@ import {
   LocalActivity,
   Dashboard as DashboardIcon,
   AutoFixHigh,
-  AccessTime,
 } from "@mui/icons-material";
 import { useContext, useEffect, useState, useCallback } from "react";
 import { AppContext } from "../context/AppContext";
@@ -167,6 +164,39 @@ const Dashboard = () => {
     fetchStudyPlans();
   }, [userId]);
 
+  // Custom scrollbar styles for better UI
+  const customScrollbarStyles = {
+    "&::-webkit-scrollbar": {
+      width: "8px",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.05)"
+          : "rgba(0, 0, 0, 0.05)",
+      borderRadius: "10px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.2)"
+          : "rgba(0, 0, 0, 0.2)",
+      borderRadius: "10px",
+      "&:hover": {
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? "rgba(255, 255, 255, 0.3)"
+            : "rgba(0, 0, 0, 0.3)",
+      },
+    },
+    // Firefox scrollbar
+    scrollbarWidth: "thin",
+    scrollbarColor:
+      theme.palette.mode === "dark"
+        ? "rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)"
+        : "rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05)",
+  };
+
   const stats = [
     {
       title: "Workspaces",
@@ -179,34 +209,6 @@ const Dashboard = () => {
       value: groupData?.count || 0,
       icon: <Group />,
       color: "#4CAF50",
-    },
-    {
-      title: "Completed Quizzes",
-      value: "23",
-      icon: <Quiz />,
-      color: "#FF9800",
-    },
-    {
-      title: "Total Study Hours",
-      value: "147",
-      icon: <AccessTime />,
-      color: "#9C27B0",
-    },
-  ];
-
-  // Upcoming activities data
-  const upcomingActivities = [
-    {
-      task: "React Components Quiz",
-      dueDate: "Today, 3:00 PM",
-      type: "Quiz",
-      color: "#4CAF50",
-    },
-    {
-      task: "Complete Node.js Tutorial",
-      dueDate: "Tomorrow",
-      type: "Study",
-      color: "#ff9800",
     },
   ];
 
@@ -443,10 +445,17 @@ const Dashboard = () => {
                   Active Workspaces
                 </Typography>
               </Box>
-              <List sx={{ p: 0, maxHeight: "300px", overflow: "auto" }}>
+              <List
+                sx={{
+                  p: 0,
+                  maxHeight: "300px",
+                  overflow: "auto",
+                  ...customScrollbarStyles,
+                }}
+              >
                 {!loading ? (
                   workspaceData?.workspaces.map((workspace, index) => (
-                    <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+                    <ListItem key={index} sx={{ px: 2, py: 1.5 }}>
                       <ListItemAvatar>
                         <Avatar
                           sx={{
@@ -540,11 +549,17 @@ const Dashboard = () => {
                   Active Groups
                 </Typography>
               </Box>
-              <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
+              <Box
+                sx={{
+                  maxHeight: "300px",
+                  overflow: "auto",
+                  ...customScrollbarStyles,
+                }}
+              >
                 {!loading ? (
                   groupData?.groups.length !== 0 &&
                   groupData?.groups.map((group, index) => (
-                    <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+                    <ListItem key={index} sx={{ px: 2, py: 1.5 }}>
                       <ListItemAvatar>
                         <Avatar
                           sx={{
@@ -639,7 +654,14 @@ const Dashboard = () => {
                   Recent Activities
                 </Typography>
               </Box>
-              <List sx={{ p: 0, maxHeight: "300px", overflow: "auto" }}>
+              <List
+                sx={{
+                  p: 0,
+                  maxHeight: "300px",
+                  overflow: "auto",
+                  ...customScrollbarStyles,
+                }}
+              >
                 {!loading ? (
                   logs
                     .sort(
@@ -730,66 +752,6 @@ const Dashboard = () => {
                   </Paper>
                 )}
               </List>
-            </CardContent>
-          </Card>
-        </Box>
-
-        {/* Upcoming Activities - Right Side */}
-        <Box sx={{ flex: 1 }}>
-          <Card sx={{ height: "400px" }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Schedule sx={{ mr: 1, color: theme.palette.secondary.main }} />
-                <Typography variant="h6" fontWeight="600">
-                  Upcoming Activities
-                </Typography>
-              </Box>
-              <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
-                {upcomingActivities.map((activity, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      p: 2,
-                      mb: 2,
-                      borderLeft: `4px solid ${activity.color}`,
-                      backgroundColor: alpha(activity.color, 0.05),
-                      borderRadius: 1,
-                      "&:hover": {
-                        backgroundColor: alpha(activity.color, 0.1),
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Chip
-                        label={activity.type}
-                        size="small"
-                        sx={{
-                          bgcolor: activity.color,
-                          color: "white",
-                          fontSize: "0.75rem",
-                          height: 20,
-                        }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      fontWeight="500"
-                      sx={{ mb: 0.5 }}
-                    >
-                      {activity.task}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Due: {activity.dueDate}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
             </CardContent>
           </Card>
         </Box>
