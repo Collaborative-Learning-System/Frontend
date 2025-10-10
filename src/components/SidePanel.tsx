@@ -222,7 +222,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             onClick={() => navigate("/profile")}
           >
             <Avatar
-              src={""}
+              src={userData?.profilePicture || ""}
               sx={{
                 width: 40,
                 height: 40,
@@ -261,7 +261,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
           >
             <Tooltip title="View Profile">
               <Avatar
-                src={""}
+                src={userData?.profilePicture || ""}
                 sx={{
                   width: 40,
                   height: 40,

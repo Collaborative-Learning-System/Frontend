@@ -13,6 +13,7 @@ import {
   Alert,
   Switch,
   FormControlLabel,
+  CircularProgress,
 } from "@mui/material";
 import {
   Person,
@@ -39,7 +40,14 @@ export default function UserProfile() {
   const [editData, setEditData] = useState(userData);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [profilePicture, setProfilePicture] = useState<string>(userData?.profilePicture || "");
+  const [profilePicture, setProfilePicture] = useState<string>("");
+  
+  // Update local profile picture state when context userData changes
+  useEffect(() => {
+    if (userData?.profilePicture) {
+      setProfilePicture(userData.profilePicture);
+    }
+  }, [userData?.profilePicture]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -110,34 +118,7 @@ export default function UserProfile() {
     setIsEditing(false);
   };
 
-  const fetchProfilePicture = async () => {
-    try {
-      if (!userData?.userId) return;
-      
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/profile-picture/${userData.userId}`
-      );
-      
-      if (response.data.success && response.data.data.profilePicUrl) {
-        setProfilePicture(response.data.data.profilePicUrl);
-        
-        // Update the user data context with the profile picture
-        if (userData) {
-          setUserData({
-            ...userData,
-            profilePicture: response.data.data.profilePicUrl
-          });
-        }
-      }
-    } catch (err) {
-      // Silently handle errors - user might not have a profile picture yet
-      console.log('No profile picture found or error fetching:', err);
-    }
-  };
 
-  useEffect(() => {
-    fetchProfilePicture();
-  }, [userData?.userId]);
 
   const handleProfilePictureClick = () => {
     fileInputRef.current?.click();
@@ -260,6 +241,8 @@ export default function UserProfile() {
                 fontSize: "2rem",
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
+                opacity: isUploading ? 0.6 : 1,
+                transition: theme.transitions.create(['opacity']),
               }}
             >
               {!profilePicture && userData?.fullName
@@ -267,6 +250,27 @@ export default function UserProfile() {
                 .map((n) => n[0])
                 .join("")}
             </Avatar>
+            
+            {/* Loading spinner overlay */}
+            {isUploading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: 100,
+                  height: 100,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                  borderRadius: "50%",
+                }}
+              >
+                <CircularProgress size={24} thickness={4} />
+              </Box>
+            )}
+            
             <IconButton
               size="small"
               onClick={handleProfilePictureClick}
@@ -284,7 +288,11 @@ export default function UserProfile() {
                 },
               }}
             >
-              <PhotoCamera fontSize="small" />
+              {isUploading ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <PhotoCamera fontSize="small" />
+              )}
             </IconButton>
             {/* Hidden file input */}
             <input
