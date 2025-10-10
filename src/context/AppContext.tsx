@@ -18,6 +18,7 @@ interface User {
   fullName: string;
   email: string;
   bio: string;
+  profilePicture?: string;
 }
 
 export const AppContext = createContext<AppContextType>({
