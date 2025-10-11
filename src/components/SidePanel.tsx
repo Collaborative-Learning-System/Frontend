@@ -38,7 +38,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-  const { userData,logout } = useContext(AppContext);
+  const { userData, logout } = useContext(AppContext);
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
@@ -222,7 +222,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             onClick={() => navigate("/profile")}
           >
             <Avatar
-              src={""}
+              src={userData?.profilePicture || ""}
               sx={{
                 width: 40,
                 height: 40,
@@ -242,9 +242,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               <Typography variant="subtitle2" fontWeight="bold">
                 {userData?.fullName}
               </Typography>
-              <Typography variant="caption">
-                {userData?.email}
-              </Typography>
+              <Typography variant="caption">{userData?.email}</Typography>
             </Box>
           </Box>
         ) : (
@@ -261,7 +259,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
           >
             <Tooltip title="View Profile">
               <Avatar
-                src={""}
+                src={userData?.profilePicture || ""}
                 sx={{
                   width: 40,
                   height: 40,

@@ -19,6 +19,7 @@ import {
   DialogContent,
   DialogActions,
   DialogContentText,
+  Skeleton,
 } from "@mui/material";
 import {
   Group,
@@ -84,6 +85,7 @@ const Dashboard = () => {
   const [suggestedWorkspaces, setSuggestedWorkspaces] = useState<
     SuggestedWorkspace[]
   >([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   const [studyPlans, setStudyPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
@@ -270,6 +272,7 @@ const Dashboard = () => {
     if (!userId) return;
 
     console.log("Fetching suggested workspaces for user:", userId);
+    setLoadingSuggestions(true);
 
     try {
       const response = await axios.get(
@@ -283,6 +286,8 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching suggested workspaces:", error);
+    } finally {
+      setLoadingSuggestions(false);
     }
   }, [userId]);
 
@@ -404,15 +409,26 @@ const Dashboard = () => {
                 </Box>
               </CardContent>
             ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <CircularProgress />
-              </Box>
+              <CardContent sx={{ width: "100%" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box>
+                    <Skeleton variant="text" width={60} height={48} />
+                    <Skeleton
+                      variant="text"
+                      width={100}
+                      height={20}
+                      sx={{ mt: 1 }}
+                    />
+                  </Box>
+                  <Skeleton variant="circular" width={40} height={40} />
+                </Box>
+              </CardContent>
             )}
           </Card>
         ))}
@@ -492,16 +508,24 @@ const Dashboard = () => {
                     </ListItem>
                   ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4].map((item) => (
+                      <ListItem key={item} sx={{ px: 2, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="60%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="40%" height={16} />
+                          }
+                        />
+                        <Skeleton variant="rounded" width={80} height={32} />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {workspaceData?.workspaces.length === 0 && (
                   <Paper
@@ -587,16 +611,23 @@ const Dashboard = () => {
                     </ListItem>
                   ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4].map((item) => (
+                      <ListItem key={item} sx={{ px: 2, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="70%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="50%" height={16} />
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {groupData?.groups.length === 0 && (
                   <Paper
@@ -714,16 +745,23 @@ const Dashboard = () => {
                       </ListItem>
                     ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <ListItem key={item} sx={{ px: 0, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="80%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="30%" height={16} />
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {logs.length === 0 && (
                   <Paper
@@ -902,8 +940,12 @@ const Dashboard = () => {
               variant="text"
               size="small"
               onClick={fetchSuggestedWorkspaces}
+              disabled={loadingSuggestions}
+              startIcon={
+                loadingSuggestions ? <CircularProgress size={16} /> : undefined
+              }
             >
-              Get Suggestions
+              {loadingSuggestions ? "Loading..." : "Get Suggestions"}
             </Button>
           </Box>
           <Box
@@ -917,7 +959,52 @@ const Dashboard = () => {
               gap: 3,
             }}
           >
-            {suggestedWorkspaces.length !== 0 &&
+            {loadingSuggestions ? (
+              // Show skeleton cards while loading
+              <>
+                {[1, 2, 3].map((item) => (
+                  <Card
+                    key={item}
+                    sx={{
+                      border: `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
+                    <CardContent>
+                      <Skeleton
+                        variant="text"
+                        width="80%"
+                        height={32}
+                        sx={{ mb: 1 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="100%"
+                        height={20}
+                        sx={{ mb: 1 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="90%"
+                        height={20}
+                        sx={{ mb: 2 }}
+                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 2,
+                        }}
+                      >
+                        <Skeleton variant="text" width="40%" height={16} />
+                      </Box>
+                      <Skeleton variant="rounded" width="100%" height={36} />
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            ) : (
+              suggestedWorkspaces.length !== 0 &&
               suggestedWorkspaces.map((workspace, index) => (
                 <Card
                   key={index}
@@ -969,7 +1056,8 @@ const Dashboard = () => {
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+            )}
           </Box>
         </CardContent>
       </Card>
