@@ -688,8 +688,65 @@ const Dashboard = () => {
           </Box>
 
           {loadingPlans ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-              <CircularProgress />
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(2, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: 3,
+              }}
+            >
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    position: "relative",
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  }}
+                >
+                  <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+                    {/* Header with title and status */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                      <Skeleton variant="text" width="60%" height={24} />
+                      <Skeleton variant="rounded" width={60} height={20} />
+                    </Box>
+
+                    {/* Study Goal */}
+                    <Skeleton variant="text" width="80%" height={20} sx={{ mb: 1.5 }} />
+
+                    {/* Subjects */}
+                    <Box sx={{ mb: 1.5 }}>
+                      <Skeleton variant="text" width="30%" height={16} sx={{ mb: 0.5 }} />
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        <Skeleton variant="rounded" width={50} height={20} />
+                        <Skeleton variant="rounded" width={60} height={20} />
+                        <Skeleton variant="rounded" width={45} height={20} />
+                      </Box>
+                    </Box>
+
+                    {/* Schedule Info */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Skeleton variant="text" width="45%" height={16} />
+                      <Skeleton variant="text" width="25%" height={16} />
+                    </Box>
+
+                    {/* Days remaining */}
+                    <Skeleton variant="text" width="40%" height={16} sx={{ mb: 1 }} />
+                  </CardContent>
+
+                  {/* Action buttons */}
+                  <Box sx={{ p: 2, pt: 0, display: "flex", gap: 1 }}>
+                    <Skeleton variant="rounded" width="100%" height={32} />
+                  </Box>
+                </Card>
+              ))}
             </Box>
           ) : studyPlans.length > 0 ? (
             <Box

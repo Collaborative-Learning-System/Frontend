@@ -65,6 +65,13 @@ const AuthComponent = () => {
     setSuccess("");
     setIsLoading(true);
 
+    if (!loginForm.email || !loginForm.password) {
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
     if (!validateEmail(loginForm.email)) {
       setError("Please enter a valid email address");
       setIsLoading(false);
@@ -121,6 +128,13 @@ const AuthComponent = () => {
     setError("");
     setSuccess("");
     setIsLoading(true);
+
+    if (!signupForm.fullName || !signupForm.email || !signupForm.password) {
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
 
     if (!validateEmail(signupForm.email)) {
       setError("Please enter a valid email address");
