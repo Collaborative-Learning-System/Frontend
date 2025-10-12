@@ -92,29 +92,29 @@ export default function UserProfile() {
     }
   };
 
-  const handleRemoveAccount = async () => {
-    try {
-      if (!userData?.userId) {
-        setError("Account Deletion Failed. Please try again later.");
-        handleLogging(`A failed account deletion attempt was detected`);
-        return;
-      }
-      const response = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/delete-account/${
-          userData?.userId
-        }`
-      );
-      if (response.data.success) {
-        setSuccess("Account deleted successfully!");
-        setTimeout(() => {
-          navigate("/auth");
-        }, 2000);
-      }
-    } catch (error) {
-      handleLogging(`A failed account deletion attempt was detected`);
-      setError("Account Deletion Failed. Please try again later.");
-    }
-  };
+  // const handleRemoveAccount = async () => {
+  //   try {
+  //     if (!userData?.userId) {
+  //       setError("Account Deletion Failed. Please try again later.");
+  //       handleLogging(`A failed account deletion attempt was detected`);
+  //       return;
+  //     }
+  //     const response = await axios.delete(
+  //       `${import.meta.env.VITE_BACKEND_URL}/auth/delete-account/${
+  //         userData?.userId
+  //       }`
+  //     );
+  //     if (response.data.success) {
+  //       setSuccess("Account deleted successfully!");
+  //       setTimeout(() => {
+  //         navigate("/auth");
+  //       }, 2000);
+  //     }
+  //   } catch (error) {
+  //     handleLogging(`A failed account deletion attempt was detected`);
+  //     setError("Account Deletion Failed. Please try again later.");
+  //   }
+  // };
 
   const handleCancel = () => {
     setEditData(userData);
@@ -320,7 +320,7 @@ export default function UserProfile() {
               {userData?.bio || ""}
             </Typography>
           </Box>
-          <Box>
+          {/* <Box>
             <Button
               variant="outlined"
               color="error"
@@ -328,7 +328,7 @@ export default function UserProfile() {
             >
               Remove Account
             </Button>
-          </Box>
+          </Box> */}
         </Stack>
       </Box>
 

@@ -34,6 +34,7 @@ import {
   useMediaQuery,
   Menu,
   MenuItem,
+  alpha,
 } from "@mui/material";
 import {
   Chat as ChatIcon,
@@ -855,10 +856,11 @@ const Workspace = () => {
         elevation={2}
         sx={{
           borderRadius: 3,
-          bgcolor:
-            mode === "dark"
-              ? theme.palette.background.paper
-              : theme.palette.primary.main,
+          background: `linear-gradient(135deg, 
+            ${alpha(theme.palette.primary.main, 0.1)} 0%, 
+            ${alpha(theme.palette.secondary.main, 0.05)} 1000%)`,
+          backdropFilter: "blur(10px)",
+          border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
           overflow: "hidden",
           position: "relative",
           zIndex: 1,
@@ -895,16 +897,20 @@ const Workspace = () => {
                 <SchoolIcon
                   sx={{
                     fontSize: { xs: 28, sm: 28, md: 32 },
-                    color: mode === "dark" ? theme.palette.primary.main : "white",
+                    color: theme.palette.primary.main,
                     flexShrink: 0,
                   }}
                 />
                 <Typography
                   variant="h4"
                   sx={{
-                    color: mode === "dark" ? theme.palette.primary.main : "white",
+                    fontWeight: "bold",
+                    color: "transparent",
+                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
                     fontSize: { xs: "1.4rem", sm: "1.75rem", md: "2.125rem" },
-                    fontWeight: { xs: 600, sm: 400 },
                     lineHeight: { xs: 1.2, sm: 1.4 },
                     wordBreak: "break-word",
                     flex: 1,
@@ -919,7 +925,7 @@ const Workspace = () => {
                 variant="body1"
                 sx={{
                   opacity: 0.9,
-                  color: mode === "dark" ? "inherit" : "white",
+                  color: mode === "dark" ? "white" : "text.secondary",
                   fontSize: { xs: "0.875rem", sm: "1rem" },
                   lineHeight: { xs: 1.4, sm: 1.5 },
                   wordBreak: "break-word",
@@ -946,11 +952,11 @@ const Workspace = () => {
                 onClick={() => setCollapsingHeader((s) => !s)}
                 size="small"
                 sx={{
-                  color: 'white',
-                  bgcolor: { xs: 'rgba(255,255,255,0.06)', sm: 'transparent' },
-                  border: { xs: '1px solid rgba(255,255,255,0.06)', sm: 'none' },
+                  color: theme.palette.primary.main,
+                  bgcolor: { xs: alpha(theme.palette.primary.main, 0.08), sm: 'transparent' },
+                  border: { xs: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`, sm: 'none' },
                   mr: { xs: 0.5, sm: 1 },
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
+                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
                 }}
               >
                 {collapsingHeader ? <ExpandMoreIcon /> : <ExpandLessIcon />}
@@ -962,30 +968,50 @@ const Workspace = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 1 }}>
                   {workspaceData.role === 'admin' ? (
                     <Chip
-                      icon={<AdminIcon sx={{ color: 'white' }} />}
+                      icon={<AdminIcon />}
                       label="Admin"
                       color="secondary"
                       size={isMobile ? 'small' : 'small'}
-                      sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', '& .MuiChip-icon': { color: 'white' }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: { xs: 28, sm: 32 } }}
+                      sx={{ 
+                        bgcolor: alpha(theme.palette.secondary.main, 0.15), 
+                        color: theme.palette.secondary.main, 
+                        '& .MuiChip-icon': { color: theme.palette.secondary.main }, 
+                        fontSize: { xs: '0.7rem', sm: '0.75rem' }, 
+                        height: { xs: 28, sm: 32 } 
+                      }}
                     />
                   ) : (
                     <Tooltip title={`Workspace Admin: ${workspaceData.adminName}`} arrow>
                       <Chip
-                        icon={<AdminIcon sx={{ color: 'white' }} />}
+                        icon={<AdminIcon />}
                         label={workspaceData.adminName}
                         variant="outlined"
                         size={isMobile ? 'small' : 'small'}
-                        sx={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', '& .MuiChip-icon': { color: 'white' }, maxWidth: { xs: '120px', sm: '150px' }, '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: { xs: 28, sm: 32 } }}
+                        sx={{ 
+                          borderColor: alpha(theme.palette.primary.main, 0.3), 
+                          color: theme.palette.primary.main, 
+                          '& .MuiChip-icon': { color: theme.palette.primary.main }, 
+                          maxWidth: { xs: '120px', sm: '150px' }, 
+                          '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' }, 
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' }, 
+                          height: { xs: 28, sm: 32 } 
+                        }}
                       />
                     </Tooltip>
                   )}
 
                   <Chip
-                    icon={<GroupIcon sx={{ color: 'white' }} />}
+                    icon={<GroupIcon />}
                     label={`${workspaceData.memberCount} Members`}
-                    color="secondary"
+                    color="primary"
                     size={isMobile ? 'small' : 'small'}
-                    sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', '& .MuiChip-icon': { color: 'white' }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: { xs: 28, sm: 32 } }}
+                    sx={{ 
+                      bgcolor: alpha(theme.palette.primary.main, 0.15), 
+                      color: theme.palette.primary.main, 
+                      '& .MuiChip-icon': { color: theme.palette.primary.main }, 
+                      fontSize: { xs: '0.7rem', sm: '0.75rem' }, 
+                      height: { xs: 28, sm: 32 } 
+                    }}
                   />
                 </Box>
 
@@ -996,7 +1022,22 @@ const Workspace = () => {
                     size={isMobile ? 'medium' : 'small'}
                     startIcon={<ExitIcon />}
                     disabled={isLeaving}
-                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', flex: { xs: 1, sm: 'none' }, minWidth: { xs: 'auto', sm: 'auto' }, fontSize: { xs: '0.8rem', sm: '0.8rem' }, py: { xs: 1, sm: 0.5 }, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' }, '&:disabled': { borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.5)' } }}
+                    sx={{ 
+                      borderColor: alpha(theme.palette.warning.main, 0.5), 
+                      color: theme.palette.warning.main, 
+                      flex: { xs: 1, sm: 'none' }, 
+                      minWidth: { xs: 'auto', sm: 'auto' }, 
+                      fontSize: { xs: '0.8rem', sm: '0.8rem' }, 
+                      py: { xs: 1, sm: 0.5 }, 
+                      '&:hover': { 
+                        borderColor: theme.palette.warning.main, 
+                        bgcolor: alpha(theme.palette.warning.main, 0.1) 
+                      }, 
+                      '&:disabled': { 
+                        borderColor: alpha(theme.palette.warning.main, 0.3), 
+                        color: alpha(theme.palette.warning.main, 0.5) 
+                      } 
+                    }}
                     onClick={handleLeaveWorkspace}
                   >
                     {isLeaving ? 'Leaving...' : 'Leave'}
@@ -1004,7 +1045,13 @@ const Workspace = () => {
 
                   {workspaceData.role === 'admin' && (
                     <Tooltip title="Admin Options" arrow>
-                      <IconButton onClick={handleAdminMenuClick} sx={{ color: 'white', bgcolor: { xs: 'rgba(255,255,255,0.1)', sm: 'transparent' }, border: { xs: '1px solid rgba(255,255,255,0.3)', sm: 'none' }, minWidth: { xs: 48, sm: 'auto' }, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+                      <IconButton onClick={handleAdminMenuClick} sx={{ 
+                        color: theme.palette.primary.main, 
+                        bgcolor: { xs: alpha(theme.palette.primary.main, 0.1), sm: 'transparent' }, 
+                        border: { xs: `1px solid ${alpha(theme.palette.primary.main, 0.3)}`, sm: 'none' }, 
+                        minWidth: { xs: 48, sm: 'auto' }, 
+                        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.15) } 
+                      }}>
                         <MoreVertIcon />
                       </IconButton>
                     </Tooltip>
