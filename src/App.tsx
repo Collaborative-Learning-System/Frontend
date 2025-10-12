@@ -17,103 +17,132 @@ import DocumentSummary from "./pages/DocumentSummary";
 import Dashboard from "./pages/Dashboard";
 import ViewAll from "./pages/ViewAll";
 import CollaborativeDocumentEditor from "./components/RealTimeCollaboration/CollaborativeDocumentEditor";
-import { PrivateRoute } from "./Routes/ProtectedRoutes";
+import { ProtectedRoute } from "./Routes/ProtectedRoutes";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   return (
     <ThemeContextProvider>
       <GroupProvider>
         <Routes>
+          {/* Public routes - no authentication required */}
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password/:userId" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Protected routes - authentication required */}
           <Route
             path="/landing"
             element={
-              <MainLayout>
-                <Landing />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <Landing />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/study-plans-generator"
             element={
-              <MainLayout>
-                <StudyPlanGenerator />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <StudyPlanGenerator />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/groups"
             element={
-              <MainLayout>
-                <Groups />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <Groups />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/workspace/:workspaceId"
             element={
-              <MainLayout>
-                <PrivateRoute>
+              <ProtectedRoute>
+                <MainLayout>
                   <Workspace />
-                </PrivateRoute>
-              </MainLayout>
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/quiz-creator"
             element={
-              <MainLayout>
-                <QuizCreator />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <QuizCreator />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/profile"
             element={
-              <MainLayout>
-                <Profile />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <Profile />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/contact-us"
             element={
-              <MainLayout>
-                <ContactForm />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <ContactForm />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/document-summary"
             element={
-              <MainLayout>
-                <DocumentSummary />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <DocumentSummary />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/documents/:docId"
-            element={<CollaborativeDocumentEditor />}
+            element={
+              <ProtectedRoute>
+                <CollaborativeDocumentEditor />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/dashboard"
             element={
-              <MainLayout>
-                <Dashboard />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/view-all"
             element={
-              <MainLayout>
-                <ViewAll />
-              </MainLayout>
+              <ProtectedRoute>
+                <MainLayout>
+                  <ViewAll />
+                </MainLayout>
+              </ProtectedRoute>
             }
           />
-          <Route path="/reset-password/:userId" element={<ResetPassword />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Catch-all route for 404 - must be last */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </GroupProvider>
     </ThemeContextProvider>

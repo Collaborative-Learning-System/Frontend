@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Drawer,
@@ -12,6 +12,7 @@ import {
   IconButton,
   Avatar,
   Typography,
+  CircularProgress,
   useTheme,
   useMediaQuery,
   alpha,
@@ -38,7 +39,19 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const location = useLocation();
-  const { userData,logout } = useContext(AppContext);
+  const { userData, logout } = useContext(AppContext);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+    } catch (err) {
+      // ignore — logout handles navigation / errors
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const drawerWidthOpen = 260;
   const drawerWidthClosed = 70;
@@ -129,8 +142,9 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             <Typography
               variant="h5"
               sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+              
             >
-              EduCollab
+              EDUCollab
             </Typography>
             <IconButton onClick={onToggle} size="small">
               <ChevronLeft sx={{ color: theme.palette.primary.main }} />
@@ -222,7 +236,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
             onClick={() => navigate("/profile")}
           >
             <Avatar
-              src={""}
+              src={userData?.profilePicture || ""}
               sx={{
                 width: 40,
                 height: 40,
@@ -238,11 +252,28 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 .join("")}
             </Avatar>
 
-            <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="subtitle2" fontWeight="bold">
+            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+              <Typography 
+                variant="subtitle2" 
+                fontWeight="bold"
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
+                }}
+              >
                 {userData?.fullName}
               </Typography>
-              <Typography variant="caption">
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  display: "block"
+                }}
+              >
                 {userData?.email}
               </Typography>
             </Box>
@@ -261,7 +292,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
           >
             <Tooltip title="View Profile">
               <Avatar
-                src={""}
+                src={userData?.profilePicture || ""}
                 sx={{
                   width: 40,
                   height: 40,
@@ -281,7 +312,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
         <Divider sx={{ my: 1 }} />
         {/* Logout Button */}
         <ListItemButton
-          onClick={() => logout()}
+          onClick={handleLogout}
+          disabled={isLoggingOut}
           sx={{
             borderRadius: 2,
             justifyContent: open ? "initial" : "center",
@@ -300,9 +332,13 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               justifyContent: "center",
             }}
           >
-            <Tooltip title="Log Out">
-              <Logout />
-            </Tooltip>
+            {isLoggingOut ? (
+              <CircularProgress size={20} sx={{ color: theme.palette.error.main }} />
+            ) : (
+              <Tooltip title="Log Out">
+                <Logout />
+              </Tooltip>
+            )}
           </ListItemIcon>
           {open && (
             <Typography
@@ -311,7 +347,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
                 color: theme.palette.error.main,
               }}
             >
-              Logout
+              {isLoggingOut ? "Logging out..." : "Logout"}
             </Typography>
           )}
         </ListItemButton>

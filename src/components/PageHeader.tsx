@@ -18,19 +18,25 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 }) => {
   const theme = useTheme();
 
+  const glassBackdropStyles = {
+    background: `linear-gradient(135deg, 
+      ${alpha(theme.palette.primary.main, 0.1)} 0%, 
+      ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+    backdropFilter: "blur(10px)",
+    borderRadius: "12px",
+    border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
+  };
+
   return (
     <Box
       sx={{
         mb: 4,
-        p: 3,
-        borderRadius: 2,
-        borderBottom: `2px solid ${theme.palette.divider}`,
-        background: gradient
-          ? `linear-gradient(135deg, 
-              ${alpha(theme.palette.primary.main, 0.1)} 0%, 
-              ${alpha(theme.palette.secondary.main, 0.05)} 100%)`
-          : "transparent",
+        p: 4,
+        borderRadius: gradient ? "12px" : 2,
+        borderBottom: gradient ? "none" : `2px solid ${theme.palette.divider}`,
+        background: gradient ? "transparent" : "transparent",
         textAlign: centerAlign ? "center" : "left",
+        ...(gradient && glassBackdropStyles),
       }}
     >
       <Box

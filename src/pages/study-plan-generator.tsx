@@ -20,6 +20,7 @@ import StudyPlanDisplay from "../components/StudyPlanDisplay";
 import PageHeader from "../components/PageHeader";
 import { AppContext } from "../context/AppContext";
 import { generateStudyPlan as apiGenerateStudyPlan } from "../services/StudyPlanService";
+import { handleLogging } from "../services/LoggingService";
 
 interface StudyPlanFormData {
   subjects: string[];
@@ -85,6 +86,8 @@ export default function StudyPlanGenerator() {
     setIsGenerating(true);
     setError(null);
 
+
+
     try {
       // Transform form data to API format - match exact API specification
       const requestData = {
@@ -135,6 +138,7 @@ export default function StudyPlanGenerator() {
         setGeneratedPlan(transformedPlan);
         setCurrentStep(2);
         toast.success("Study plan generated successfully!");
+        handleLogging("You generated a new study plan");
       } else {
         throw new Error("Invalid response from server");
       }
@@ -195,7 +199,6 @@ export default function StudyPlanGenerator() {
 
     setGeneratedPlan(plan);
     setCurrentStep(2);
-    toast.info("Using demo mode - connect to backend for full functionality");
   };
 
   // Transform API tasks format to UI schedule format

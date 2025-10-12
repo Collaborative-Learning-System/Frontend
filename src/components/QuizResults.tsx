@@ -109,10 +109,22 @@ const QuizResults: React.FC<QuizResultsProps> = ({
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container
+      maxWidth="lg"
+      sx={{ py: 4, width: "100%", height: "100%", overflow: "auto" }}
+    >
       {/* Header */}
-      <Paper elevation={3} sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'white' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Paper
+        elevation={3}
+        sx={{ p: 3, mb: 3, bgcolor: "primary.main", color: "white" }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
               Quiz Results
@@ -126,11 +138,11 @@ const QuizResults: React.FC<QuizResultsProps> = ({
             startIcon={<ArrowBackIcon />}
             onClick={onBack}
             sx={{
-              color: 'white',
-              borderColor: 'rgba(255,255,255,0.5)',
-              '&:hover': {
-                borderColor: 'white',
-                bgcolor: 'rgba(255,255,255,0.1)',
+              color: "white",
+              borderColor: "rgba(255,255,255,0.5)",
+              "&:hover": {
+                borderColor: "white",
+                bgcolor: "rgba(255,255,255,0.1)",
               },
             }}
           >
@@ -142,9 +154,9 @@ const QuizResults: React.FC<QuizResultsProps> = ({
       {/* Summary Cards */}
       {userAttempts && (
         <Box sx={{ mb: 3 }}>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+          <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
             <Card sx={{ flex: 1 }}>
-              <CardContent sx={{ textAlign: 'center' }}>
+              <CardContent sx={{ textAlign: "center" }}>
                 <Typography variant="h3" color="primary.main" fontWeight="bold">
                   {userAttempts.totalAttempts}
                 </Typography>
@@ -155,7 +167,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
             </Card>
 
             <Card sx={{ flex: 1 }}>
-              <CardContent sx={{ textAlign: 'center' }}>
+              <CardContent sx={{ textAlign: "center" }}>
                 <Typography variant="h3" color="success.main" fontWeight="bold">
                   {userAttempts.bestScore}%
                 </Typography>
@@ -166,7 +178,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
             </Card>
 
             <Card sx={{ flex: 1 }}>
-              <CardContent sx={{ textAlign: 'center' }}>
+              <CardContent sx={{ textAlign: "center" }}>
                 <Typography variant="h3" color="warning.main" fontWeight="bold">
                   {Math.round(userAttempts.averageScore)}%
                 </Typography>
@@ -180,9 +192,16 @@ const QuizResults: React.FC<QuizResultsProps> = ({
       )}
 
       {/* My Attempts */}
-      <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-        <Box sx={{ p: 3, bgcolor: 'background.default', borderBottom: 1, borderColor: 'divider' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Paper elevation={3} sx={{ borderRadius: 2, overflow: "hidden" }}>
+        <Box
+          sx={{
+            p: 3,
+            bgcolor: "background.default",
+            borderBottom: 1,
+            borderColor: "divider",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <HistoryIcon color="primary" />
             <Typography variant="h6" fontWeight="medium">
               My Quiz Attempts
@@ -196,10 +215,18 @@ const QuizResults: React.FC<QuizResultsProps> = ({
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell><strong>Attempt</strong></TableCell>
-                    <TableCell><strong>Score</strong></TableCell>
-                    <TableCell><strong>Percentage</strong></TableCell>
-                    <TableCell><strong>Date</strong></TableCell>
+                    <TableCell>
+                      <strong>Attempt</strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>Score</strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>Percentage</strong>
+                    </TableCell>
+                    <TableCell>
+                      <strong>Date</strong>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -211,9 +238,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">
-                          {attempt.score}
-                        </Typography>
+                        <Typography variant="body2">{attempt.score}</Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
@@ -234,8 +259,10 @@ const QuizResults: React.FC<QuizResultsProps> = ({
               </Table>
             </TableContainer>
           ) : (
-            <Box sx={{ textAlign: 'center', py: 6 }}>
-              <HistoryIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+            <Box sx={{ textAlign: "center", py: 6 }}>
+              <HistoryIcon
+                sx={{ fontSize: 64, color: "text.disabled", mb: 2 }}
+              />
               <Typography variant="h6" color="text.secondary">
                 No attempts yet
               </Typography>
