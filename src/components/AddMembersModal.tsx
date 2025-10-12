@@ -32,6 +32,8 @@ import {
   Error,
 } from "@mui/icons-material";
 import axios from "axios";
+import { handleLogging } from "../services/LoggingService";
+
 interface AddMembersModalProps {
   open: boolean;
   onClose: () => void;
@@ -68,6 +70,7 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({
     useState<AddMembersResult | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [originalEmailList, setOriginalEmailList] = useState<string[]>([]);
+  
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -131,6 +134,10 @@ const AddMembersModal: React.FC<AddMembersModalProps> = ({
       );
       if (response.data.success) {
         const { failedUsers, alreadyMembers } = response.data.data;
+        handleLogging(
+          `You added new members to the  ${entityName} ${entityType}`
+        );
+        setSuccess(true);
 
         // Set the results data
         setAddMembersResult({

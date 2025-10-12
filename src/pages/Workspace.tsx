@@ -50,6 +50,8 @@ import {
   Menu as MenuIcon,
   Delete as DeleteIcon,
   MoreVert as MoreVertIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
 } from "@mui/icons-material";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
@@ -114,6 +116,7 @@ const Workspace = () => {
   const [adminRoleModalOpen, setAdminRoleModalOpen] = useState(false);
   const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [collapsingHeader, setCollapsingHeader] = useState(false);
 
   const { userId } = useContext(AppContext);
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -208,7 +211,7 @@ const Workspace = () => {
       try {
         setGroupsLoading(true);
         const response = await axios.get(
-          `http://localhost:3000/api/workspaces/${workspaceId}/groups`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
           { withCredentials: true }
         );
 
@@ -245,7 +248,7 @@ const Workspace = () => {
       setJoiningGroups((prev) => new Set(prev).add(groupId));
 
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces/groups/join-leave",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/groups/join-leave`,
         { groupId },
         { withCredentials: true }
       );
@@ -253,8 +256,8 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo(response.data.message);
         handleLogging(
-          `${
-            response.data.data.action === "joined" ? "Joined" : "Left"
+          `You ${
+            response.data.data.action === "joined" ? "joined" : "left"
           } the group ${
             groups.find((g) => g.id === groupId)?.name || ""
           } in the workspace ${workspaceData?.name}`
@@ -307,7 +310,7 @@ const Workspace = () => {
       setCreatingGroup(true);
 
       const response = await axios.post(
-        `http://localhost:3000/api/workspaces/${workspaceId}/groups`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
         {
           groupname: groupName.trim(),
           description: groupDescription.trim(),
@@ -318,7 +321,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo("Group created successfully");
         handleLogging(
-          `Created the group ${groupName.trim()} in the workspace ${
+          `You created a group ${groupName.trim()} in the workspace ${
             workspaceData?.name
           }`
         );
@@ -362,13 +365,13 @@ const Workspace = () => {
     try {
       setDeletingGroups((prev) => new Set(prev).add(groupId));
       const response = await axios.post(
-        `http://localhost:3000/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
         { withCredentials: true }
       );
       if (response.data.success) {
         NotificationService.showInfo("Group deleted successfully");
         handleLogging(
-          `Deleted the group ${
+          `You deleted the group ${
             groups.find((g) => g.id === groupId)?.name || ""
           } in the workspace ${workspaceData?.name}`
         );
@@ -690,14 +693,14 @@ const Workspace = () => {
       setIsLeaving(true);
 
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces/leave",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/leave`,
         { workspaceId: workspaceId },
         { withCredentials: true }
       );
 
       if (response.data.success) {
         NotificationService.showInfo("You have left the workspace.");
-        handleLogging("Left the workspace " + workspaceData?.name);
+        handleLogging("You left the workspace " + workspaceData?.name);
 
         navigate("/landing");
       } else {
@@ -764,7 +767,6 @@ const Workspace = () => {
 
     try {
       setAssigningAdmin(memberId);
-
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/assign-admin`,
         {
@@ -776,7 +778,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showSuccess("Admin role assigned successfully!");
         handleLogging(
-          `Assigned admin role to member ${memberId} in workspace ${workspaceData?.name}`
+          `You assigned a new admin to the workspace ${workspaceData?.name}`
         );
         let users: string[] = [];
         users.push(memberId);
@@ -864,7 +866,7 @@ const Workspace = () => {
       >
         <Box
           sx={{
-            p: { xs: 2, sm: 3 },
+            p: collapsingHeader ? { xs: 1, sm: 1 } : { xs: 2, sm: 3 },
             display: "flex",
             justifyContent: "space-between",
             alignItems: { xs: "stretch", sm: "flex-start" },
@@ -912,153 +914,104 @@ const Workspace = () => {
                 </Typography>
               </Box>
             </Box>
-            <Typography
-              variant="body1"
-              sx={{
-                opacity: 0.9,
-                color: mode === "dark" ? "inherit" : "white",
-                fontSize: { xs: "0.875rem", sm: "1rem" },
-                lineHeight: { xs: 1.4, sm: 1.5 },
-                wordBreak: "break-word",
-                display: { xs: "none", sm: "block" },
-              }}
-            >
-              {workspaceData.description || "No description available"}
-            </Typography>
+            {!collapsingHeader && (
+              <Typography
+                variant="body1"
+                sx={{
+                  opacity: 0.9,
+                  color: mode === "dark" ? "inherit" : "white",
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  lineHeight: { xs: 1.4, sm: 1.5 },
+                  wordBreak: "break-word",
+                  display: { xs: "none", sm: "block" },
+                }}
+              >
+                {workspaceData.description || "No description available"}
+              </Typography>
+            )}
           </Box>
 
           <Box
             sx={{
               display: "flex",
-              alignItems: { xs: "stretch", sm: "center" },
+              alignItems: "center",
               gap: { xs: 1, sm: 1.5 },
-              flexDirection: { xs: "column", sm: "row" },
-              justifyContent: { xs: "stretch", sm: "flex-end" },
+              flexDirection: { xs: "row", sm: "row" },
+              justifyContent: "flex-end",
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            {/* Info Chips Row */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                justifyContent: { xs: "space-between", sm: "flex-end" },
-                flexWrap: { xs: "nowrap", sm: "wrap" },
-                width: { xs: "100%", sm: "auto" },
-              }}
-            >
-              {workspaceData.role === "admin" && (
-                <Chip
-                  icon={<AdminIcon sx={{ color: "white" }} />}
-                  label="Admin"
-                  color="secondary"
-                  size={isMobile ? "small" : "small"}
-                  sx={{
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    color: "white",
-                    "& .MuiChip-icon": { color: "white" },
-                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                    height: { xs: 28, sm: 32 },
-                  }}
-                />
-              )}
-              {workspaceData.role !== "admin" && (
-                <Tooltip
-                  title={`Workspace Admin: ${workspaceData.adminName}`}
-                  arrow
-                >
-                  <Chip
-                    icon={<AdminIcon sx={{ color: "white" }} />}
-                    label={workspaceData.adminName}
-                    variant="outlined"
-                    size={isMobile ? "small" : "small"}
-                    sx={{
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      "& .MuiChip-icon": { color: "white" },
-                      maxWidth: { xs: "120px", sm: "150px" },
-                      "& .MuiChip-label": {
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      },
-                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                      height: { xs: 28, sm: 32 },
-                    }}
-                  />
-                </Tooltip>
-              )}
-              <Chip
-                icon={<GroupIcon sx={{ color: "white" }} />}
-                label={`${workspaceData.memberCount} Members`}
-                color="secondary"
-                size={isMobile ? "small" : "small"}
+            <Tooltip title={collapsingHeader ? 'Expand header' : 'Collapse header'}>
+              <IconButton
+                onClick={() => setCollapsingHeader((s) => !s)}
+                size="small"
                 sx={{
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  color: "white",
-                  "& .MuiChip-icon": { color: "white" },
-                  fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                  height: { xs: 28, sm: 32 },
+                  color: 'white',
+                  bgcolor: { xs: 'rgba(255,255,255,0.06)', sm: 'transparent' },
+                  border: { xs: '1px solid rgba(255,255,255,0.06)', sm: 'none' },
+                  mr: { xs: 0.5, sm: 1 },
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
                 }}
-              />
-            </Box>
-
-            {/* Action Buttons Row */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: { xs: 1, sm: 1.5 },
-                justifyContent: { xs: "stretch", sm: "flex-end" },
-                width: { xs: "100%", sm: "auto" },
-              }}
-            >
-              <Button
-                variant="outlined"
-                color="warning"
-                size={isMobile ? "medium" : "small"}
-                startIcon={<ExitIcon />}
-                disabled={isLeaving}
-                sx={{
-                  borderColor: "rgba(255,255,255,0.5)",
-                  color: "white",
-                  flex: { xs: 1, sm: "none" },
-                  minWidth: { xs: "auto", sm: "auto" },
-                  fontSize: { xs: "0.8rem", sm: "0.8rem" },
-                  py: { xs: 1, sm: 0.5 },
-                  "&:hover": {
-                    borderColor: "white",
-                    bgcolor: "rgba(255,255,255,0.1)",
-                  },
-                  "&:disabled": {
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: "rgba(255,255,255,0.5)",
-                  },
-                }}
-                onClick={handleLeaveWorkspace}
               >
-                {isLeaving ? "Leaving..." : "Leave"}
-              </Button>
+                {collapsingHeader ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+              </IconButton>
+            </Tooltip>
 
-              {workspaceData.role === "admin" && (
-                <Tooltip title="Admin Options" arrow>
-                  <IconButton
-                    onClick={handleAdminMenuClick}
-                    sx={{
-                      color: "white",
-                      bgcolor: { xs: "rgba(255,255,255,0.1)", sm: "transparent" },
-                      border: { xs: "1px solid rgba(255,255,255,0.3)", sm: "none" },
-                      minWidth: { xs: 48, sm: "auto" },
-                      "&:hover": {
-                        bgcolor: "rgba(255,255,255,0.2)",
-                      },
-                    }}
+            {!collapsingHeader && (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 1 }}>
+                  {workspaceData.role === 'admin' ? (
+                    <Chip
+                      icon={<AdminIcon sx={{ color: 'white' }} />}
+                      label="Admin"
+                      color="secondary"
+                      size={isMobile ? 'small' : 'small'}
+                      sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', '& .MuiChip-icon': { color: 'white' }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: { xs: 28, sm: 32 } }}
+                    />
+                  ) : (
+                    <Tooltip title={`Workspace Admin: ${workspaceData.adminName}`} arrow>
+                      <Chip
+                        icon={<AdminIcon sx={{ color: 'white' }} />}
+                        label={workspaceData.adminName}
+                        variant="outlined"
+                        size={isMobile ? 'small' : 'small'}
+                        sx={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white', '& .MuiChip-icon': { color: 'white' }, maxWidth: { xs: '120px', sm: '150px' }, '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: { xs: 28, sm: 32 } }}
+                      />
+                    </Tooltip>
+                  )}
+
+                  <Chip
+                    icon={<GroupIcon sx={{ color: 'white' }} />}
+                    label={`${workspaceData.memberCount} Members`}
+                    color="secondary"
+                    size={isMobile ? 'small' : 'small'}
+                    sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white', '& .MuiChip-icon': { color: 'white' }, fontSize: { xs: '0.7rem', sm: '0.75rem' }, height: { xs: 28, sm: 32 } }}
+                  />
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    size={isMobile ? 'medium' : 'small'}
+                    startIcon={<ExitIcon />}
+                    disabled={isLeaving}
+                    sx={{ borderColor: 'rgba(255,255,255,0.5)', color: 'white', flex: { xs: 1, sm: 'none' }, minWidth: { xs: 'auto', sm: 'auto' }, fontSize: { xs: '0.8rem', sm: '0.8rem' }, py: { xs: 1, sm: 0.5 }, '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' }, '&:disabled': { borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.5)' } }}
+                    onClick={handleLeaveWorkspace}
                   >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </Box>
+                    {isLeaving ? 'Leaving...' : 'Leave'}
+                  </Button>
+
+                  {workspaceData.role === 'admin' && (
+                    <Tooltip title="Admin Options" arrow>
+                      <IconButton onClick={handleAdminMenuClick} sx={{ color: 'white', bgcolor: { xs: 'rgba(255,255,255,0.1)', sm: 'transparent' }, border: { xs: '1px solid rgba(255,255,255,0.3)', sm: 'none' }, minWidth: { xs: 48, sm: 'auto' }, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+                        <MoreVertIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+              </>
+            )}
           </Box>
         </Box>
       </Paper>

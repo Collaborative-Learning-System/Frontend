@@ -111,7 +111,8 @@ export const AppContextProvider = ({
     try {
       const response = await axios.post(`${backendUrl}/auth/logout/${userId}`);
       if (response.data.success) {
-        handleLogging(`User logged out from the system`);
+        handleLogging(`You logged out from your account`);
+        
         setTimeout(() => {
           navigate("/auth");
           setUserData(null);

@@ -113,7 +113,7 @@ const Landing = () => {
   ): Promise<CreateWorkspaceResponse> => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces`,
         {
           workspacename,
           description,
@@ -126,7 +126,7 @@ const Landing = () => {
       if (response.data.success) {
         // Refresh workspaces list after successful creation
         await fetchWorkspaces();
-        await handleLogging(`Created a new workspace ${workspacename}`);
+        await handleLogging(`You created a new workspace ${workspacename}`);
         await fetchLogs();
 
         setCreateWs(false);

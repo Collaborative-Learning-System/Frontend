@@ -11,8 +11,6 @@ import {
   Divider,
   IconButton,
   Alert,
-  Switch,
-  FormControlLabel,
   CircularProgress,
 } from "@mui/material";
 import {
@@ -29,6 +27,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { handleLogging } from "../services/LoggingService";
 
 export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -73,10 +72,12 @@ export default function UserProfile() {
       );
       if (response.status === 200) {
         setSuccess("Profile updated successfully!");
+        handleLogging(`You updated your profile successfully`);
         setUserData(editData);
         setIsEditing(false);
       }
     } catch (err) {
+      handleLogging(`A failed profile update attempt was detected`);
       if (axios.isAxiosError(err) && err.response) {
         setError(err.response.data.message);
       } else {
@@ -95,6 +96,7 @@ export default function UserProfile() {
     try {
       if (!userData?.userId) {
         setError("Account Deletion Failed. Please try again later.");
+        handleLogging(`A failed account deletion attempt was detected`);
         return;
       }
       const response = await axios.delete(
@@ -109,6 +111,7 @@ export default function UserProfile() {
         }, 2000);
       }
     } catch (error) {
+      handleLogging(`A failed account deletion attempt was detected`);
       setError("Account Deletion Failed. Please try again later.");
     }
   };
@@ -163,8 +166,7 @@ export default function UserProfile() {
           // Update profile picture with the URL returned from backend
           setProfilePicture(response.data.data.profilePicUrl);
           setSuccess("Profile picture updated successfully!");
-
-          // Optionally update the user data context with the new profile picture URL
+          handleLogging(`You updated your profile picture successfully`);
           if (userData) {
             setUserData({
               ...userData,
@@ -173,6 +175,7 @@ export default function UserProfile() {
           }
         }
       } catch (err) {
+        handleLogging(`A failed profile picture update attempt was detected`);
         if (axios.isAxiosError(err) && err.response) {
           setError(
             err.response.data.message || "Failed to upload profile picture."
@@ -534,49 +537,6 @@ export default function UserProfile() {
             </Button>
           </Box>
         </Stack>
-      </Box>
-
-      <Box
-        sx={{
-          mb: 4,
-          p: 4,
-          bgcolor: theme.palette.background.paper,
-          borderRadius: 2,
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        }}
-      >
-        {" "}
-        <Box
-          sx={{
-            mb: 4,
-          }}
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ mb: { xs: 3, sm: 0 } }}
-          >
-            Privacy Settings
-          </Typography>
-        </Box>
-        <Divider sx={{ mb: 4 }} />
-        <Box sx={{ mb: 1, display: "flex", flexDirection: "column", gap: 1 }}>
-          <FormControlLabel
-            control={<Switch name="trackUser" color="primary" />}
-            label="Track My Activities"
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                name="sendEmailNotifications"
-                color="primary"
-                //onClick={handleUserActivityTracking}
-              />
-            }
-            label="Send Email Notifications For Up Coming Events"
-          />
-        </Box>
       </Box>
     </Box>
   );
