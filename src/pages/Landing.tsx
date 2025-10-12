@@ -9,11 +9,11 @@ import {
   Backdrop,
   Avatar,
   Stack,
-  CircularProgress,
   Fade,
   Slide,
   Zoom,
   Chip,
+  Skeleton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState, useEffect, useContext } from "react";
@@ -87,7 +87,7 @@ const Landing = () => {
       setLoadingWorkspaces(true);
       setWorkspaceError(null);
 
-      const response = await axios.get("http://localhost:3000/api/workspaces", {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/workspaces`, {
         withCredentials: true,
       });
 
@@ -100,7 +100,7 @@ const Landing = () => {
       }
     } catch (error) {
       console.error("Error fetching workspaces:", error);
-      setWorkspaceError("Failed to load workspaces. Please try again later.");
+      setWorkspaceError("There is a issue with loading workspaces. Refresh to try again.");
     } finally {
       setLoadingWorkspaces(false);
     }
@@ -113,7 +113,7 @@ const Landing = () => {
   ): Promise<CreateWorkspaceResponse> => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces`,
         {
           workspacename,
           description,
@@ -126,7 +126,7 @@ const Landing = () => {
       if (response.data.success) {
         // Refresh workspaces list after successful creation
         await fetchWorkspaces();
-        await handleLogging(`Created a new workspace ${workspacename}`);
+        await handleLogging(`You created a new workspace ${workspacename}`);
         await fetchLogs();
 
         setCreateWs(false);
@@ -491,15 +491,99 @@ const Landing = () => {
             </Box>
 
             {loadingWorkspaces ? (
-              <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
-                <CircularProgress size={60} thickness={4} />
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    md: "repeat(2, 1fr)",
+                    lg: "repeat(3, 1fr)",
+                  },
+                  gap: 3,
+                }}
+              >
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <Card
+                    key={index}
+                    sx={{
+                      ...glassCardStyles,
+                      height: "280px",
+                      position: "relative",
+                      overflow: "visible",
+                    }}
+                  >
+                    {/* Top Section Skeleton */}
+                    <Box
+                      sx={{
+                        height: "120px",
+                        position: "relative",
+                        borderRadius: "12px 12px 0 0",
+                      }}
+                    >
+                      <Skeleton
+                        variant="rectangular"
+                        width="100%"
+                        height="120px"
+                        sx={{ borderRadius: "12px 12px 0 0" }}
+                      />
+                      {/* Avatar Skeleton */}
+                      <Skeleton
+                        variant="circular"
+                        width={90}
+                        height={90}
+                        sx={{
+                          position: "absolute",
+                          left: "24px",
+                          bottom: "-20px",
+                          zIndex: 2,
+                        }}
+                      />
+                    </Box>
+
+                    {/* Bottom Section Skeleton */}
+                    <CardContent
+                      sx={{
+                        p: 3,
+                        pt: 4,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      {/* Title and Role Skeleton */}
+                      <Box sx={{ mb: 2, ml: 8 }}>
+                        <Skeleton variant="text" width="60%" height={28} />
+                        <Skeleton variant="rounded" width={80} height={24} sx={{ mt: 1 }} />
+                      </Box>
+
+                      {/* Description Skeleton */}
+                      <Skeleton variant="text" width="100%" height={20} />
+                      <Skeleton variant="text" width="80%" height={20} />
+
+                      {/* Member count and button area */}
+                      <Box
+                        sx={{
+                          mt: "auto",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Skeleton variant="text" width={100} height={20} />
+                        <Skeleton variant="rounded" width={80} height={32} />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
               </Box>
             ) : workspaceError ? (
               <Card sx={glassCardStyles}>
                 <CardContent sx={{ textAlign: "center", p: 4 }}>
                   <Typography variant="h6" color="error">
                     {workspaceError}
-                  </Typography>
+                    </Typography>
+                    <Button onClick={fetchWorkspaces} sx={{ mt: 2 }} variant="outlined">
+                      Refresh
+                    </Button>
                 </CardContent>
               </Card>
             ) : workspaces.length > 0 ? (

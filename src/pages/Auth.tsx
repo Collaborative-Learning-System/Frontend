@@ -25,7 +25,6 @@ import {
   Login,
   VisibilityOff,
   Visibility,
-  Check,
 } from "@mui/icons-material";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
@@ -66,6 +65,27 @@ const AuthComponent = () => {
     setSuccess("");
     setIsLoading(true);
 
+    if (!loginForm.email || !loginForm.password) {
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    if (!validateEmail(loginForm.email)) {
+      setError("Please enter a valid email address");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    if (loginForm.password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
     try {
       setInfo("");
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -79,7 +99,7 @@ const AuthComponent = () => {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
-          handleLogging(`User logged in with: ${loginForm.email}`);
+          handleLogging(`You logged in to your account from ${loginForm.email}`);
           const redirect = searchParams.get("redirect");
           navigate(redirect || "/landing");
         } else {
@@ -89,11 +109,14 @@ const AuthComponent = () => {
         setError("Please fill in all fields");
       }
     } catch (err) {
+      handleLogging(`A failed login attempt was detected`);
       if (axios.isAxiosError(err) && err.response) {
         setError(err.response.data.message);
+        
       } else {
         setError("Login failed. Please try again.");
       }
+      
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +129,27 @@ const AuthComponent = () => {
     setSuccess("");
     setIsLoading(true);
 
+    if (!signupForm.fullName || !signupForm.email || !signupForm.password) {
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    if (!validateEmail(signupForm.email)) {
+      setError("Please enter a valid email address");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    if (signupForm.password.length < 8) {
+      setError("Password must be at least 8 characters long");
+      setIsLoading(false);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
@@ -117,6 +161,7 @@ const AuthComponent = () => {
         if (response) {
           sendWelcomeEmail(signupForm.email, signupForm.fullName);
           setSuccess(response.data.message);
+          handleLogging(`You successfully signed up to your account from ${signupForm.email}`);
           setTimeout(() => {
             setSuccess("");
             setTabValue(0);
@@ -130,6 +175,7 @@ const AuthComponent = () => {
         setError("Please fill in all fields");
       }
     } catch (err) {
+      handleLogging(`A failed signup attempt was detected`);
       if (axios.isAxiosError(err) && err.response) {
         const { message, statusCode, error: errType } = err.response.data;
         setError(message);
@@ -140,6 +186,11 @@ const AuthComponent = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const sendWelcomeEmail = async (email: string, fullName: string) => {
@@ -181,15 +232,15 @@ const AuthComponent = () => {
         backgroundPosition: "center",
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: "500px", ml: 4 }}>
+      <Box sx={{ width: "100%", maxWidth: "500px", ml: { xs: 0, sm: 4 } }}>
         {/* Form Card */}
         <Card>
           {/* Header */}
-          <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Box sx={{ textAlign: "center", mt: 2, mb: 0 }}>
             <Avatar
               sx={{
-                width: 64,
-                height: 64,
+                width: 58,
+                height: 58,
                 mx: "auto",
                 mb: 2,
                 bgcolor: theme.palette.primary.main,
@@ -225,16 +276,16 @@ const AuthComponent = () => {
             </Typography>
           </Box>
 
-          <CardContent sx={{ p: 4 }}>
+          <CardContent sx={{ p: 3 }}>
             {/* Tabs for Login/Signup */}
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
               variant="fullWidth"
               sx={{
-                mb: 3,
+                mb: 1.5,
                 "& .MuiTabs-indicator": {
-                  height: 3,
+                  height: 1.5,
                   borderRadius: 1.5,
                 },
               }}
@@ -245,26 +296,26 @@ const AuthComponent = () => {
 
             {/* Error/Success Messages */}
             {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
+              <Alert severity="error" sx={{ mb: 0 }}>
                 {error}
               </Alert>
             )}
 
             {success && (
-              <Alert severity="success" sx={{ mb: 2 }}>
+              <Alert severity="success" sx={{ mb: 0 }}>
                 {success}
               </Alert>
             )}
 
             {info && (
-              <Alert severity="info" sx={{ mb: 2 }}>
+              <Alert severity="info" sx={{ mb: 0 }}>
                 {info}
               </Alert>
             )}
 
             {/* Login Form */}
             {isLogin ? (
-              <Box component="form" onSubmit={handleLogin} sx={{ mt: 2 }}>
+              <Box component="form" onSubmit={handleLogin} sx={{ mt: 0 }}>
                 <TextField
                   fullWidth
                   label="Email Address"
@@ -342,7 +393,7 @@ const AuthComponent = () => {
                   variant="contained"
                   size="large"
                   disabled={isLoading}
-                  sx={{ mt: 3, mb: 2, py: 1.5 }}
+                  sx={{ mt: 2, mb: 2, py: 1.5 }}
                   onClick={handleLogin}
                 >
                   {isLoading ? (
@@ -437,27 +488,6 @@ const AuthComponent = () => {
                     ),
                   }}
                   placeholder="Create a password"
-                  helperText={
-                    <Box>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <IconButton size="small" disabled>
-                          <Check sx={{ color: "green" }} />
-                        </IconButton>
-                        <Typography variant="caption" color="green">
-                          Password must be at least 8 characters long.
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <IconButton size="small" disabled>
-                          <Check sx={{ color: "green" }} />
-                        </IconButton>
-                        <Typography variant="caption" color="green">
-                          Must include at least 1 uppercase letter, 1 lowercase
-                          letter, 1 number, and 1 special character"
-                        </Typography>
-                      </Box>
-                    </Box>
-                  }
                 />
 
                 <Button
@@ -466,7 +496,7 @@ const AuthComponent = () => {
                   variant="contained"
                   size="large"
                   disabled={isLoading}
-                  sx={{ mt: 3, mb: 2, py: 1.5 }}
+                  sx={{ mt: 2, mb: 2, py: 1.5 }}
                   onClick={handleSignup}
                 >
                   {isLoading ? (
@@ -482,7 +512,7 @@ const AuthComponent = () => {
             )}
 
             {/* Footer */}
-            <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Box sx={{ textAlign: "center", mt: 0.5 }}>
               <Typography variant="body2" color="text.secondary">
                 {isLogin
                   ? "Don't have an account? "
