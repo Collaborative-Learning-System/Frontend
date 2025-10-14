@@ -13,6 +13,8 @@ import {
   Avatar,
   Rating,
   useTheme,
+  Paper,
+  Chip,
 } from "@mui/material";
 
 import {
@@ -24,6 +26,7 @@ import {
   Edit,
   ArrowForward,
   CheckCircle,
+  TrendingUp,
 } from "@mui/icons-material";
 import Navigation from "../components/Navigation";
 
@@ -112,178 +115,266 @@ export default function CollaborativeLearningHomepage() {
     <Box
       sx={{
         flexGrow: 1,
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: theme.palette.background.default,
         minHeight: "100vh",
       }}
     >
       <Navigation />
 
       {/* Hero Section */}
-      <Container maxWidth="lg" sx={{ py: 8, mt: 2 }}>
-        <Grid container spacing={4} alignItems="center">
-          <Grid size={{ xs: 12, md: 6 }}>
+      <Box sx={{ py: { xs: 6, md: 10 } }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={4} alignItems="center">
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Typography
+                variant="h2"
+                component="h1"
+                gutterBottom
+                sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
+              >
+                Learn Together, Achieve More
+              </Typography>
+              <Typography
+                variant="h5"
+                paragraph
+                sx={{ color: "text.secondary", mb: 4 }}
+              >
+                Join the ultimate collaborative learning platform where students
+                connect, share resources, and create personalized study plans
+                powered by AI.
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                <Button
+                  onClick={() => navigate("/auth")}
+                  variant="contained"
+                  size="large"
+                  endIcon={<ArrowForward />}
+                  sx={{
+                    bgcolor: theme.palette.primary.main,
+                    "&:hover": { bgcolor: theme.palette.primary.light },
+                  }}
+                >
+                  Get Started Free
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  sx={{
+                    color: theme.palette.primary.main,
+                    borderColor: theme.palette.primary.main,
+                  }}
+                >
+                  Watch Demo
+                </Button>
+              </Box>
+              <Box sx={{ mt: 4, display: "flex", alignItems: "center", gap: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <CheckCircle
+                    sx={{
+                      color:
+                        theme.palette.success?.main || theme.palette.primary.main,
+                      mr: 1,
+                    }}
+                  />
+                  <Typography variant="body2">Free to start</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <CheckCircle
+                    sx={{
+                      color:
+                        theme.palette.success?.main || theme.palette.primary.main,
+                      mr: 1,
+                    }}
+                  />
+                  <Typography variant="body2">No credit card required</Typography>
+                </Box>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ position: "relative", textAlign: "center" }}>
+                <img
+                  src={HomepageImage}
+                  alt="Students collaborating"
+                  style={{
+                    width: "100%",
+                    maxWidth: 500,
+                    height: "auto",
+                    borderRadius: 16,
+                  }}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Stats Section */}
+      <Box
+        sx={{
+          py: 6,
+          bgcolor: theme.palette.background.paper,
+          borderTop: `1px solid ${theme.palette.divider}`,
+          borderBottom: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            <Chip
+              icon={<TrendingUp />}
+              label="Platform Statistics"
+              color="primary"
+              sx={{ mb: 2 }}
+            />
             <Typography
-              variant="h2"
-              component="h1"
+              variant="h4"
+              component="h2"
               gutterBottom
               sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
             >
-              Learn Together, Achieve More
+              Trusted by Students Worldwide
             </Typography>
-            <Typography
-              variant="h5"
-              paragraph
-              sx={{ color: "text.secondary", mb: 4 }}
-            >
-              Join the ultimate collaborative learning platform where students
-              connect, share resources, and create personalized study plans
-              powered by AI.
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Button
-                onClick={() => navigate("/auth")}
-                variant="contained"
-                size="large"
-                endIcon={<ArrowForward />}
-                sx={{
-                  bgcolor: theme.palette.primary.main,
-                  "&:hover": { bgcolor: theme.palette.primary.light },
-                }}
-              >
-                Get Started Free
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                sx={{
-                  color: theme.palette.primary.main,
-                  borderColor: theme.palette.primary.main,
-                }}
-              >
-                Watch Demo
-              </Button>
-            </Box>
-            <Box sx={{ mt: 4, display: "flex", alignItems: "center", gap: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <CheckCircle
+          </Box>
+          <Grid container spacing={3}>
+            {stats.map((stat, index) => (
+              <Grid size={{ xs: 6, md: 3 }} key={index}>
+                <Paper
+                  elevation={0}
                   sx={{
-                    color:
-                      theme.palette.success?.main || theme.palette.primary.main,
-                    mr: 1,
-                  }}
-                />
-                <Typography variant="body2">Free to start</Typography>
-              </Box>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <CheckCircle
-                  sx={{
-                    color:
-                      theme.palette.success?.main || theme.palette.primary.main,
-                    mr: 1,
-                  }}
-                />
-                <Typography variant="body2">No credit card required</Typography>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Box sx={{ position: "relative", textAlign: "center" }}>
-              <img
-                src={HomepageImage}
-                alt="Students collaborating"
-                style={{
-                  width: "100%",
-                  maxWidth: 500,
-                  height: "auto",
-                  borderRadius: 16,
-                }}
-              />
-            </Box>
-          </Grid>
-        </Grid>
-      </Container>
-
-      {/* Stats Section */}
-      <Container
-        sx={{ py: 0, bgcolor: theme.palette.background.paper }}
-      >
-        <Grid container spacing={4} sx={{ padding: 2 }}>
-          {stats.map((stat, index) => (
-            <Grid size={{ xs: 6, md: 3 }} key={index}>
-              <Box sx={{ textAlign: "center" }}>
-                <Typography
-                  variant="h3"
-                  sx={{
-                    color: theme.palette.primary.main,
-                    fontWeight: "bold",
+                    p: 4,
+                    textAlign: "center",
+                    height: "100%",
+                    bgcolor: "transparent",
+                    border: `2px solid ${theme.palette.divider}`,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      borderColor: theme.palette.primary.main,
+                      transform: "translateY(-4px)",
+                      bgcolor: theme.palette.action.hover,
+                    },
                   }}
                 >
-                  {stat.number}
-                </Typography>
-                <Typography variant="body1" sx={{ color: "text.secondary" }}>
-                  {stat.label}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-
-      {/* Features Section */}
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box sx={{ textAlign: "center", mb: 6 }}>
-          <Typography
-            variant="h3"
-            component="h2"
-            gutterBottom
-            sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
-          >
-            Everything You Need to Excel
-          </Typography>
-          <Typography
-            variant="h6"
-            sx={{ color: "text.secondary", maxWidth: 600, mx: "auto" }}
-          >
-            Comprehensive tools designed to enhance your learning experience and
-            boost academic success
-          </Typography>
-        </Box>
-        <Grid container spacing={4}>
-          {features.map((feature, index) => (
-            <Grid size={{ xs: 12, md: 4 }} key={index}>
-              <Card
-                sx={{
-                  height: "100%",
-                  p: 2,
-                  "&:hover": { transform: "translateY(-2px)" },
-                }}
-              >
-                <CardContent sx={{ textAlign: "center" }}>
-                  <Box sx={{ mb: 2 }}>{feature.icon}</Box>
                   <Typography
-                    variant="h6"
-                    gutterBottom
+                    variant="h2"
                     sx={{
                       color: theme.palette.primary.main,
                       fontWeight: "bold",
+                      mb: 1,
+                      fontSize: { xs: "2.5rem", md: "3rem" },
                     }}
                   >
-                    {feature.title}
+                    {stat.number}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {feature.description}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "text.secondary",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {stat.label}
                   </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* Features Section */}
+      <Box sx={{ py: 8 }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: "center", mb: 8 }}>
+            <Chip
+              label="Platform Features"
+              color="primary"
+              sx={{ mb: 3 }}
+            />
+            <Typography
+              variant="h3"
+              component="h2"
+              gutterBottom
+              sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
+            >
+              Everything You Need to Excel
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{ color: "text.secondary", maxWidth: 600, mx: "auto" }}
+            >
+              Comprehensive tools designed to enhance your learning experience and
+              boost academic success
+            </Typography>
+          </Box>
+          <Grid container spacing={4}>
+            {features.map((feature, index) => (
+              <Grid size={{ xs: 12, md: 4 }} key={index}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    p: 3,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-8px)",
+                      boxShadow: theme.palette.mode === "light" 
+                        ? "0 12px 40px rgba(0,0,0,0.1)" 
+                        : "0 12px 40px rgba(255,255,255,0.1)",
+                    },
+                  }}
+                >
+                  <CardContent sx={{ textAlign: "center", p: 0 }}>
+                    <Box
+                      sx={{
+                        mb: 3,
+                        p: 2,
+                        borderRadius: "50%",
+                        bgcolor: `${theme.palette.primary.main}15`,
+                        width: 80,
+                        height: 80,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mx: "auto",
+                      }}
+                    >
+                      {feature.icon}
+                    </Box>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{
+                        color: theme.palette.primary.main,
+                        fontWeight: "bold",
+                        mb: 2,
+                      }}
+                    >
+                      {feature.title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                      {feature.description}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
 
       {/* Testimonials Section */}
-      <Box sx={{ bgcolor: theme.palette.background.default, py: 4 }}>
+      <Box
+        sx={{
+          bgcolor: theme.palette.background.paper,
+          py: 8,
+          borderTop: `1px solid ${theme.palette.divider}`,
+        }}
+      >
         <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 6 }}>
+          <Box sx={{ textAlign: "center", mb: 8 }}>
+            <Chip
+              label="Student Reviews"
+              color="primary"
+              sx={{ mb: 3 }}
+            />
             <Typography
               variant="h3"
               component="h2"
@@ -336,56 +427,59 @@ export default function CollaborativeLearningHomepage() {
       </Box>
 
       {/* CTA Section */}
-      <Container
-        maxWidth="lg"
-        sx={{ py: 4, bgcolor: theme.palette.background.default }}
-      >
-        <Box
-          sx={{
-            textAlign: "center",
-            bgcolor: theme.palette.background.default,
-            p: 6,
-            borderRadius: 2,
-          }}
-        >
-          <Typography
-            variant="h3"
-            component="h2"
-            gutterBottom
-            sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
-          >
-            Ready to Transform Your Learning?
-          </Typography>
-
-          <Typography
-            variant="h6"
-            paragraph
-            sx={{ opacity: 0.9, mb: 4, color: theme.palette.text.secondary }}
-          >
-            Join EduCollab today and experience the power of collaborative
-            learning
-          </Typography>
-
-          <Button
-            onClick={() => navigate("/auth")}
-            variant="contained"
-            size="large"
+      <Box sx={{ py: 8 }}>
+        <Container maxWidth="lg">
+          <Paper
             sx={{
-              bgcolor: theme.palette.primary.main,
-              color: theme.palette.getContrastText(theme.palette.primary.main),
-              "&:hover": {
-                bgcolor:
-                  theme.palette.mode === "light"
-                    ? theme.palette.primary.dark
-                    : theme.palette.primary.light,
-              },
+              textAlign: "center",
+              p: { xs: 4, md: 8 },
+              borderRadius: 3,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}15, ${theme.palette.secondary.main}15)`,
+              border: `1px solid ${theme.palette.divider}`,
             }}
-            endIcon={<ArrowForward />}
           >
-            Start Learning Now
-          </Button>
-        </Box>
-      </Container>
+            <Typography
+              variant="h3"
+              component="h2"
+              gutterBottom
+              sx={{ fontWeight: "bold", color: theme.palette.primary.main }}
+            >
+              Ready to Transform Your Learning?
+            </Typography>
+
+            <Typography
+              variant="h6"
+              paragraph
+              sx={{ mb: 4, color: theme.palette.text.secondary, maxWidth: 600, mx: "auto" }}
+            >
+              Join EduCollab today and experience the power of collaborative
+              learning with thousands of students worldwide
+            </Typography>
+
+            <Button
+              onClick={() => navigate("/auth")}
+              variant="contained"
+              size="large"
+              sx={{
+                bgcolor: theme.palette.primary.main,
+                color: theme.palette.getContrastText(theme.palette.primary.main),
+                px: 4,
+                py: 1.5,
+                fontSize: "1.1rem",
+                "&:hover": {
+                  bgcolor:
+                    theme.palette.mode === "light"
+                      ? theme.palette.primary.dark
+                      : theme.palette.primary.light,
+                },
+              }}
+              endIcon={<ArrowForward />}
+            >
+              Start Learning Now
+            </Button>
+          </Paper>
+        </Container>
+      </Box>
 
       {/* Footer */}
       <Footer />

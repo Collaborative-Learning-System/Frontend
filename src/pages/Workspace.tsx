@@ -212,7 +212,9 @@ const Workspace = () => {
       try {
         setGroupsLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/workspaces/${workspaceId}/groups`,
           { withCredentials: true }
         );
 
@@ -311,7 +313,9 @@ const Workspace = () => {
       setCreatingGroup(true);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/workspaces/${workspaceId}/groups`,
         {
           groupname: groupName.trim(),
           description: groupDescription.trim(),
@@ -366,7 +370,9 @@ const Workspace = () => {
     try {
       setDeletingGroups((prev) => new Set(prev).add(groupId));
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
         { withCredentials: true }
       );
       if (response.data.success) {
@@ -383,7 +389,13 @@ const Workspace = () => {
           const joinedGroups = groups.filter(
             (group) => group.id !== groupId && group.isMember
           );
-          setSelectedGroup(joinedGroups.length > 0 ? joinedGroups[0].id : groups.length > 0 ? groups[0].id : null);
+          setSelectedGroup(
+            joinedGroups.length > 0
+              ? joinedGroups[0].id
+              : groups.length > 0
+              ? groups[0].id
+              : null
+          );
         }
       } else {
         throw new Error(response.data.message || "Failed to delete group");
@@ -501,7 +513,9 @@ const Workspace = () => {
                       fontSize: { xs: "0.7rem", sm: "0.75rem" },
                     }}
                   />
-                  <Box sx={{ ml: { xs: 0.5, sm: 1 }, display: "flex", gap: 0.5 }}>
+                  <Box
+                    sx={{ ml: { xs: 0.5, sm: 1 }, display: "flex", gap: 0.5 }}
+                  >
                     {joiningGroups.has(group.id) ? (
                       <CircularProgress size={16} />
                     ) : group.isMember ? (
@@ -947,16 +961,26 @@ const Workspace = () => {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            <Tooltip title={collapsingHeader ? 'Expand header' : 'Collapse header'}>
+            <Tooltip
+              title={collapsingHeader ? "Expand header" : "Collapse header"}
+            >
               <IconButton
                 onClick={() => setCollapsingHeader((s) => !s)}
                 size="small"
                 sx={{
                   color: theme.palette.primary.main,
-                  bgcolor: { xs: alpha(theme.palette.primary.main, 0.08), sm: 'transparent' },
-                  border: { xs: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`, sm: 'none' },
+                  bgcolor: {
+                    xs: alpha(theme.palette.primary.main, 0.08),
+                    sm: "transparent",
+                  },
+                  border: {
+                    xs: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                    sm: "none",
+                  },
                   mr: { xs: 0.5, sm: 1 },
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) },
+                  "&:hover": {
+                    bgcolor: alpha(theme.palette.primary.main, 0.12),
+                  },
                 }}
               >
                 {collapsingHeader ? <ExpandMoreIcon /> : <ExpandLessIcon />}
@@ -965,36 +989,48 @@ const Workspace = () => {
 
             {!collapsingHeader && (
               <>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 1 }}>
-                  {workspaceData.role === 'admin' ? (
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mr: 1 }}
+                >
+                  {workspaceData.role === "admin" ? (
                     <Chip
                       icon={<AdminIcon />}
                       label="Admin"
                       color="secondary"
-                      size={isMobile ? 'small' : 'small'}
-                      sx={{ 
-                        bgcolor: alpha(theme.palette.secondary.main, 0.15), 
-                        color: theme.palette.secondary.main, 
-                        '& .MuiChip-icon': { color: theme.palette.secondary.main }, 
-                        fontSize: { xs: '0.7rem', sm: '0.75rem' }, 
-                        height: { xs: 28, sm: 32 } 
+                      size={isMobile ? "small" : "small"}
+                      sx={{
+                        bgcolor: alpha(theme.palette.secondary.main, 0.15),
+                        color: theme.palette.secondary.main,
+                        "& .MuiChip-icon": {
+                          color: theme.palette.secondary.main,
+                        },
+                        fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                        height: { xs: 28, sm: 32 },
                       }}
                     />
                   ) : (
-                    <Tooltip title={`Workspace Admin: ${workspaceData.adminName}`} arrow>
+                    <Tooltip
+                      title={`Workspace Admin: ${workspaceData.adminName}`}
+                      arrow
+                    >
                       <Chip
                         icon={<AdminIcon />}
                         label={workspaceData.adminName}
                         variant="outlined"
-                        size={isMobile ? 'small' : 'small'}
-                        sx={{ 
-                          borderColor: alpha(theme.palette.primary.main, 0.3), 
-                          color: theme.palette.primary.main, 
-                          '& .MuiChip-icon': { color: theme.palette.primary.main }, 
-                          maxWidth: { xs: '120px', sm: '150px' }, 
-                          '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' }, 
-                          fontSize: { xs: '0.7rem', sm: '0.75rem' }, 
-                          height: { xs: 28, sm: 32 } 
+                        size={isMobile ? "small" : "small"}
+                        sx={{
+                          borderColor: alpha(theme.palette.primary.main, 0.3),
+                          color: theme.palette.primary.main,
+                          "& .MuiChip-icon": {
+                            color: theme.palette.primary.main,
+                          },
+                          maxWidth: { xs: "120px", sm: "150px" },
+                          "& .MuiChip-label": {
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          },
+                          fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                          height: { xs: 28, sm: 32 },
                         }}
                       />
                     </Tooltip>
@@ -1004,54 +1040,68 @@ const Workspace = () => {
                     icon={<GroupIcon />}
                     label={`${workspaceData.memberCount} Members`}
                     color="primary"
-                    size={isMobile ? 'small' : 'small'}
-                    sx={{ 
-                      bgcolor: alpha(theme.palette.primary.main, 0.15), 
-                      color: theme.palette.primary.main, 
-                      '& .MuiChip-icon': { color: theme.palette.primary.main }, 
-                      fontSize: { xs: '0.7rem', sm: '0.75rem' }, 
-                      height: { xs: 28, sm: 32 } 
+                    size={isMobile ? "small" : "small"}
+                    sx={{
+                      bgcolor: alpha(theme.palette.primary.main, 0.15),
+                      color: theme.palette.primary.main,
+                      "& .MuiChip-icon": { color: theme.palette.primary.main },
+                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                      height: { xs: 28, sm: 32 },
                     }}
                   />
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Button
                     variant="outlined"
                     color="warning"
-                    size={isMobile ? 'medium' : 'small'}
+                    size={isMobile ? "medium" : "small"}
                     startIcon={<ExitIcon />}
                     disabled={isLeaving}
-                    sx={{ 
-                      borderColor: alpha(theme.palette.warning.main, 0.5), 
-                      color: theme.palette.warning.main, 
-                      flex: { xs: 1, sm: 'none' }, 
-                      minWidth: { xs: 'auto', sm: 'auto' }, 
-                      fontSize: { xs: '0.8rem', sm: '0.8rem' }, 
-                      py: { xs: 1, sm: 0.5 }, 
-                      '&:hover': { 
-                        borderColor: theme.palette.warning.main, 
-                        bgcolor: alpha(theme.palette.warning.main, 0.1) 
-                      }, 
-                      '&:disabled': { 
-                        borderColor: alpha(theme.palette.warning.main, 0.3), 
-                        color: alpha(theme.palette.warning.main, 0.5) 
-                      } 
+                    sx={{
+                      borderColor: alpha(theme.palette.warning.main, 0.5),
+                      color: theme.palette.warning.main,
+                      flex: { xs: 1, sm: "none" },
+                      minWidth: { xs: "auto", sm: "auto" },
+                      fontSize: { xs: "0.8rem", sm: "0.8rem" },
+                      py: { xs: 1, sm: 0.5 },
+                      "&:hover": {
+                        borderColor: theme.palette.warning.main,
+                        bgcolor: alpha(theme.palette.warning.main, 0.1),
+                      },
+                      "&:disabled": {
+                        borderColor: alpha(theme.palette.warning.main, 0.3),
+                        color: alpha(theme.palette.warning.main, 0.5),
+                      },
                     }}
                     onClick={handleLeaveWorkspace}
                   >
-                    {isLeaving ? 'Leaving...' : 'Leave'}
+                    {isLeaving ? "Leaving..." : "Leave"}
                   </Button>
 
-                  {workspaceData.role === 'admin' && (
+                  {workspaceData.role === "admin" && (
                     <Tooltip title="Admin Options" arrow>
-                      <IconButton onClick={handleAdminMenuClick} sx={{ 
-                        color: theme.palette.primary.main, 
-                        bgcolor: { xs: alpha(theme.palette.primary.main, 0.1), sm: 'transparent' }, 
-                        border: { xs: `1px solid ${alpha(theme.palette.primary.main, 0.3)}`, sm: 'none' }, 
-                        minWidth: { xs: 48, sm: 'auto' }, 
-                        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.15) } 
-                      }}>
+                      <IconButton
+                        onClick={handleAdminMenuClick}
+                        sx={{
+                          color: theme.palette.primary.main,
+                          bgcolor: {
+                            xs: alpha(theme.palette.primary.main, 0.1),
+                            sm: "transparent",
+                          },
+                          border: {
+                            xs: `1px solid ${alpha(
+                              theme.palette.primary.main,
+                              0.3
+                            )}`,
+                            sm: "none",
+                          },
+                          minWidth: { xs: 48, sm: "auto" },
+                          "&:hover": {
+                            bgcolor: alpha(theme.palette.primary.main, 0.15),
+                          },
+                        }}
+                      >
                         <MoreVertIcon />
                       </IconButton>
                     </Tooltip>
@@ -1154,18 +1204,18 @@ const Workspace = () => {
                 zIndex: 1,
               }}
             >
-              <Box 
-                sx={{ 
-                  display: "flex", 
-                  alignItems: "center", 
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
                   gap: 1,
                   flex: 1,
                   minWidth: 0,
                 }}
               >
-                <IconButton 
-                  onClick={handleDrawerToggle} 
-                  sx={{ 
+                <IconButton
+                  onClick={handleDrawerToggle}
+                  sx={{
                     bgcolor: theme.palette.primary.main + "10",
                     "&:hover": {
                       bgcolor: theme.palette.primary.main + "20",
@@ -1191,13 +1241,13 @@ const Workspace = () => {
                     }),
                   }}
                 >
-                  <GroupIcon 
-                    color="primary" 
+                  <GroupIcon
+                    color="primary"
                     sx={{ fontSize: 20, flexShrink: 0 }}
                   />
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
+                  <Typography
+                    variant="body2"
+                    sx={{
                       fontSize: "0.9rem",
                       fontWeight: 500,
                       color: "text.primary",
@@ -1545,10 +1595,7 @@ const Workspace = () => {
                     <ListItemIcon>
                       <GroupIcon color="action" />
                     </ListItemIcon>
-                    <ListItemText
-                      primary={member.name}
-                      secondary={`User ID: ${member.userId}`}
-                    />
+                    <ListItemText primary={member.name} />
                     <Button
                       variant="contained"
                       size="small"
@@ -1600,7 +1647,9 @@ const Workspace = () => {
         entityName={workspaceData?.name || ""}
         entityType="workspace"
         title="Add Members to Workspace"
-        description={`Add new members to the "${workspaceData?.name || ""}" workspace.`}
+        description={`Add new members to the "${
+          workspaceData?.name || ""
+        }" workspace.`}
         onAddSuccess={handleInviteSuccess}
       />
     </Box>
