@@ -231,7 +231,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   }, [selectedFilePreview]);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000/chat", {
+    const newSocket = io(`${import.meta.env.VITE_BACKEND_URL}/chat`, {
       withCredentials: true,
       transports: ["websocket", "polling"],
     });

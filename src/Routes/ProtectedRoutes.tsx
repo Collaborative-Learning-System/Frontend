@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
-export function PrivateRoute({ children }: { children: JSX.Element }) {
+export function ProtectedRoute({ children }: { children: JSX.Element }) {
   const isLoggedIn = !!localStorage.getItem("userId");
   const location = useLocation();
 

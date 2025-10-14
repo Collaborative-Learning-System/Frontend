@@ -13,13 +13,13 @@ import {
   ListItemAvatar,
   Avatar,
   Paper,
-  CircularProgress,
   alpha,
   useTheme,
   IconButton,
   Stack,
   Button,
   Divider,
+  Skeleton,
 } from '@mui/material';
 import {
   Notifications,
@@ -195,24 +195,48 @@ export default function ViewAll() {
       <Paper
         elevation={1}
         sx={{
-          p: 3,
+          p: 4,
           mb: 3,
-          background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-          color: 'white',
+          background: `linear-gradient(135deg, 
+            ${alpha(theme.palette.primary.main, 0.1)} 0%, 
+            ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
+          backdropFilter: "blur(10px)",
+          borderRadius: "12px",
+          border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
+          color: theme.palette.text.primary,
         }}
       >
         <Stack direction="row" alignItems="center" spacing={2}>
           <IconButton
             onClick={() => navigate(-1)}
-            sx={{ color: 'white' }}
+            sx={{ color: theme.palette.text.primary }}
           >
             <ArrowBack />
           </IconButton>
           <Box>
-            <Typography variant="h4" fontWeight="bold">
+            <Typography 
+              variant="h4" 
+              fontWeight="700"
+              sx={{
+                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.main})`,
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                mb: 1,
+              }}
+            >
               All Activities & Notifications
             </Typography>
-            <Typography variant="body1" sx={{ opacity: 0.9, mt: 1 }}>
+            <Typography 
+              variant="body1" 
+              color="text.secondary" 
+              sx={{ 
+                mt: 1,
+                fontSize: "1rem",
+                fontWeight: 400,
+                opacity: 0.8,
+              }}
+            >
               Stay updated with all your activities and notifications
             </Typography>
           </Box>
@@ -273,9 +297,19 @@ export default function ViewAll() {
           </Box>
 
           {notificationsLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
+            <List sx={{ p: 1 }}>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <ListItem key={index} sx={{ px: 2, py: 2, mb: 1 }}>
+                  <ListItemAvatar>
+                    <Skeleton variant="circular" width={40} height={40} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={<Skeleton variant="text" width="70%" height={24} />}
+                    secondary={<Skeleton variant="text" width="30%" height={16} />}
+                  />
+                </ListItem>
+              ))}
+            </List>
           ) : notifications.length === 0 ? (
             <Card sx={{ mx: 2 }}>
               <CardContent sx={{ textAlign: 'center', py: 6 }}>
@@ -368,9 +402,19 @@ export default function ViewAll() {
           </Box>
 
           {activitiesLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
+            <List sx={{ p: 1 }}>
+              {Array.from({ length: 6 }).map((_, index) => (
+                <ListItem key={index} sx={{ px: 2, py: 2, mb: 1 }}>
+                  <ListItemAvatar>
+                    <Skeleton variant="circular" width={40} height={40} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={<Skeleton variant="text" width="80%" height={24} />}
+                    secondary={<Skeleton variant="text" width="40%" height={16} />}
+                  />
+                </ListItem>
+              ))}
+            </List>
           ) : activities.length === 0 ? (
             <Card sx={{ mx: 2 }}>
               <CardContent sx={{ textAlign: 'center', py: 6 }}>
