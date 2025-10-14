@@ -364,7 +364,7 @@ const Dashboard = () => {
       console.log(response.data.data);
       if (response.data.success) {
         setSuggestedWorkspaces(response.data.data.suggestedWorkspacesForYou);
-        if (response.data.data.source === "no_suggestions_available") {
+        if (response.data.data.source === "no_suggestions_available" || response.data.data.suggestedWorkspacesForYou.length === 0) {
           setNoSuggestions(true);
         }
       }
@@ -616,21 +616,7 @@ const Dashboard = () => {
                     icon={<WorkspacePremium />}
                     title="No Active Workspaces"
                     description="Join collaborative workspaces to connect with peers, share knowledge, and learn together in a supportive environment."
-                    actionButton={
-                      <Button
-                        variant="contained"
-                        startIcon={<Add />}
-                        onClick={() => navigate("/landing")}
-                        sx={{
-                          bgcolor: theme.palette.primary.main,
-                          "&:hover": {
-                            bgcolor: theme.palette.primary.dark,
-                          },
-                        }}
-                      >
-                        Explore Workspaces
-                      </Button>
-                    }
+                  
                   />
                 )}
               </List>
