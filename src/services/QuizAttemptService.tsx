@@ -1,7 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:3000';
-
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Types for quiz attempt
 export interface QuizAttemptResponse {
@@ -9,13 +8,13 @@ export interface QuizAttemptResponse {
   quizId: string;
   userId: string;
   startedAt: string;
-  status: 'IN_PROGRESS' | 'COMPLETED';
+  status: "IN_PROGRESS" | "COMPLETED";
 }
 
 export interface Question {
   id: string;
   question: string;
-  questionType: 'MCQ' | 'TRUE_FALSE' | 'SHORT_ANSWER';
+  questionType: "MCQ" | "TRUE_FALSE" | "SHORT_ANSWER";
   points: number;
   options?: Array<{
     id: string;
@@ -39,8 +38,8 @@ export interface QuizDetails {
 export interface AnswerSubmission {
   attemptId: string;
   questionId: string;
-  selectedOptionId?: string; 
-  userAnswer?: string; 
+  selectedOptionId?: string;
+  userAnswer?: string;
 }
 
 export interface SaveAnswerResponse {
@@ -78,11 +77,11 @@ export interface AttemptDetails {
   userId: string;
   score: number;
   totalQuestions: number;
-  percentage: number; 
+  percentage: number;
   startedAt: string;
   completedAt: string;
   timeTaken: number;
-  status: 'IN_PROGRESS' | 'COMPLETED';
+  status: "IN_PROGRESS" | "COMPLETED";
 }
 
 export interface UserAttempts {
@@ -102,37 +101,33 @@ export interface LeaderboardEntry {
   rank: number;
 }
 
-
 const getAuthHeaders = () => ({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${localStorage.getItem('token')}`
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
-
 
 const activeRequests = new Map<string, Promise<any>>();
 
 export const QuizAttemptService = {
-  
   async getQuizDetails(quizId: string): Promise<QuizDetails> {
     try {
-      
-      
       const response = await axios.get(`${API_BASE_URL}/quiz/${quizId}`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
-      
-      
+
       const backendData = response.data;
-      
+
       const quizData = backendData.success ? backendData.data : backendData;
-      
+
       const transformedQuiz: QuizDetails = {
         id: quizData.quizId || quizData.id || quizId,
         title: quizData.title,
         description: quizData.description,
         difficulty: quizData.difficulty,
         timeLimit: quizData.timeLimit,
-        instructions: quizData.instructions || 'Complete all questions to the best of your knowledge.',
+        instructions:
+          quizData.instructions ||
+          "Complete all questions to the best of your knowledge.",
         questions: (quizData.questions || []).map((q: any) => ({
           id: q.questionId || q.id,
           question: q.question,
@@ -141,87 +136,75 @@ export const QuizAttemptService = {
           options: (q.questionOptions || q.options || []).map((opt: any) => ({
             id: opt.optionId || opt.id,
             optionText: opt.optionText,
-            isCorrect: opt.isCorrect
+            isCorrect: opt.isCorrect,
           })),
-          correctAnswer: q.correctAnswer
+          correctAnswer: q.correctAnswer,
         })),
-        createdAt: quizData.createdAt || new Date().toISOString()
+        createdAt: quizData.createdAt || new Date().toISOString(),
       };
-      
-      
+
       return transformedQuiz;
     } catch (error: any) {
-      console.error('Error fetching quiz details:', error);
-      console.error('Request URL:', `${API_BASE_URL}/quiz/${quizId}`);
-      console.error('Error status:', error.response?.status);
-      console.error('Error message:', error.response?.data);
-      console.error('Full error:', error);
-      
-      throw this.handleApiError(error, 'Failed to fetch quiz details');
+      console.error("Error fetching quiz details:", error);
+      console.error("Request URL:", `${API_BASE_URL}/quiz/${quizId}`);
+      console.error("Error status:", error.response?.status);
+      console.error("Error message:", error.response?.data);
+      console.error("Full error:", error);
+
+      throw this.handleApiError(error, "Failed to fetch quiz details");
     }
   },
 
-  
   async startQuizAttempt(quizId: string): Promise<QuizAttemptResponse> {
     const requestKey = `startQuizAttempt_${quizId}`;
-    
-    
+
     if (activeRequests.has(requestKey)) {
-      console.log('Reusing existing quiz attempt request for quiz:', quizId);
+      console.log("Reusing existing quiz attempt request for quiz:", quizId);
       return activeRequests.get(requestKey);
     }
 
     const requestPromise = this.performStartQuizAttempt(quizId);
-    
-    
+
     activeRequests.set(requestKey, requestPromise);
-  
-    requestPromise
-      .finally(() => {
-        activeRequests.delete(requestKey);
-      });
-    
+
+    requestPromise.finally(() => {
+      activeRequests.delete(requestKey);
+    });
+
     return requestPromise;
   },
 
-
   async performStartQuizAttempt(quizId: string): Promise<QuizAttemptResponse> {
     try {
-      
       const requestBody = {
         quizId: quizId,
-        userId: localStorage.getItem('userId') 
+        userId: localStorage.getItem("userId"),
       };
-      
-    
+
       const response = await axios.post(
         `${API_BASE_URL}/quiz/attempt/start`,
         requestBody,
         { headers: getAuthHeaders() }
       );
-      
-      
+
       const responseData = response.data;
-      
-      
-      const attemptData = responseData.success ? responseData.data : responseData;
-      
-    
+
+      const attemptData = responseData.success
+        ? responseData.data
+        : responseData;
+
       if (!attemptData.attemptId && attemptData.id) {
-        
         attemptData.attemptId = attemptData.id;
       }
-      
+
       if (!attemptData.attemptId) {
-        
-        throw new Error('Backend did not return a valid attempt ID');
+        throw new Error("Backend did not return a valid attempt ID");
       }
-      
+
       return attemptData;
-      
     } catch (error: any) {
-      console.error('Error starting quiz attempt:', error);
-      console.error('Error details:', {
+      console.error("Error starting quiz attempt:", error);
+      console.error("Error details:", {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
@@ -230,32 +213,29 @@ export const QuizAttemptService = {
           url: error.config?.url,
           method: error.config?.method,
           data: error.config?.data,
-          headers: error.config?.headers
-        }
+          headers: error.config?.headers,
+        },
       });
-      
-      
+
       if (error.response?.data?.message) {
-        console.error('Backend error message:', error.response.data.message);
+        console.error("Backend error message:", error.response.data.message);
       }
-      
-     
+
       if (error.response?.data) {
-        console.error('Full backend response:', error.response.data);
+        console.error("Full backend response:", error.response.data);
       }
-      
-      throw this.handleApiError(error, 'Failed to start quiz attempt');
+
+      throw this.handleApiError(error, "Failed to start quiz attempt");
     }
   },
 
-
   async saveAnswer(answerData: AnswerSubmission): Promise<SaveAnswerResponse> {
     try {
-      console.log('Saving answer:', answerData);
-      
+      console.log("Saving answer:", answerData);
+
       const requestBody: any = {
         attemptId: answerData.attemptId,
-        questionId: answerData.questionId
+        questionId: answerData.questionId,
       };
 
       // Add the appropriate field based on question type
@@ -265,154 +245,145 @@ export const QuizAttemptService = {
       if (answerData.userAnswer) {
         requestBody.userAnswer = answerData.userAnswer;
       }
-      
-      console.log('Save answer request body:', requestBody);
-      
+
+      console.log("Save answer request body:", requestBody);
+
       const response = await axios.post(
         `${API_BASE_URL}/quiz/attempt/save-answer`,
         requestBody,
         { headers: getAuthHeaders() }
       );
-      
-      
+
       const responseData = response.data;
-      
+
       if (responseData.success && responseData.data) {
-        console.log('Extracting data from success wrapper:', responseData.data);
+        console.log("Extracting data from success wrapper:", responseData.data);
         return responseData;
       } else {
-        console.log('Using direct response data:', responseData);
+        console.log("Using direct response data:", responseData);
         return responseData;
       }
     } catch (error: any) {
-      console.error('Error saving answer:', error);
-      console.error('Error details:', {
+      console.error("Error saving answer:", error);
+      console.error("Error details:", {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
-        message: error.message
+        message: error.message,
       });
-      throw this.handleApiError(error, 'Failed to save answer');
+      throw this.handleApiError(error, "Failed to save answer");
     }
   },
 
- 
   async completeQuiz(attemptId: string): Promise<QuizCompletionResponse> {
     try {
-      const userId = localStorage.getItem('userId');
-      
+      const userId = localStorage.getItem("userId");
+
       if (!userId) {
-        throw new Error('User ID not found. Please log in again.');
+        throw new Error("User ID not found. Please log in again.");
       }
 
       if (!attemptId) {
-        throw new Error('Attempt ID is required to complete quiz');
+        throw new Error("Attempt ID is required to complete quiz");
       }
 
       const requestBody = {
         userId: userId,
-        attemptId: attemptId
+        attemptId: attemptId,
       };
-
-      
 
       const response = await axios.put(
         `${API_BASE_URL}/quiz/attempt/complete`,
         requestBody,
         { headers: getAuthHeaders() }
       );
-      
-   
-      
+
       const responseData = response.data;
-      
+
       let finalData;
       if (responseData.success && responseData.data) {
-        
         finalData = responseData.data;
       } else {
-;
         finalData = responseData;
       }
-    
+
       if (!finalData.results) {
-        
         finalData.results = [];
       }
-      
-     
+
       if (!Array.isArray(finalData.results)) {
-        
         finalData.results = [];
       }
-      
+
       return finalData;
     } catch (error: any) {
-      console.error('🔍 Error completing quiz:', error);
-      console.error('🔍 Error details:', {
+      console.error("🔍 Error completing quiz:", error);
+      console.error("🔍 Error details:", {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
-        message: error.message
+        message: error.message,
       });
-      throw this.handleApiError(error, 'Failed to complete quiz');
+      throw this.handleApiError(error, "Failed to complete quiz");
     }
   },
 
-
-  
-  async getUserQuizAttempts(userId: string, quizId: string): Promise<UserAttempts> {
+  async getUserQuizAttempts(
+    userId: string,
+    quizId: string
+  ): Promise<UserAttempts> {
     try {
-      console.log('Fetching user quiz attempts for userId:', userId, 'quizId:', quizId);
-      
+      console.log(
+        "Fetching user quiz attempts for userId:",
+        userId,
+        "quizId:",
+        quizId
+      );
+
       const response = await axios.get(
         `${API_BASE_URL}/quiz/attempts/user/${userId}/quiz/${quizId}`,
         { headers: getAuthHeaders() }
       );
-      
-        
-      
+
       const responseData = response.data;
-      
+
       let data;
-      
+
       if (responseData.success && responseData.data) {
-        console.log('Extracting data from success wrapper:', responseData.data);
+        console.log("Extracting data from success wrapper:", responseData.data);
         data = responseData.data;
       } else {
-        console.log('Using direct response data:', responseData);
+        console.log("Using direct response data:", responseData);
         data = responseData;
       }
-      
-     
+
       const transformedData: UserAttempts = {
         attempts: (data.attempts || []).map((attempt: any) => ({
           ...attempt,
-          percentage: typeof attempt.percentage === 'string' 
-            ? parseFloat(attempt.percentage) 
-            : attempt.percentage
+          percentage:
+            typeof attempt.percentage === "string"
+              ? parseFloat(attempt.percentage)
+              : attempt.percentage,
         })),
         bestScore: data.bestScore || 0,
         averageScore: data.averageScore || 0,
-        totalAttempts: data.totalAttempts || 0
+        totalAttempts: data.totalAttempts || 0,
       };
-      
-      console.log('Transformed user attempts data:', transformedData);
+
+      console.log("Transformed user attempts data:", transformedData);
       return transformedData;
     } catch (error: any) {
-      console.error('Error fetching user attempts:', error);
-      console.error('Error details:', {
+      console.error("Error fetching user attempts:", error);
+      console.error("Error details:", {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
-        message: error.message
+        message: error.message,
       });
-      throw this.handleApiError(error, 'Failed to fetch user attempts');
+      throw this.handleApiError(error, "Failed to fetch user attempts");
     }
   },
 
-
- 
   handleApiError(error: any, defaultMessage: string): Error {
     if (error.response?.data?.message) {
       return new Error(error.response.data.message);
@@ -421,5 +392,5 @@ export const QuizAttemptService = {
     } else {
       return new Error(defaultMessage);
     }
-  }
+  },
 };

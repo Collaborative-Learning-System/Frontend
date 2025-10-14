@@ -156,7 +156,7 @@ const Workspace = () => {
       try {
         setLoading(true);
         const response = await axios.post(
-          "http://localhost:3000/api/workspaces/details",
+          `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/details`,
           { workspaceId: workspaceId },
           { withCredentials: true }
         );

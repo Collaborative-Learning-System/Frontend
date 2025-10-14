@@ -11,8 +11,11 @@ import {
   CardContent,
   useTheme,
   Alert,
+  CircularProgress,
+  LinearProgress,
+  Backdrop,
 } from "@mui/material";
-import { AutoAwesome, Schedule, CheckCircle } from "@mui/icons-material";
+import { AutoAwesome, Schedule, CheckCircle, Psychology } from "@mui/icons-material";
 import { toast } from "react-toastify";
 
 import StudyPlanForm from "../components/StudyPlanForm";
@@ -85,6 +88,7 @@ export default function StudyPlanGenerator() {
 
     setIsGenerating(true);
     setError(null);
+    setCurrentStep(1); // Move to generation step immediately
 
 
 
@@ -162,6 +166,7 @@ export default function StudyPlanGenerator() {
       } else {
         setError(errorMessage);
         toast.error(errorMessage);
+        setCurrentStep(0); // Go back to form on error
 
         // Fallback to mock generation for demo purposes
         console.log("Falling back to mock generation...");
@@ -468,6 +473,7 @@ export default function StudyPlanGenerator() {
                    ${alpha(theme.palette.background.default, 0.95)} 100%)`,
 
         minHeight: "100vh",
+        position: "relative",
         "&::before": {
           content: '""',
           position: "absolute",
@@ -487,7 +493,18 @@ export default function StudyPlanGenerator() {
         },
       }}
     >
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          py: 4,
+          filter: isGenerating ? 'blur(3px)' : 'none',
+          pointerEvents: isGenerating ? 'none' : 'auto',
+          transition: 'filter 0.4s ease, opacity 0.4s ease',
+          opacity: isGenerating ? 0.5 : 1,
+          position: 'relative',
+          zIndex: 1
+        }}
+      >
         {/* Header Section */}
         <PageHeader
           title="AI Study Plan Generator"
@@ -511,16 +528,20 @@ export default function StudyPlanGenerator() {
                           height: 40,
                           borderRadius: "50%",
                           bgcolor: completed
-                            ? theme.palette.success?.main ||
-                              theme.palette.primary.main
+                            ? "#10b981" // Standard success green
                             : active
-                            ? theme.palette.primary.main
-                            : theme.palette.action?.disabled ||
-                              theme.palette.grey[300],
+                            ? theme.palette.primary.main // #0084FF
+                            : theme.palette.mode === 'dark'
+                              ? theme.palette.text.disabled // #475569 in dark mode
+                              : "#d1d5db", // Light gray for inactive in light mode
                           color: "white",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
+                          transition: 'all 0.3s ease',
+                          boxShadow: active || completed 
+                            ? '0 4px 12px rgba(0, 132, 255, 0.3)' 
+                            : 'none'
                         }}
                       >
                         {completed ? (
@@ -583,9 +604,11 @@ export default function StudyPlanGenerator() {
                 study schedule...
               </Typography>
               <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-                <Box sx={{ width: 300 }}>
-                  {/* Add loading animation here */}
-                </Box>
+                <CircularProgress 
+                  size={50}
+                  thickness={4}
+                  sx={{ color: theme.palette.primary.main }} // #0084FF
+                />
               </Box>
             </CardContent>
           </Card>
@@ -599,6 +622,111 @@ export default function StudyPlanGenerator() {
           />
         )}
       </Container>
+
+      {/* Global Loading Backdrop */}
+      <Backdrop
+        sx={{ 
+          color: '#fff', 
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: theme.palette.mode === 'dark' 
+            ? 'rgba(24, 24, 27, 0.85)' // Dark mode: #18181b with transparency
+            : 'rgba(30, 41, 59, 0.85)', // Light mode: #1e293b with transparency
+          backdropFilter: 'blur(8px)'
+        }}
+        open={isGenerating}
+      >
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          gap: 3,
+          textAlign: 'center',
+          maxWidth: 500,
+          p: 4,
+          bgcolor: theme.palette.mode === 'dark'
+            ? 'rgba(35, 39, 47, 0.9)' // Dark mode paper color with transparency
+            : 'rgba(255, 255, 255, 0.95)', // Light mode paper color with transparency
+          borderRadius: 4,
+          backdropFilter: 'blur(15px)',
+          border: theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 116, 139, 0.3)' // Dark mode divider
+            : '1px solid rgba(226, 232, 240, 0.5)', // Light mode divider
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 25px 50px rgba(0, 0, 0, 0.4)'
+            : '0 25px 50px rgba(30, 41, 59, 0.2)'
+        }}>
+          <Psychology sx={{ 
+            fontSize: 80, 
+            color: theme.palette.primary.main, // #0084FF
+            mb: 2,
+            '@keyframes pulse': {
+              '0%': {
+                transform: 'scale(1)',
+                opacity: 1,
+              },
+              '50%': {
+                transform: 'scale(1.1)',
+                opacity: 0.8,
+              },
+              '100%': {
+                transform: 'scale(1)',
+                opacity: 1,
+              },
+            },
+            animation: 'pulse 2s ease-in-out infinite',
+          }} />
+          <CircularProgress 
+            size={60} 
+            thickness={4}
+            sx={{ 
+              color: theme.palette.primary.main, // #0084FF
+              mb: 2
+            }}
+          />
+          <Typography variant="h4" sx={{ 
+            fontWeight: 'bold', 
+            color: theme.palette.text.primary,
+            textShadow: theme.palette.mode === 'dark' 
+              ? '2px 2px 4px rgba(0,0,0,0.3)' 
+              : 'none'
+          }}>
+            Generating Your Study Plan
+          </Typography>
+          <Typography variant="h6" sx={{ 
+            color: theme.palette.text.secondary,
+            maxWidth: 400,
+            lineHeight: 1.6
+          }}>
+            AI is analyzing your preferences and creating an optimized schedule tailored just for you...
+          </Typography>
+          <LinearProgress 
+            sx={{ 
+              width: '100%', 
+              height: 8,
+              borderRadius: 4,
+              bgcolor: theme.palette.mode === 'dark'
+                ? 'rgba(100, 116, 139, 0.2)' // Dark mode secondary text with transparency
+                : 'rgba(100, 116, 139, 0.15)', // Light mode secondary text with transparency
+              '& .MuiLinearProgress-bar': {
+                bgcolor: theme.palette.primary.main, // #0084FF
+                borderRadius: 4,
+                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`, // Gradient from main to light blue
+              }
+            }}
+          />
+          <Typography variant="body2" sx={{ 
+            color: theme.palette.text.disabled,
+            fontStyle: 'italic'
+          }}>
+            This may take a few moments...
+          </Typography>
+        </Box>
+      </Backdrop>
     </Box>
   );
 }
