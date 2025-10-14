@@ -95,13 +95,14 @@ const AuthComponent = () => {
           `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
           loginForm
         );
-        if (response) {
+        if (response.data.success) {
           setUserId(response.data.data.userId);
           localStorage.setItem("userId", response.data.data.userId);
           setSuccess(response.data.message);
           handleLogging(`You logged in to your account from ${loginForm.email}`);
           const redirect = searchParams.get("redirect");
           navigate(redirect || "/landing");
+          sessionStorage.setItem("justLoggedIn", "true");
         } else {
           setError("Login failed. Please try again.");
         }
