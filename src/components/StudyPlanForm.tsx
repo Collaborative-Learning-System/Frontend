@@ -173,8 +173,46 @@ export default function StudyPlanForm({ onGenerate, isGenerating }: StudyPlanFor
                      formData.preferredTimes.length > 0
 
   return (
-    <Card>
-      <CardContent sx={{ p: 4 }}>
+    <Card sx={{ position: 'relative' }}>
+      {/* Loading Overlay */}
+      {isGenerating && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: theme.palette.mode === 'dark'
+              ? 'rgba(35, 39, 47, 0.85)' // Dark mode paper color with transparency
+              : 'rgba(255, 255, 255, 0.85)', // Light mode paper color with transparency
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(4px)',
+            borderRadius: 1,
+          }}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress 
+              size={40} 
+              sx={{ 
+                mb: 2,
+                color: theme.palette.primary.main // #0084FF
+              }} 
+            />
+            <Typography variant="h6" color="text.primary" sx={{ fontWeight: 'medium' }}>
+              Processing your request...
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Please wait while we prepare your study plan
+            </Typography>
+          </Box>
+        </Box>
+      )}
+      
+      <CardContent sx={{ p: 4, opacity: isGenerating ? 0.6 : 1, transition: 'opacity 0.3s ease' }}>
         <Box
           component="form"
           onSubmit={handleSubmit}
