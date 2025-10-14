@@ -87,7 +87,7 @@ const transformQuestions = (questions: Question[]) => {
 export const QuizService = {
   async getGroupQuizzes(groupId: string): Promise<any> {
     try {
-      const response = await axios.get(`http://localhost:3000/quiz/group/${groupId}`, {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/quiz/group/${groupId}`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -131,7 +131,7 @@ export const QuizService = {
     });
 
     try {
-      const response = await axios.post('http://localhost:3000/quiz/create-complete', payload, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/quiz/create-complete`, payload, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}` 
