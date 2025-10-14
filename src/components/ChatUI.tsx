@@ -94,11 +94,20 @@ const formatMessageTime = (sentAt: string): string => {
   try {
     const messageDate = new Date(sentAt);
     if (Number.isNaN(messageDate.getTime())) {
-      return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     }
-    return messageDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return messageDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   } catch {
-    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
 };
 
@@ -195,7 +204,9 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedFilePreview, setSelectedFilePreview] = useState<string | null>(null);
+  const [selectedFilePreview, setSelectedFilePreview] = useState<string | null>(
+    null
+  );
   const [selectedFileMime, setSelectedFileMime] = useState<string | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
@@ -234,7 +245,9 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
 
     newSocket.on("error", (err) => {
       console.error("Socket error:", err);
-      setUploadError(typeof err?.message === "string" ? err.message : "Socket error");
+      setUploadError(
+        typeof err?.message === "string" ? err.message : "Socket error"
+      );
     });
 
     return () => {
@@ -252,8 +265,15 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
       const formattedMessage: Message = {
         id: message.chatId,
         sender:
-          message.userId === currentUserId ? "user" : (message.userId ? "member" : "bot"),
-        senderName: message.userId === currentUserId ? "You" : message.userName ?? "Anonymous",
+          message.userId === currentUserId
+            ? "user"
+            : message.userId
+            ? "member"
+            : "bot",
+        senderName:
+          message.userId === currentUserId
+            ? "You"
+            : message.userName ?? "Anonymous",
         text: message.text,
         time: formatMessageTime(message.sentAt),
         avatar: message.userId === currentUserId ? "👤" : "👨‍💻",
@@ -295,8 +315,15 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
         return {
           id: message.chatId,
           sender:
-            message.userId === currentUserId ? "user" : (message.userId ? "member" : "bot"),
-          senderName: message.userId === currentUserId ? "You" : message.userName ?? "Anonymous",
+            message.userId === currentUserId
+              ? "user"
+              : message.userId
+              ? "member"
+              : "bot",
+          senderName:
+            message.userId === currentUserId
+              ? "You"
+              : message.userName ?? "Anonymous",
           text: message.text,
           time: formatMessageTime(message.sentAt),
           avatar: message.userId === currentUserId ? "👤" : "👨‍💻",
@@ -339,7 +366,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
-    
+
     // After first messages load, set initial load to false
     if (messages.length > 0 && isInitialLoad) {
       setTimeout(() => {
@@ -402,7 +429,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
     setUploadError(null);
   };
 
-const sendMessage = async () => {
+  const sendMessage = async () => {
     if (!socket || !groupId || !isConnected || isSending) return;
 
     const trimmedText = input.trim();
@@ -421,7 +448,7 @@ const sendMessage = async () => {
         }
 
         const base64Data = await readFileAsBase64(selectedFile);
-        
+
         // Determine resource type from MIME
         let resourceType: "image" | "video" | "pdf" = "image";
         if (resolvedMime.startsWith("video/")) {
@@ -455,7 +482,7 @@ const sendMessage = async () => {
         });
       }
 
-      setInput("")
+      setInput("");
       resetAttachment();
     } catch (error) {
       const message =
@@ -477,14 +504,20 @@ const sendMessage = async () => {
     }
   };
 
-  const renderResourceContent = (resource: ResourceMessage, isOwnMessage: boolean) => {
+  const renderResourceContent = (
+    resource: ResourceMessage,
+    isOwnMessage: boolean
+  ) => {
     const chip = getResourceChip(resource.type);
     // const sharedOn = resource.uploadedAt
     //   ? new Date(resource.uploadedAt).toLocaleString()
     //   : "";
 
     return (
-      <Stack spacing={1.2} sx={{ mt: resource.description || resource.title ? 1 : 0 }}>
+      <Stack
+        spacing={1.2}
+        sx={{ mt: resource.description || resource.title ? 1 : 0 }}
+      >
         <Stack direction="row" spacing={1} alignItems="center">
           {chip && (
             <Chip
@@ -509,7 +542,9 @@ const sendMessage = async () => {
         {resource.description && (
           <Typography
             variant="body2"
-            sx={{ color: isOwnMessage ? "rgba(255,255,255,0.85)" : "text.primary" }}
+            sx={{
+              color: isOwnMessage ? "rgba(255,255,255,0.85)" : "text.primary",
+            }}
           >
             {resource.description}
           </Typography>
@@ -608,7 +643,11 @@ const sendMessage = async () => {
   };
 
   const sendDisabled =
-    (!input.trim() && !selectedFile) || !socket || !groupId || !isConnected || isSending;
+    (!input.trim() && !selectedFile) ||
+    !socket ||
+    !groupId ||
+    !isConnected ||
+    isSending;
 
   return (
     <Box
@@ -640,7 +679,14 @@ const sendMessage = async () => {
         </Box>
       )}
 
-      <Box sx={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          flex: 1,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <Box
           sx={{
             flex: 1,
@@ -692,7 +738,11 @@ const sendMessage = async () => {
                       borderColor: "background.paper",
                     }}
                   >
-                    {msg.sender === "bot" ? "🧑‍💻" : isOwnMessage ? "🧑‍🏫" : msg.avatar}
+                    {msg.sender === "bot"
+                      ? "🧑‍💻"
+                      : isOwnMessage
+                      ? "🧑‍🏫"
+                      : msg.avatar}
                   </Avatar>
 
                   <Paper
@@ -700,7 +750,9 @@ const sendMessage = async () => {
                     sx={{
                       p: { xs: 1.5, sm: 2 },
                       borderRadius: 3,
-                      bgcolor: isOwnMessage ? "primary.chatBackground" : "background.default",
+                      bgcolor: isOwnMessage
+                        ? "primary.chatBackground"
+                        : "background.default",
                       color: isOwnMessage ? "white" : "text.primary",
                       maxWidth: "100%",
                       wordBreak: "break-word",
@@ -712,7 +764,11 @@ const sendMessage = async () => {
                         position: "absolute",
                         top: 12,
                         ...(isOwnMessage
-                          ? { right: -8, borderLeft: "8px solid", borderLeftColor: "primary.main" }
+                          ? {
+                              right: -8,
+                              borderLeft: "8px solid",
+                              borderLeftColor: "primary.main",
+                            }
                           : {
                               left: -8,
                               borderRight: "8px solid",
@@ -723,12 +779,21 @@ const sendMessage = async () => {
                       },
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 0.5,
+                      }}
+                    >
                       <Typography
                         variant="caption"
                         sx={{
                           fontWeight: 600,
-                          color: isOwnMessage ? "rgba(255,255,255,0.9)" : "text.secondary",
+                          color: isOwnMessage
+                            ? "rgba(255,255,255,0.9)"
+                            : "text.secondary",
                           fontSize: { xs: "0.65rem", sm: "0.75rem" },
                         }}
                       >
@@ -737,7 +802,9 @@ const sendMessage = async () => {
                       <Typography
                         variant="caption"
                         sx={{
-                          color: isOwnMessage ? "rgba(255,255,255,0.7)" : "text.secondary",
+                          color: isOwnMessage
+                            ? "rgba(255,255,255,0.7)"
+                            : "text.secondary",
                           fontSize: { xs: "0.6rem", sm: "0.7rem" },
                         }}
                       >
@@ -746,14 +813,19 @@ const sendMessage = async () => {
                     </Box>
 
                     {msg.messageType === "resource" && msg.resource && (
-                      <Box>{renderResourceContent(msg.resource, isOwnMessage)}</Box>
+                      <Box>
+                        {renderResourceContent(msg.resource, isOwnMessage)}
+                      </Box>
                     )}
 
                     {msg.text && (
                       <Typography
                         variant="body2"
                         sx={{
-                          mt: msg.messageType === "resource" && msg.resource ? 1 : 0,
+                          mt:
+                            msg.messageType === "resource" && msg.resource
+                              ? 1
+                              : 0,
                           fontSize: { xs: "0.8rem", sm: "0.875rem" },
                           lineHeight: 1.4,
                         }}
@@ -807,12 +879,19 @@ const sendMessage = async () => {
                 color: "primary.dark",
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                justifyContent="space-between"
+              >
                 <Stack spacing={0.5}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {selectedFile.name}
                   </Typography>
-                  <Typography variant="caption">{formatFileSize(selectedFile.size)}</Typography>
+                  <Typography variant="caption">
+                    {formatFileSize(selectedFile.size)}
+                  </Typography>
                   {selectedFileMime && (
                     <Chip
                       size="small"
@@ -856,7 +935,11 @@ const sendMessage = async () => {
                       component="img"
                       src={selectedFilePreview}
                       alt={selectedFile.name}
-                      sx={{ maxWidth: "50%", maxHeight: 200, objectFit: "fill" }}
+                      sx={{
+                        maxWidth: "50%",
+                        maxHeight: 200,
+                        objectFit: "fill",
+                      }}
                     />
                   ) : (
                     <Box
@@ -923,7 +1006,9 @@ const sendMessage = async () => {
                   bgcolor: "background.paper",
                   fontSize: { xs: "0.875rem", sm: "1rem" },
                   transition: "all 0.2s ease-in-out",
-                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "primary.main" },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "primary.main",
+                  },
                   "&.Mui-focused": {
                     transform: "translateY(-1px)",
                     "& .MuiOutlinedInput-notchedOutline": {
@@ -1021,7 +1106,9 @@ const sendMessage = async () => {
               }}
             />
 
-            <Tooltip title={sendDisabled ? "Enter a message or attach a file" : "Send"}>
+            <Tooltip
+              title={sendDisabled ? "Enter a message or attach a file" : "Send"}
+            >
               <span>
                 <IconButton
                   onClick={handleSend}
@@ -1033,14 +1120,20 @@ const sendMessage = async () => {
                     borderColor: !sendDisabled ? "primary.main" : "grey.300",
                     "&:hover": {
                       bgcolor: !sendDisabled ? "primary.dark" : "grey.300",
-                      transform: !sendDisabled ? "translateY(-2px) scale(1.05)" : "none",
+                      transform: !sendDisabled
+                        ? "translateY(-2px) scale(1.05)"
+                        : "none",
                     },
                     "&:disabled": { color: "grey.500" },
                     transition: "all 0.2s ease-in-out",
                   }}
                   size={isMobile ? "small" : "medium"}
                 >
-                  {isSending ? <CircularProgress size={20} sx={{ color: "white" }} /> : <SendIcon />}
+                  {isSending ? (
+                    <CircularProgress size={20} sx={{ color: "white" }} />
+                  ) : (
+                    <SendIcon />
+                  )}
                 </IconButton>
               </span>
             </Tooltip>
