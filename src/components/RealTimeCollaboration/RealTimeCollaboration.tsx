@@ -93,7 +93,7 @@ export default function RealTimeCollaboration({
         }/documents/create-document/${groupId}`,
         { userId: userId }
       );
-      handleLogging("Created a new collaborative document");
+      handleLogging("You created a new collaborative document");
       let members: string[] = [];
       groupMembers.map((member) => {
         members.push(member.userId);
@@ -141,7 +141,7 @@ export default function RealTimeCollaboration({
       }
     }
     handleLogging(
-      `Joined with collaborative document: ${selectedDoc.documentTitle}`
+      `You joined with collaborative document: ${selectedDoc.documentTitle}`
     );
     // Navigate to editor
     const docData = {

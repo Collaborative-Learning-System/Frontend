@@ -11,8 +11,7 @@ import {
   Divider,
   IconButton,
   Alert,
-  Switch,
-  FormControlLabel,
+  CircularProgress,
 } from "@mui/material";
 import {
   Person,
@@ -28,6 +27,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { handleLogging } from "../services/LoggingService";
 
 export default function UserProfile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -39,7 +39,14 @@ export default function UserProfile() {
   const [editData, setEditData] = useState(userData);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [profilePicture, setProfilePicture] = useState<string>(userData?.profilePicture || "");
+  const [profilePicture, setProfilePicture] = useState<string>("");
+
+  // Update local profile picture state when context userData changes
+  useEffect(() => {
+    if (userData?.profilePicture) {
+      setProfilePicture(userData.profilePicture);
+    }
+  }, [userData?.profilePicture]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,10 +72,12 @@ export default function UserProfile() {
       );
       if (response.status === 200) {
         setSuccess("Profile updated successfully!");
+        handleLogging(`You updated your profile successfully`);
         setUserData(editData);
         setIsEditing(false);
       }
     } catch (err) {
+      handleLogging(`A failed profile update attempt was detected`);
       if (axios.isAxiosError(err) && err.response) {
         setError(err.response.data.message);
       } else {
@@ -83,97 +92,72 @@ export default function UserProfile() {
     }
   };
 
-  const handleRemoveAccount = async () => {
-    try {
-      if (!userData?.userId) {
-        setError("Account Deletion Failed. Please try again later.");
-        return;
-      }
-      const response = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/delete-account/${
-          userData?.userId
-        }`
-      );
-      if (response.data.success) {
-        setSuccess("Account deleted successfully!");
-        setTimeout(() => {
-          navigate("/auth");
-        }, 2000);
-      }
-    } catch (error) {
-      setError("Account Deletion Failed. Please try again later.");
-    }
-  };
+  // const handleRemoveAccount = async () => {
+  //   try {
+  //     if (!userData?.userId) {
+  //       setError("Account Deletion Failed. Please try again later.");
+  //       handleLogging(`A failed account deletion attempt was detected`);
+  //       return;
+  //     }
+  //     const response = await axios.delete(
+  //       `${import.meta.env.VITE_BACKEND_URL}/auth/delete-account/${
+  //         userData?.userId
+  //       }`
+  //     );
+  //     if (response.data.success) {
+  //       setSuccess("Account deleted successfully!");
+  //       setTimeout(() => {
+  //         navigate("/auth");
+  //       }, 2000);
+  //     }
+  //   } catch (error) {
+  //     handleLogging(`A failed account deletion attempt was detected`);
+  //     setError("Account Deletion Failed. Please try again later.");
+  //   }
+  // };
 
   const handleCancel = () => {
     setEditData(userData);
     setIsEditing(false);
   };
 
-  const fetchProfilePicture = async () => {
-    try {
-      if (!userData?.userId) return;
-      
-      const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/profile-picture/${userData.userId}`
-      );
-      
-      if (response.data.success && response.data.data.profilePicUrl) {
-        setProfilePicture(response.data.data.profilePicUrl);
-        
-        // Update the user data context with the profile picture
-        if (userData) {
-          setUserData({
-            ...userData,
-            profilePicture: response.data.data.profilePicUrl
-          });
-        }
-      }
-    } catch (err) {
-      // Silently handle errors - user might not have a profile picture yet
-      console.log('No profile picture found or error fetching:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchProfilePicture();
-  }, [userData?.userId]);
-
   const handleProfilePictureClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setError('Please select a valid image file.');
+      if (!file.type.startsWith("image/")) {
+        setError("Please select a valid image file.");
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setError('File size should be less than 5MB.');
+        setError("File size should be less than 5MB.");
         return;
       }
 
       setIsUploading(true);
-      setError('');
-      setSuccess('');
+      setError("");
+      setSuccess("");
 
       try {
         // Create FormData to send file to backend
         const formData = new FormData();
-        formData.append('image', file);
-        formData.append('userId', userData?.userId || '');
+        formData.append("image", file);
+        formData.append("userId", userData?.userId || "");
 
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/auth/update-profile-picture`,
           formData,
           {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              "Content-Type": "multipart/form-data",
             },
           }
         );
@@ -181,33 +165,35 @@ export default function UserProfile() {
         if (response.data.success) {
           // Update profile picture with the URL returned from backend
           setProfilePicture(response.data.data.profilePicUrl);
-          setSuccess('Profile picture updated successfully!');
-          
-          // Optionally update the user data context with the new profile picture URL
+          setSuccess("Profile picture updated successfully!");
+          handleLogging(`You updated your profile picture successfully`);
           if (userData) {
             setUserData({
               ...userData,
-              profilePicture: response.data.data.profilePicUrl
+              profilePicture: response.data.data.profilePicUrl,
             });
           }
         }
       } catch (err) {
+        handleLogging(`A failed profile picture update attempt was detected`);
         if (axios.isAxiosError(err) && err.response) {
-          setError(err.response.data.message || 'Failed to upload profile picture.');
+          setError(
+            err.response.data.message || "Failed to upload profile picture."
+          );
         } else {
-          setError('Failed to upload profile picture. Please try again.');
+          setError("Failed to upload profile picture. Please try again.");
         }
       } finally {
         setIsUploading(false);
         setTimeout(() => {
-          setError('');
-          setSuccess('');
+          setError("");
+          setSuccess("");
         }, 4000);
       }
 
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -260,13 +246,37 @@ export default function UserProfile() {
                 fontSize: "2rem",
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
+                opacity: isUploading ? 0.6 : 1,
+                transition: theme.transitions.create(["opacity"]),
               }}
             >
-              {!profilePicture && userData?.fullName
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
+              {!profilePicture &&
+                userData?.fullName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
             </Avatar>
+
+            {/* Loading spinner overlay */}
+            {isUploading && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: 100,
+                  height: 100,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                  borderRadius: "50%",
+                }}
+              >
+                <CircularProgress size={24} thickness={4} />
+              </Box>
+            )}
+
             <IconButton
               size="small"
               onClick={handleProfilePictureClick}
@@ -278,13 +288,17 @@ export default function UserProfile() {
                 bgcolor: theme.palette.primary.main,
                 color: "white",
                 "&:hover": { bgcolor: theme.palette.primary.dark },
-                "&:disabled": { 
+                "&:disabled": {
                   bgcolor: theme.palette.action.disabled,
-                  color: theme.palette.action.disabled 
+                  color: theme.palette.action.disabled,
                 },
               }}
             >
-              <PhotoCamera fontSize="small" />
+              {isUploading ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <PhotoCamera fontSize="small" />
+              )}
             </IconButton>
             {/* Hidden file input */}
             <input
@@ -292,7 +306,7 @@ export default function UserProfile() {
               ref={fileInputRef}
               onChange={handleFileChange}
               accept="image/*"
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
           </Box>
           <Box sx={{ flex: 1 }}>
@@ -306,7 +320,7 @@ export default function UserProfile() {
               {userData?.bio || ""}
             </Typography>
           </Box>
-          <Box>
+          {/* <Box>
             <Button
               variant="outlined"
               color="error"
@@ -314,7 +328,7 @@ export default function UserProfile() {
             >
               Remove Account
             </Button>
-          </Box>
+          </Box> */}
         </Stack>
       </Box>
 
@@ -523,49 +537,6 @@ export default function UserProfile() {
             </Button>
           </Box>
         </Stack>
-      </Box>
-
-      <Box
-        sx={{
-          mb: 4,
-          p: 4,
-          bgcolor: theme.palette.background.paper,
-          borderRadius: 2,
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        }}
-      >
-        {" "}
-        <Box
-          sx={{
-            mb: 4,
-          }}
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ mb: { xs: 3, sm: 0 } }}
-          >
-            Privacy Settings
-          </Typography>
-        </Box>
-        <Divider sx={{ mb: 4 }} />
-        <Box sx={{ mb: 1, display: "flex", flexDirection: "column", gap: 1 }}>
-          <FormControlLabel
-            control={<Switch name="trackUser" color="primary" />}
-            label="Track My Activities"
-          />
-
-          <FormControlLabel
-            control={
-              <Switch
-                name="sendEmailNotifications"
-                color="primary"
-                //onClick={handleUserActivityTracking}
-              />
-            }
-            label="Send Email Notifications For Up Coming Events"
-          />
-        </Box>
       </Box>
     </Box>
   );

@@ -19,6 +19,7 @@ import {
   DialogContent,
   DialogActions,
   DialogContentText,
+  Skeleton,
 } from "@mui/material";
 import {
   Group,
@@ -84,6 +85,7 @@ const Dashboard = () => {
   const [suggestedWorkspaces, setSuggestedWorkspaces] = useState<
     SuggestedWorkspace[]
   >([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   const [studyPlans, setStudyPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
@@ -270,6 +272,7 @@ const Dashboard = () => {
     if (!userId) return;
 
     console.log("Fetching suggested workspaces for user:", userId);
+    setLoadingSuggestions(true);
 
     try {
       const response = await axios.get(
@@ -283,6 +286,8 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching suggested workspaces:", error);
+    } finally {
+      setLoadingSuggestions(false);
     }
   }, [userId]);
 
@@ -404,15 +409,26 @@ const Dashboard = () => {
                 </Box>
               </CardContent>
             ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <CircularProgress />
-              </Box>
+              <CardContent sx={{ width: "100%" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box>
+                    <Skeleton variant="text" width={60} height={48} />
+                    <Skeleton
+                      variant="text"
+                      width={100}
+                      height={20}
+                      sx={{ mt: 1 }}
+                    />
+                  </Box>
+                  <Skeleton variant="circular" width={40} height={40} />
+                </Box>
+              </CardContent>
             )}
           </Card>
         ))}
@@ -492,16 +508,24 @@ const Dashboard = () => {
                     </ListItem>
                   ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4].map((item) => (
+                      <ListItem key={item} sx={{ px: 2, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="60%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="40%" height={16} />
+                          }
+                        />
+                        <Skeleton variant="rounded" width={80} height={32} />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {workspaceData?.workspaces.length === 0 && (
                   <Paper
@@ -587,16 +611,23 @@ const Dashboard = () => {
                     </ListItem>
                   ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4].map((item) => (
+                      <ListItem key={item} sx={{ px: 2, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="70%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="50%" height={16} />
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {groupData?.groups.length === 0 && (
                   <Paper
@@ -624,134 +655,6 @@ const Dashboard = () => {
                   </Paper>
                 )}
               </Box>
-            </CardContent>
-          </Card>
-        </Box>
-      </Box>
-
-      {/* Recent Activities and Upcoming Activities */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 3,
-          mb: 4,
-        }}
-      >
-        {/* Recent Activities - Left Side */}
-        <Box sx={{ flex: 1 }}>
-          <Card sx={{ height: "400px" }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <History sx={{ mr: 1, color: theme.palette.primary.main }} />
-                <Typography variant="h6" fontWeight="600">
-                  Recent Activities
-                </Typography>
-              </Box>
-              <List
-                sx={{
-                  p: 0,
-                  maxHeight: "300px",
-                  overflow: "auto",
-                  ...customScrollbarStyles,
-                }}
-              >
-                {!loading ? (
-                  logs
-                    .sort(
-                      (a, b) =>
-                        new Date(b.timestamp).getTime() -
-                        new Date(a.timestamp).getTime()
-                    ) // newest first
-                    .filter((log) => {
-                      const logTime = new Date(log.timestamp);
-                      return (
-                        new Date().getTime() - logTime.getTime() <=
-                        24 * 60 * 60 * 1000
-                      ); // last 24 hour
-                    })
-                    .map((activity, index) => (
-                      <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
-                        <ListItemAvatar>
-                          <Avatar
-                            sx={{
-                              width: 40,
-                              height: 40,
-                              fontSize: "1rem",
-                              bgcolor: theme.palette.primary.main,
-                            }}
-                          >
-                            {activity.activity.charAt(0)}
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={activity.activity}
-                          secondary={
-                            activity.timestamp
-                              ? formatDistanceToNow(
-                                  new Date(activity.timestamp),
-                                  {
-                                    addSuffix: true,
-                                  }
-                                )
-                              : "No timestamp"
-                          }
-                          primaryTypographyProps={{
-                            variant: "body2",
-                            fontWeight: 500,
-                          }}
-                          secondaryTypographyProps={{
-                            variant: "caption",
-                            color: "text.secondary",
-                          }}
-                        />
-                      </ListItem>
-                    ))
-                ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
-                )}
-                {logs.length === 0 && (
-                  <Paper
-                    elevation={3}
-                    sx={{
-                      mt: 3,
-                      p: { xs: 4, sm: 6 },
-                      textAlign: "center",
-                      borderRadius: 3,
-                    }}
-                  >
-                    <LocalActivity
-                      sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
-                    />
-                    <Typography
-                      variant="h6"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      No Recent Activites Yet
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Your recent activities will appear here. Start engaging
-                      with your workspaces and groups!
-                    </Typography>
-                  </Paper>
-                )}
-              </List>
             </CardContent>
           </Card>
         </Box>
@@ -785,8 +688,65 @@ const Dashboard = () => {
           </Box>
 
           {loadingPlans ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-              <CircularProgress />
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(2, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: 3,
+              }}
+            >
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    position: "relative",
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  }}
+                >
+                  <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+                    {/* Header with title and status */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                      <Skeleton variant="text" width="60%" height={24} />
+                      <Skeleton variant="rounded" width={60} height={20} />
+                    </Box>
+
+                    {/* Study Goal */}
+                    <Skeleton variant="text" width="80%" height={20} sx={{ mb: 1.5 }} />
+
+                    {/* Subjects */}
+                    <Box sx={{ mb: 1.5 }}>
+                      <Skeleton variant="text" width="30%" height={16} sx={{ mb: 0.5 }} />
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        <Skeleton variant="rounded" width={50} height={20} />
+                        <Skeleton variant="rounded" width={60} height={20} />
+                        <Skeleton variant="rounded" width={45} height={20} />
+                      </Box>
+                    </Box>
+
+                    {/* Schedule Info */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Skeleton variant="text" width="45%" height={16} />
+                      <Skeleton variant="text" width="25%" height={16} />
+                    </Box>
+
+                    {/* Days remaining */}
+                    <Skeleton variant="text" width="40%" height={16} sx={{ mb: 1 }} />
+                  </CardContent>
+
+                  {/* Action buttons */}
+                  <Box sx={{ p: 2, pt: 0, display: "flex", gap: 1 }}>
+                    <Skeleton variant="rounded" width="100%" height={32} />
+                  </Box>
+                </Card>
+              ))}
             </Box>
           ) : studyPlans.length > 0 ? (
             <Box
@@ -882,7 +842,7 @@ const Dashboard = () => {
       </Card>
 
       {/* Suggested Workspaces */}
-      <Card>
+      <Card sx={{ mb: 3 }}>
         <CardContent>
           <Box
             sx={{
@@ -902,8 +862,12 @@ const Dashboard = () => {
               variant="text"
               size="small"
               onClick={fetchSuggestedWorkspaces}
+              disabled={loadingSuggestions}
+              startIcon={
+                loadingSuggestions ? <CircularProgress size={16} /> : undefined
+              }
             >
-              Get Suggestions
+              {loadingSuggestions ? "Loading..." : "Get Suggestions"}
             </Button>
           </Box>
           <Box
@@ -917,7 +881,52 @@ const Dashboard = () => {
               gap: 3,
             }}
           >
-            {suggestedWorkspaces.length !== 0 &&
+            {loadingSuggestions ? (
+              // Show skeleton cards while loading
+              <>
+                {[1, 2, 3].map((item) => (
+                  <Card
+                    key={item}
+                    sx={{
+                      border: `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
+                    <CardContent>
+                      <Skeleton
+                        variant="text"
+                        width="80%"
+                        height={32}
+                        sx={{ mb: 1 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="100%"
+                        height={20}
+                        sx={{ mb: 1 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="90%"
+                        height={20}
+                        sx={{ mb: 2 }}
+                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 2,
+                        }}
+                      >
+                        <Skeleton variant="text" width="40%" height={16} />
+                      </Box>
+                      <Skeleton variant="rounded" width="100%" height={36} />
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            ) : (
+              suggestedWorkspaces.length !== 0 &&
               suggestedWorkspaces.map((workspace, index) => (
                 <Card
                   key={index}
@@ -969,10 +978,146 @@ const Dashboard = () => {
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+            )}
           </Box>
         </CardContent>
       </Card>
+
+      {/* Recent Activities and Upcoming Activities */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 3,
+          mb: 4,
+        }}
+      >
+        {/* Recent Activities - Left Side */}
+        <Box sx={{ flex: 1 }}>
+          <Card sx={{ height: "400px" }}>
+            <CardContent>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <History sx={{ mr: 1, color: theme.palette.primary.main }} />
+                <Typography variant="h6" fontWeight="600">
+                  Recent Activities
+                </Typography>
+              </Box>
+              <List
+                sx={{
+                  p: 0,
+                  maxHeight: "300px",
+                  overflow: "auto",
+                  ...customScrollbarStyles,
+                }}
+              >
+                {!loading ? (
+                  logs
+                    .sort(
+                      (a, b) =>
+                        new Date(b.timestamp).getTime() -
+                        new Date(a.timestamp).getTime()
+                    ) // newest first
+                    .filter((log) => {
+                      const logTime = new Date(log.timestamp);
+                      return (
+                        new Date().getTime() - logTime.getTime() <=
+                        24 * 60 * 60 * 1000
+                      ); // last 24 hour
+                    })
+                    .map((activity, index) => (
+                      <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Avatar
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              fontSize: "1rem",
+                              bgcolor: theme.palette.primary.main,
+                            }}
+                          >
+                            {activity.activity.charAt(0)}
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={activity.activity}
+                          secondary={
+                            activity.timestamp
+                              ? formatDistanceToNow(
+                                  new Date(activity.timestamp),
+                                  {
+                                    addSuffix: true,
+                                  }
+                                )
+                              : "No timestamp"
+                          }
+                          primaryTypographyProps={{
+                            variant: "body2",
+                            fontWeight: 500,
+                          }}
+                          secondaryTypographyProps={{
+                            variant: "caption",
+                            color: "text.secondary",
+                          }}
+                        />
+                      </ListItem>
+                    ))
+                ) : (
+                  <>
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <ListItem key={item} sx={{ px: 0, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="80%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="30%" height={16} />
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </>
+                )}
+                {logs.length === 0 && (
+                  <Paper
+                    elevation={3}
+                    sx={{
+                      mt: 3,
+                      p: { xs: 4, sm: 6 },
+                      textAlign: "center",
+                      borderRadius: 3,
+                    }}
+                  >
+                    <LocalActivity
+                      sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+                    />
+                    <Typography
+                      variant="h6"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      No Recent Activites Yet
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Your recent activities will appear here. Start engaging
+                      with your workspaces and groups!
+                    </Typography>
+                  </Paper>
+                )}
+              </List>
+            </CardContent>
+          </Card>
+        </Box>
+      </Box>
 
       {/* Study Plan View Modal */}
       <StudyPlanViewModal
