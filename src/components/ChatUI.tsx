@@ -17,6 +17,7 @@ import {
   Alert,
   CircularProgress,
   Tooltip,
+  Divider,
 } from "@mui/material";
 import {
   AttachFile as AttachFileIcon,
@@ -69,7 +70,7 @@ interface SocketMessage {
 }
 
 const MAX_FILE_SIZE_MB = 20;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 2048 * 2048;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const ACCEPTED_FILE_TYPES = "image/*,video/*,application/pdf";
 
 const commonEmojis = [
@@ -196,6 +197,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFilePreview, setSelectedFilePreview] = useState<string | null>(null);
   const [selectedFileMime, setSelectedFileMime] = useState<string | null>(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -343,7 +345,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
       setTimeout(() => {
         setIsInitialLoad(false);
         // Scroll without animation on initial load
-        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
       }, 500);
     }
   }, [messages, isInitialLoad]);
@@ -457,7 +459,7 @@ const sendMessage = async () => {
       resetAttachment();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "dfsdggs";
+        error instanceof Error ? error.message : "Failed to send message.";
       setUploadError(message);
     } finally {
       setIsSending(false);
