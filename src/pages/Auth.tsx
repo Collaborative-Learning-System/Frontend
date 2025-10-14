@@ -159,7 +159,7 @@ const AuthComponent = () => {
           `${import.meta.env.VITE_BACKEND_URL}/auth/signup`,
           signupForm
         );
-        if (response) {
+        if (response.data.success) {
           sendWelcomeEmail(signupForm.email, signupForm.fullName);
           setSuccess(response.data.message);
           handleLogging(`You successfully signed up to your account from ${signupForm.email}`);
