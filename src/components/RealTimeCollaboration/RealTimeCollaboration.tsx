@@ -210,7 +210,7 @@ export default function RealTimeCollaboration({
             spacing={2}
           >
             <Typography variant="h6" sx={{ fontWeight: "medium" }}>
-              Your Documents
+              Group Documents
             </Typography>
             <Stack direction="row" spacing={2}>
               <Button
