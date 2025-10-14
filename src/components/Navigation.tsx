@@ -65,7 +65,7 @@ export default function Navigation() {
               borderColor: theme.palette.primary.main,
             }}
           >
-            Login
+            Sign In
           </Button>
         </Box>
       </Toolbar>
