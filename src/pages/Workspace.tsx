@@ -157,7 +157,7 @@ const Workspace = () => {
       try {
         setLoading(true);
         const response = await axios.post(
-          "http://localhost:3000/api/workspaces/details",
+          `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/details`,
           { workspaceId: workspaceId },
           { withCredentials: true }
         );
@@ -213,7 +213,7 @@ const Workspace = () => {
       try {
         setGroupsLoading(true);
         const response = await axios.get(
-          `http://localhost:3000/api/workspaces/${workspaceId}/groups`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
           { withCredentials: true }
         );
 
@@ -250,7 +250,7 @@ const Workspace = () => {
       setJoiningGroups((prev) => new Set(prev).add(groupId));
 
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces/groups/join-leave",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/groups/join-leave`,
         { groupId },
         { withCredentials: true }
       );
@@ -312,7 +312,7 @@ const Workspace = () => {
       setCreatingGroup(true);
 
       const response = await axios.post(
-        `http://localhost:3000/api/workspaces/${workspaceId}/groups`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
         {
           groupname: groupName.trim(),
           description: groupDescription.trim(),
@@ -367,7 +367,7 @@ const Workspace = () => {
     try {
       setDeletingGroups((prev) => new Set(prev).add(groupId));
       const response = await axios.post(
-        `http://localhost:3000/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
         { withCredentials: true }
       );
       if (response.data.success) {
@@ -699,7 +699,7 @@ const Workspace = () => {
       setIsLeaving(true);
 
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces/leave",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/leave`,
         { workspaceId: workspaceId },
         { withCredentials: true }
       );
