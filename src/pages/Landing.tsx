@@ -33,7 +33,7 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { formatDistanceToNow } from "date-fns";
 import { handleLogging } from "../services/LoggingService";
-import { backgroundImages, getRandomBackground } from "../constants/backgroundImages";
+import { getRandomBackground } from "../constants/backgroundImages";
 
 // Define interface for workspace data
 interface Workspace {
