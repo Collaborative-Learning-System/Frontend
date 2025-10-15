@@ -28,6 +28,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
   TextField,
   Drawer,
@@ -118,6 +119,8 @@ const Workspace = () => {
   const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [collapsingHeader, setCollapsingHeader] = useState(false);
+  // Leave confirmation dialog state
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
   const { userId } = useContext(AppContext);
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -693,14 +696,18 @@ const Workspace = () => {
         "Workspace admins cannot leave the workspace. Please transfer admin rights or delete the workspace."
       );
     }
-    const confirmed = window.confirm(
-      "Do you really want to leave the workspace?"
-    );
+    
+    setLeaveDialogOpen(true);
+  };
 
-    if (!confirmed) return;
+  const handleCloseLeaveDialog = () => {
+    setLeaveDialogOpen(false);
+  };
 
+  const handleConfirmLeave = async () => {
     if (!workspaceId) {
       NotificationService.showError("Workspace ID not found");
+      setLeaveDialogOpen(false);
       return;
     }
 
@@ -728,6 +735,7 @@ const Workspace = () => {
       console.error("Error leaving workspace:", err);
     } finally {
       setIsLeaving(false);
+      setLeaveDialogOpen(false);
     }
   };
 
@@ -1635,6 +1643,53 @@ const Workspace = () => {
             }}
           >
             Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Leave Workspace Confirmation Dialog */}
+      <Dialog
+        open={leaveDialogOpen}
+        onClose={handleCloseLeaveDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: theme.palette.error.main, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ExitIcon />
+          Leave Workspace
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to leave "{workspaceData?.name}"? You will lose access to all groups, 
+            conversations, and collaborative content in this workspace.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button
+            onClick={handleCloseLeaveDialog}
+            variant="outlined"
+            disabled={isLeaving}
+            sx={{
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: "500",
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmLeave}
+            variant="contained"
+            color="error"
+            disabled={isLeaving}
+            startIcon={isLeaving ? <CircularProgress size={16} /> : <ExitIcon />}
+            sx={{
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: "500",
+            }}
+          >
+            {isLeaving ? "Leaving..." : "Leave Workspace"}
           </Button>
         </DialogActions>
       </Dialog>
