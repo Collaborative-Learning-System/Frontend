@@ -62,6 +62,7 @@ import { useGroup } from "../context/GroupContext";
 import { AppContext } from "../context/AppContext";
 import { notifyUsers } from "../services/NotifyService";
 import AddMembersModal from "../components/AddMembersModal";
+import { getRandomBackground } from "../constants/backgroundImages";
 
 interface WorkspaceData {
   id: string;
@@ -853,13 +854,28 @@ const Workspace = () => {
         elevation={2}
         sx={{
           borderRadius: 3,
-          bgcolor:
-            mode === "dark"
+          background: workspaceId ? `url(${getRandomBackground(workspaceId)})` : 
+            (mode === "dark"
               ? theme.palette.background.paper
-              : theme.palette.primary.main,
+              : theme.palette.primary.main),
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
           overflow: "hidden",
           position: "relative",
           zIndex: 1,
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: mode === "dark" 
+              ? "rgba(0, 0, 0, 0.6)" 
+              : "rgba(0, 0, 0, 0.4)",
+            zIndex: 1,
+          },
         }}
       >
         <Box
@@ -870,6 +886,8 @@ const Workspace = () => {
             alignItems: "flex-start",
             flexDirection: { xs: "column", sm: "row" },
             gap: { xs: 2, sm: 0 },
+            position: "relative",
+            zIndex: 2,
           }}
         >
           <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -885,15 +903,18 @@ const Workspace = () => {
               <SchoolIcon
                 sx={{
                   fontSize: { xs: 24, sm: 28, md: 32 },
-                  color: mode === "dark" ? theme.palette.primary.main : "white",
+                  color: "white",
+                  textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
                 }}
               />
               <Typography
                 variant="h4"
                 sx={{
-                  color: mode === "dark" ? theme.palette.primary.main : "white",
+                  color: "white",
                   fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2.125rem" },
                   wordBreak: "break-word",
+                  textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
+                  fontWeight: "bold",
                 }}
               >
                 {workspaceData.name}
@@ -902,10 +923,11 @@ const Workspace = () => {
             <Typography
               variant="body1"
               sx={{
-                opacity: 0.9,
-                color: mode === "dark" ? "inherit" : "white",
+                opacity: 0.95,
+                color: "white",
                 fontSize: { xs: "0.875rem", sm: "1rem" },
                 wordBreak: "break-word",
+                textShadow: "1px 1px 3px rgba(0,0,0,0.8)",
               }}
             >
               {workspaceData.description || "No description available"}

@@ -120,10 +120,26 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               src="/EduCollab.png"
               alt="EduCollab Logo"
               sx={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
+                width: 35,
+                height: 35,
+                borderRadius: 0,
                 objectFit: "cover",
+                animation: "logoFloat 2s ease-in-out infinite",
+                "@keyframes logoFloat": {
+                  "0%, 100%": {
+                    transform: "translateY(0px) rotate(0deg)",
+                  },
+                  "50%": {
+                    transform: "translateY(-4px) rotate(-10deg)",
+                  },
+                },
+                "&:hover": {
+                  animation: "logoSpin 0.8s ease-in-out",
+                  "@keyframes logoSpin": {
+                    "0%": { transform: "rotate(0deg)" },
+                    "100%": { transform: "rotate(360deg)" },
+                  },
+                },
               }}
             />
             <Typography
@@ -147,6 +163,23 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               height: 40,
               borderRadius: 12,
               objectFit: "cover",
+              cursor: "pointer",
+              animation: "logoFloat 3s ease-in-out infinite",
+              "@keyframes logoFloat": {
+                "0%, 100%": {
+                  transform: "translateY(0px) rotate(0deg)",
+                },
+                "50%": {
+                  transform: "translateY(-3px) rotate(2deg)",
+                },
+              },
+              "&:hover": {
+                animation: "logoSpin 0.8s ease-in-out",
+                "@keyframes logoSpin": {
+                  "0%": { transform: "rotate(0deg)" },
+                  "100%": { transform: "rotate(360deg)" },
+                },
+              },
             }}
           />
         )}

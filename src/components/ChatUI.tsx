@@ -261,7 +261,8 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
     const handleNewMessage = (message: SocketMessage) => {
       const resolvedMessageType: MessageType =
         message.messageType ?? (message.resource ? "resource" : "text");
-
+      
+      console.log(message)
       const formattedMessage: Message = {
         id: message.chatId,
         sender:
@@ -308,7 +309,6 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
         if (Number.isNaN(dateB)) return -1;
         return dateA - dateB;
       });
-
       const formattedMessages: Message[] = sorted.map((message) => {
         const resolvedMessageType: MessageType =
           message.messageType ?? (message.resource ? "resource" : "text");
@@ -323,7 +323,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
           senderName:
             message.userId === currentUserId
               ? "You"
-              : message.userName ?? "Anonymous",
+              : message.userName ?? "Anonymous1",
           text: message.text,
           time: formatMessageTime(message.sentAt),
           avatar: message.userId === currentUserId ? "👤" : "👨‍💻",
@@ -946,7 +946,7 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
                       component="video"
                       src={selectedFilePreview}
                       controls
-                      sx={{ width: "100%", maxHeight: 260 }}
+                      sx={{ width: "100%", maxHeight: 200 }}
                     />
                   )}
                 </Box>
