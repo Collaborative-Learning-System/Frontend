@@ -131,7 +131,6 @@ const Workspace = () => {
   const { setWorkspaceData: setGlobalWorkspaceData } = useWorkspace();
   const { setSelectedGroup: setGlobalSelectedGroup } = useGroup();
 
-  // Helper function to update both local and global selected group
   const updateSelectedGroup = (groupId: string | null) => {
     setSelectedGroup(groupId);
 
