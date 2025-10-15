@@ -36,6 +36,7 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { formatDistanceToNow } from "date-fns";
 import { handleLogging } from "../services/LoggingService";
+import { getRandomBackground } from "../constants/backgroundImages";
 
 // Define interface for workspace data
 interface Workspace {
@@ -218,21 +219,7 @@ const Landing = () => {
     return name.substring(0, 2).toUpperCase();
   };
 
-  // Background images array for workspace cards
-  const backgroundImages = [
-    "https://e0.pxfuel.com/wallpapers/558/975/desktop-wallpaper-macbook-aesthetic-aesthetic-clouds-mac.jpg",
-    "https://wallpapercave.com/wp/wp5406285.jpg",
-    "https://wallpapers.com/images/hd/macbook-default-wjin3six05daljfh.jpg",
-    "https://plus.unsplash.com/premium_photo-1673240367277-e1d394465b56?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG1hYyUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D",
-    "https://wallpapers.com/images/hd/4k-landscape-montana-state-america-t870yy4rc9jgyvk5.jpg",
-  ];
 
-  // Function to get random background image
-  const getRandomBackground = (index: number) => {
-    // Use workspace index and id to ensure consistent but random selection
-    const randomIndex = (index + workspaces.length) % backgroundImages.length;
-    return backgroundImages[randomIndex];
-  };
 
   // Glassmorphism card styles with reduced curviness
   const glassCardStyles = {
@@ -671,7 +658,7 @@ const Landing = () => {
                       <Box
                         sx={{
                           height: "120px",
-                          background: `url(${getRandomBackground(index)})`,
+                          background: `url(${getRandomBackground(workspace.id)})`,
                           backgroundSize: "cover",
                           backgroundPosition: "center",
                           borderRadius: "12px 12px 0 0",
@@ -1035,7 +1022,10 @@ const Landing = () => {
               p: 2,
             }}
           >
-            <BrowseWorkspace onClose={() => setBrowseWS(false)} />
+            <BrowseWorkspace 
+              onClose={() => setBrowseWS(false)} 
+              onWorkspaceJoined={fetchWorkspaces}
+            />
           </Box>
         </Zoom>
       </Backdrop>
