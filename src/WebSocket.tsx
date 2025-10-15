@@ -20,10 +20,8 @@ socket.on("connect_error", (error) => {
 socket.on("disconnect", (reason) => {
   console.log("Socket disconnected:", reason);
   if (reason === "io server disconnect") {
-    // the disconnection was initiated by the server, you need to reconnect manually
     socket.connect();
   }
-  // else the socket will automatically try to reconnect
 });
 
 socket.on("reconnect", (attemptNumber) => {
@@ -36,4 +34,13 @@ socket.on("reconnect_error", (error) => {
 
 socket.on("reconnect_failed", () => {
   console.error("Socket reconnection failed after maximum attempts");
+});
+
+// Add global handlers for presence events
+socket.on("userPresenceUpdate", (data) => {
+  console.log("User presence updated:", data);
+});
+
+socket.on("cursorPositionUpdate", (data) => {
+  console.log("Cursor position updated:", data);
 });

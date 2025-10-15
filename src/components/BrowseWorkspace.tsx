@@ -24,6 +24,7 @@ import { handleLogging } from "../services/LoggingService";
 
 interface BrowseWorkspaceProps {
   onClose: () => void;
+  onWorkspaceJoined?: () => void;
 }
 
 interface Workspace {
@@ -48,7 +49,7 @@ interface JoinResponse {
   };
 }
 
-const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
+const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose, onWorkspaceJoined }) => {
   const theme = useTheme();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [filteredWorkspaces, setFilteredWorkspaces] = useState<Workspace[]>([]);
@@ -123,8 +124,16 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
       if (data.success && "role" in data.data) {
         setSuccessMessage(`Successfully joined "${data.data.name}" workspace!`);
         handleLogging(`You joined with workspace ${data.data.name}`);
-        setTimeout(() => {
-          fetchWorkspaces();
+        
+        // Refresh both the browse list and notify parent component
+        setTimeout(async () => {
+          await fetchWorkspaces();
+          onWorkspaceJoined?.();
+          
+          // Auto-close modal after successful join
+          setTimeout(() => {
+            onClose();
+          }, 1500);
         }, 1000);
       } else if ("message" in data.data) {
         setError(data.data.message);

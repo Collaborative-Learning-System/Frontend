@@ -1035,7 +1035,10 @@ const Landing = () => {
               p: 2,
             }}
           >
-            <BrowseWorkspace onClose={() => setBrowseWS(false)} />
+            <BrowseWorkspace 
+              onClose={() => setBrowseWS(false)} 
+              onWorkspaceJoined={fetchWorkspaces}
+            />
           </Box>
         </Zoom>
       </Backdrop>
