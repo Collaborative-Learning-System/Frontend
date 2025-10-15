@@ -38,10 +38,8 @@ import {
   Snackbar,
 } from "@mui/material";
 import {
-  Save,
   Share,
   Download,
-  MoreVert,
   Edit as EditIcon,
   Delete,
   PersonAdd,
@@ -49,6 +47,8 @@ import {
 } from "@mui/icons-material";
 import EditorToolbar from "./EditorToolbar";
 import CollaboratorsList from "./CollaboratorsList";
+import CursorOverlay from "./CursorOverlay";
+import PresenceIndicator from "./PresenceIndicator";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContext } from "../../context/AppContext";
@@ -58,6 +58,22 @@ interface Collaborator {
   id: string;
   name: string;
   role: string;
+  isOnline?: boolean;
+  lastSeen?: Date;
+}
+
+interface OnlineUser {
+  userId: string;
+  name: string;
+  isOnline: boolean;
+  cursor?: {
+    x: number;
+    y: number;
+    selection?: {
+      from: number;
+      to: number;
+    };
+  };
 }
 
 interface GroupMembers {
@@ -65,6 +81,27 @@ interface GroupMembers {
   fullname: string;
   email: string;
 }
+
+// Throttle function for mouse movements
+const throttle = (func: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+  let lastExecTime = 0;
+
+  return function (this: any, ...args: any[]) {
+    const currentTime = Date.now();
+
+    if (currentTime - lastExecTime > delay) {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
+};
 
 export default function CollaborativeDocumentEditor() {
   const theme = useTheme();
@@ -80,6 +117,7 @@ export default function CollaborativeDocumentEditor() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [groupMembers, setGroupMembers] = useState<GroupMembers[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
@@ -97,15 +135,30 @@ export default function CollaborativeDocumentEditor() {
   }
   const ydoc = ydocRef.current;
 
-  // Cleanup Yjs document on unmount
+  // Cleanup Yjs document on unmount and handle user leaving
   useEffect(() => {
     return () => {
+      if (socket.connected && docId && userId) {
+        socket.emit("leaveDoc", { docId, userId });
+      }
+
       if (ydocRef.current) {
         ydocRef.current.destroy();
         ydocRef.current = null;
       }
     };
-  }, []);
+  }, [docId, userId]);
+
+  // Heartbeat to maintain user presence
+  useEffect(() => {
+    if (!socket.connected || !docId || !userId) return;
+
+    const heartbeatInterval = setInterval(() => {
+      socket.emit("heartbeat", { docId, userId });
+    }, 30000);
+
+    return () => clearInterval(heartbeatInterval);
+  }, [socket.connected, docId, userId]);
 
   if (!docId) {
     navigate("/workspace");
@@ -210,6 +263,61 @@ export default function CollaborativeDocumentEditor() {
       setConnectionError(error.message || "An error occurred");
     };
 
+    const handleUserJoined = (data: { userId: string; name?: string }) => {
+      console.log("User joined:", data);
+      setOnlineUsers((prev) => {
+        const existingUser = prev.find((user) => user.userId === data.userId);
+        if (existingUser) {
+          return prev.map((user) =>
+            user.userId === data.userId
+              ? { ...user, isOnline: true, name: data.name || user.name }
+              : user
+          );
+        }
+
+        const userName = data.name || `User ${data.userId.slice(-4)}`;
+        return [
+          ...prev,
+          {
+            userId: data.userId,
+            name: userName,
+            isOnline: true,
+          },
+        ];
+      });
+    };
+
+    const handleUserLeft = (data: { userId: string }) => {
+      console.log("User left:", data);
+      setOnlineUsers((prev) =>
+        prev.map((user) =>
+          user.userId === data.userId ? { ...user, isOnline: false } : user
+        )
+      );
+    };
+
+    const handleCursorUpdate = (data: {
+      userId: string;
+      cursor: {
+        x: number;
+        y: number;
+        selection?: { from: number; to: number };
+      };
+    }) => {
+      if (data.userId === userId) return;
+
+      setOnlineUsers((prev) =>
+        prev.map((user) =>
+          user.userId === data.userId ? { ...user, cursor: data.cursor } : user
+        )
+      );
+    };
+
+    const handleOnlineUsersUpdate = (data: { users: OnlineUser[] }) => {
+      console.log("Online users updated:", data);
+      setOnlineUsers(data.users);
+    };
+
     // Attach event listeners
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
@@ -217,6 +325,10 @@ export default function CollaborativeDocumentEditor() {
     socket.on("initDoc", handleInitDoc);
     socket.on("syncUpdate", handleSyncUpdate);
     socket.on("titleUpdate", handleTitleUpdate);
+    socket.on("userJoined", handleUserJoined);
+    socket.on("userLeft", handleUserLeft);
+    socket.on("cursorUpdate", handleCursorUpdate);
+    socket.on("onlineUsers", handleOnlineUsersUpdate);
     socket.on("error", handleError);
 
     // If already connected, trigger the connect handler
@@ -239,6 +351,10 @@ export default function CollaborativeDocumentEditor() {
       socket.off("initDoc", handleInitDoc);
       socket.off("syncUpdate", handleSyncUpdate);
       socket.off("titleUpdate", handleTitleUpdate);
+      socket.off("userJoined", handleUserJoined);
+      socket.off("userLeft", handleUserLeft);
+      socket.off("cursorUpdate", handleCursorUpdate);
+      socket.off("onlineUsers", handleOnlineUsersUpdate);
       socket.off("error", handleError);
     };
   }, [docId, userId, ydoc]);
@@ -300,14 +416,63 @@ export default function CollaborativeDocumentEditor() {
       ],
       editable: true,
       onUpdate: ({ editor }) => {
-        // Count words
         const text = editor.getText();
         const words = text.trim() ? text.trim().split(/\s+/).length : 0;
         setWordCount(words);
       },
+      onSelectionUpdate: ({ editor }) => {
+        const { from, to } = editor.state.selection;
+        const pos = editor.view.coordsAtPos(from);
+
+        if (pos && socket.connected) {
+          socket.emit("cursorMove", {
+            docId: docId,
+            userId: userId,
+            cursor: {
+              x: pos.left,
+              y: pos.top,
+              selection: { from, to },
+            },
+          });
+        }
+      },
     },
     [ydoc, userId]
-  ); // Add dependencies to recreate editor when these change
+  );
+
+  // Track user activity for presence
+  useEffect(() => {
+    if (!socket.connected || !docId || !userId || !editor) return;
+
+    const handleActivity = () => {
+      socket.emit("userActive", { docId, userId });
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      if (editor.view.dom.contains(event.target as Node)) {
+        socket.emit("cursorMove", {
+          docId,
+          userId,
+          cursor: {
+            x: event.clientX,
+            y: event.clientY,
+          },
+        });
+      }
+    };
+
+    const throttledMouseMove = throttle(handleMouseMove, 100);
+
+    document.addEventListener("mousemove", throttledMouseMove);
+    document.addEventListener("keydown", handleActivity);
+    document.addEventListener("click", handleActivity);
+
+    return () => {
+      document.removeEventListener("mousemove", throttledMouseMove);
+      document.removeEventListener("keydown", handleActivity);
+      document.removeEventListener("click", handleActivity);
+    };
+  }, [socket.connected, docId, userId, editor]);
 
   // --Fetch Collaborators and Doc data -- //
   useEffect(() => {
@@ -395,8 +560,6 @@ export default function CollaborativeDocumentEditor() {
     fetchAllData();
   }, [docId, groupId, isDocumentReady]);
 
-  const handleSaveDocument = () => {};
-
   const handleShareDocument = () => {
     setShareModalOpen(true);
   };
@@ -469,10 +632,6 @@ export default function CollaborativeDocumentEditor() {
         setTitle("Untitled Document");
       }
     }
-  };
-
-  const handleSave = () => {
-    handleSaveDocument();
   };
 
   const handleRemoveEmail = (emailToRemove: string) => {
@@ -670,14 +829,7 @@ export default function CollaborativeDocumentEditor() {
           </Stack>
 
           <Stack direction="row" alignItems="center" gap={1}>
-            {/* <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              Last saved: {formatLastSaved(lastSaved)}
-            </Typography> */}
-
-            <Button startIcon={<Save />} onClick={handleSave} size="small">
-              Save
-            </Button>
-
+          
             <Button
               startIcon={<Share />}
               onClick={handleShareDocument}
@@ -695,16 +847,17 @@ export default function CollaborativeDocumentEditor() {
             >
               Export
             </Button>
-
-            <IconButton>
-              <MoreVert />
-            </IconButton>
           </Stack>
         </Stack>
       </Paper>
 
       {/* Collaborators */}
-      <CollaboratorsList collaborators={collaborators} currentUserId={userId} />
+      <CollaboratorsList
+        collaborators={collaborators}
+        onlineUsers={onlineUsers}
+        currentUserId={userId}
+        showOnlineOnly={true}
+      />
 
       {/* Editor Toolbar */}
       <EditorToolbar editor={editor} />
@@ -823,7 +976,10 @@ export default function CollaborativeDocumentEditor() {
               },
             }}
           >
-            <EditorContent editor={editor} />
+            <Box sx={{ position: "relative" }}>
+              <EditorContent editor={editor} />
+              <CursorOverlay onlineUsers={onlineUsers} currentUserId={userId} />
+            </Box>
           </Box>
         </Paper>
       </Box>
@@ -847,7 +1003,8 @@ export default function CollaborativeDocumentEditor() {
           </Typography>
 
           <Stack spacing={2}>
-            {groupMembers.length > 0 && (
+            {groupMembers.filter((member) => member.id !== userId).length > 0 && (
+            
               <Box>
                 <Typography
                   variant="subtitle2"
@@ -911,13 +1068,16 @@ export default function CollaborativeDocumentEditor() {
         </Alert>
       </Snackbar>
 
+      {/* Presence Indicator */}
+      <PresenceIndicator onlineUsers={onlineUsers} currentUserId={userId} />
+
       {/* Floating Back Button */}
       <IconButton
         onClick={() => navigate(-1)}
         sx={{
           position: "fixed",
           bottom: 24,
-          right: 24,
+          left: 24,
           width: 56,
           height: 56,
           backgroundColor: theme.palette.primary.main,
