@@ -91,8 +91,8 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
     try {
       setLoading(true);
       setError("");
-      
-      const response = await fetch("http://localhost:3000/api/workspaces/available", {
+
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/workspaces/available`, {
         method: "GET",
         credentials: "include", // Include cookies
         headers: {
@@ -121,7 +121,7 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
       setError("");
       setSuccessMessage("");
 
-      const response = await fetch("http://localhost:3000/api/workspaces/join", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/workspaces/join`, {
         method: "POST",
         credentials: "include", // Include cookies
         headers: {
@@ -134,7 +134,7 @@ const BrowseWorkspace: React.FC<BrowseWorkspaceProps> = ({ onClose }) => {
 
       if (data.success && "role" in data.data) {
         setSuccessMessage(`Successfully joined "${data.data.name}" workspace!`);
-        handleLogging(`Joined with workspace ${data.data.name}`);
+        handleLogging(`You joined with workspace ${data.data.name}`);
         setTimeout(() => {
           fetchWorkspaces();
         }, 1000);

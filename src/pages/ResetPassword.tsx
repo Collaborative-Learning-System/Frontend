@@ -24,6 +24,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { handleLogging } from "../services/LoggingService";
 
 const ResetPassword = () => {
   const theme = useTheme();
@@ -76,12 +77,6 @@ const ResetPassword = () => {
     }
 
     try {
-
-      if (!newPassword.trim()) {
-        setError("Password cannot be empty");
-        setIsLoading(false);
-        return;
-      }
       const response = await axios.post(`${backendUrl}/auth/reset-password`, {
         userId,
         newPassword,
@@ -91,11 +86,13 @@ const ResetPassword = () => {
         setSuccess(
           "Password reset successful! You can now login with your new password."
         );
+        handleLogging(`You changed your account password`);
         setTimeout(() => navigate("/auth"), 3000);
       } else {
         setError(response.data.message || "Failed to reset password");
       }
     } catch (error: any) {
+      handleLogging(`A failed password change attempt was detected`);
       setError(
         error.response?.data?.message || "An error occurred. Please try again."
       );

@@ -9,11 +9,13 @@ import {
   Backdrop,
   Avatar,
   Stack,
-  CircularProgress,
   Fade,
   Slide,
   Zoom,
   Chip,
+  Skeleton,
+  Icon,
+  IconButton,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useState, useEffect, useContext } from "react";
@@ -26,6 +28,7 @@ import {
   TrendingUp,
   Dashboard,
   ArrowForward,
+  CloseRounded,
 } from "@mui/icons-material";
 import WorkspaceCreation from "../components/WorkspaceCreation";
 import BrowseWorkspace from "../components/BrowseWorkspace";
@@ -80,7 +83,13 @@ const Landing = () => {
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [logs, setLogs] = useState<any[]>([]);
+  const [loginState, setLoginState] = useState(false);
 
+  useEffect(() => {
+    if (sessionStorage.getItem("justLoggedIn") === "true") {
+      setLoginState(true);
+    }
+  }, []);
 
   // Function to fetch workspaces
   const fetchWorkspaces = async () => {
@@ -88,9 +97,12 @@ const Landing = () => {
       setLoadingWorkspaces(true);
       setWorkspaceError(null);
 
-      const response = await axios.get("http://localhost:3000/api/workspaces", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces`,
+        {
+          withCredentials: true,
+        }
+      );
 
       if (response.data.success) {
         setWorkspaces(response.data.data.workspaces);
@@ -101,7 +113,9 @@ const Landing = () => {
       }
     } catch (error) {
       console.error("Error fetching workspaces:", error);
-      setWorkspaceError("Failed to load workspaces. Please try again later.");
+      setWorkspaceError(
+        "There is a issue with loading workspaces. Refresh to try again."
+      );
     } finally {
       setLoadingWorkspaces(false);
     }
@@ -114,7 +128,7 @@ const Landing = () => {
   ): Promise<CreateWorkspaceResponse> => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces`,
         {
           workspacename,
           description,
@@ -127,7 +141,7 @@ const Landing = () => {
       if (response.data.success) {
         // Refresh workspaces list after successful creation
         await fetchWorkspaces();
-        await handleLogging(`Created a new workspace ${workspacename}`);
+        await handleLogging(`You created a new workspace ${workspacename}`);
         await fetchLogs();
 
         setCreateWs(false);
@@ -167,7 +181,6 @@ const Landing = () => {
       setLogs([]);
     }
   };
-
 
   // Update current date time every minute
   useEffect(() => {
@@ -220,7 +233,6 @@ const Landing = () => {
       transform: "translateY(-8px) scale(1.02)",
       boxShadow: `0 20px 40px ${alpha(theme.palette.common.black, 0.2)}`,
       background: alpha(theme.palette.background.paper, 0.95),
-
     },
   };
 
@@ -232,10 +244,6 @@ const Landing = () => {
     borderRadius: "12px", // Reduced from 20px
     border: `1px solid ${alpha(theme.palette.common.white, 0.08)}`,
   };
-
-
-  
-
 
   return (
     <Box
@@ -268,56 +276,92 @@ const Landing = () => {
     >
       <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1, py: 4 }}>
         {/* Welcome Section */}
-        <Fade in={mounted} timeout={800}>
-          <Box
-            sx={{
-              ...glassBackdropStyles,
-              p: 4,
-              mb: 4,
-              textAlign: "center",
-            }}
-          >
-            <Slide in={mounted} direction="down" timeout={1000}>
-              <Box>
-                <Typography
-                  variant="h3"
-                  fontWeight="700"
-                  sx={{
-                    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.main})`,
-                    backgroundClip: "text",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    mb: 2,
-                    fontSize: { xs: "2rem", md: "3rem" },
-                  }}
-                >
-                  Welcome back, {userData?.fullName || "User"}!{" "}
-                  <span
-                    style={{
-                      background: "none",
-                      WebkitTextFillColor: "initial",
-                      backgroundClip: "initial",
-                      WebkitBackgroundClip: "initial",
+        {loginState && (
+          <Fade in={mounted} timeout={800}>
+            <Box
+              sx={{
+                ...glassBackdropStyles,
+                p: 4,
+                mb: 4,
+                textAlign: "center",
+                position: "relative",
+              }}
+            >
+              {/* Close Icon */}
+              <IconButton
+                onClick={() => {
+                  sessionStorage.setItem("justLoggedIn", "false");
+                  setLoginState(false);
+                }}
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  color: theme.palette.text.secondary,
+                  backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                  backdropFilter: "blur(10px)",
+                  border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                  boxShadow: `0 4px 12px ${alpha(
+                    theme.palette.common.black,
+                    0.1
+                  )}`,
+                  "&:hover": {
+                    color: theme.palette.error.main,
+                    backgroundColor: alpha(theme.palette.error.main, 0.1),
+                    transform: "scale(1.1)",
+                    boxShadow: `0 6px 16px ${alpha(
+                      theme.palette.common.black,
+                      0.15
+                    )}`,
+                  },
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+              >
+                <CloseRounded />
+              </IconButton>
+              <Slide in={mounted} direction="down" timeout={1000}>
+                <Box>
+                  <Typography
+                    variant="h3"
+                    fontWeight="700"
+                    sx={{
+                      background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.main})`,
+                      backgroundClip: "text",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      mb: 2,
+                      fontSize: { xs: "2rem", md: "3rem" },
                     }}
                   >
-                    👋
-                  </span>
-                </Typography>
-                <Typography
-                  variant="h6"
-                  color="text.secondary"
-                  sx={{
-                    fontSize: "1.2rem",
-                    fontWeight: 400,
-                    opacity: 0.8,
-                  }}
-                >
-                  {formatDateTime(currentDateTime)}
-                </Typography>
-              </Box>
-            </Slide>
-          </Box>
-        </Fade>
+                    Welcome back, {userData?.fullName || "User"}!{" "}
+                    <span
+                      style={{
+                        background: "none",
+                        WebkitTextFillColor: "initial",
+                        backgroundClip: "initial",
+                        WebkitBackgroundClip: "initial",
+                      }}
+                    >
+                      👋
+                    </span>
+                    <Icon></Icon>
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    sx={{
+                      fontSize: "1.2rem",
+                      fontWeight: 400,
+                      opacity: 0.8,
+                    }}
+                  >
+                    {formatDateTime(currentDateTime)}
+                  </Typography>
+                </Box>
+              </Slide>
+            </Box>
+          </Fade>
+        )}
 
         {/* Action Cards */}
         <Fade in={mounted} timeout={1200}>
@@ -331,11 +375,11 @@ const Landing = () => {
           >
             <Zoom in={mounted} timeout={1000}>
               <Card sx={glassCardStyles}>
-                <CardContent sx={{ p: 5, textAlign: "center" }}>
+                <CardContent sx={{ p: 2, textAlign: "center" }}>
                   <Avatar
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: 60,
+                      height: 60,
                       bgcolor: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                       mx: "auto",
                       mb: 3,
@@ -390,11 +434,11 @@ const Landing = () => {
 
             <Zoom in={mounted} timeout={1200}>
               <Card sx={glassCardStyles}>
-                <CardContent sx={{ p: 5, textAlign: "center" }}>
+                <CardContent sx={{ p: 2, textAlign: "center" }}>
                   <Avatar
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: 60,
+                      height: 60,
                       bgcolor: `linear-gradient(135deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.dark})`,
                       mx: "auto",
                       mb: 3,
@@ -478,8 +522,94 @@ const Landing = () => {
             </Box>
 
             {loadingWorkspaces ? (
-              <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
-                <CircularProgress size={60} thickness={4} />
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    md: "repeat(2, 1fr)",
+                    lg: "repeat(3, 1fr)",
+                  },
+                  gap: 3,
+                }}
+              >
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <Card
+                    key={index}
+                    sx={{
+                      ...glassCardStyles,
+                      height: "280px",
+                      position: "relative",
+                      overflow: "visible",
+                    }}
+                  >
+                    {/* Top Section Skeleton */}
+                    <Box
+                      sx={{
+                        height: "120px",
+                        position: "relative",
+                        borderRadius: "12px 12px 0 0",
+                      }}
+                    >
+                      <Skeleton
+                        variant="rectangular"
+                        width="100%"
+                        height="120px"
+                        sx={{ borderRadius: "12px 12px 0 0" }}
+                      />
+                      {/* Avatar Skeleton */}
+                      <Skeleton
+                        variant="circular"
+                        width={90}
+                        height={90}
+                        sx={{
+                          position: "absolute",
+                          left: "24px",
+                          bottom: "-20px",
+                          zIndex: 2,
+                        }}
+                      />
+                    </Box>
+
+                    {/* Bottom Section Skeleton */}
+                    <CardContent
+                      sx={{
+                        p: 3,
+                        pt: 4,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      {/* Title and Role Skeleton */}
+                      <Box sx={{ mb: 2, ml: 8 }}>
+                        <Skeleton variant="text" width="60%" height={28} />
+                        <Skeleton
+                          variant="rounded"
+                          width={80}
+                          height={24}
+                          sx={{ mt: 1 }}
+                        />
+                      </Box>
+
+                      {/* Description Skeleton */}
+                      <Skeleton variant="text" width="100%" height={20} />
+                      <Skeleton variant="text" width="80%" height={20} />
+
+                      {/* Member count and button area */}
+                      <Box
+                        sx={{
+                          mt: "auto",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Skeleton variant="text" width={100} height={20} />
+                        <Skeleton variant="rounded" width={80} height={32} />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
               </Box>
             ) : workspaceError ? (
               <Card sx={glassCardStyles}>
@@ -487,6 +617,13 @@ const Landing = () => {
                   <Typography variant="h6" color="error">
                     {workspaceError}
                   </Typography>
+                  <Button
+                    onClick={fetchWorkspaces}
+                    sx={{ mt: 2 }}
+                    variant="outlined"
+                  >
+                    Refresh
+                  </Button>
                 </CardContent>
               </Card>
             ) : workspaces.length > 0 ? (
@@ -734,65 +871,71 @@ const Landing = () => {
                     })
                     .slice(0, 5) // Limit to 5 recent activities
                     .map((activity, index) => (
-                    <Slide
-                      in={mounted}
-                      direction="up"
-                      timeout={2000 + index * 100}
-                      key={activity.activityId || index}
-                    >
-                      <Card sx={glassCardStyles}>
-                        <CardContent sx={{ py: 3, px: 4 }}>
-                          <Stack
-                            direction={{ xs: "column", sm: "row" }}
-                            spacing={3}
-                            alignItems="center"
-                          >
-                            <Avatar
-                              sx={{
-                                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                color: theme.palette.primary.main,
-                                width: 48,
-                                height: 48,
-                              }}
+                      <Slide
+                        in={mounted}
+                        direction="up"
+                        timeout={2000 + index * 100}
+                        key={activity.activityId || index}
+                      >
+                        <Card sx={glassCardStyles}>
+                          <CardContent sx={{ py: 3, px: 4 }}>
+                            <Stack
+                              direction={{ xs: "column", sm: "row" }}
+                              spacing={3}
+                              alignItems="center"
                             >
-                              <AccessTime />
-                            </Avatar>
-                            <Box
-                              sx={{
-                                flex: 1,
-                                textAlign: { xs: "center", sm: "left" },
-                              }}
-                            >
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mb: 0.5 }}
+                              <Avatar
+                                sx={{
+                                  bgcolor: alpha(
+                                    theme.palette.primary.main,
+                                    0.1
+                                  ),
+                                  color: theme.palette.primary.main,
+                                  width: 48,
+                                  height: 48,
+                                }}
                               >
-                                {activity.timestamp
-                                  ? formatDistanceToNow(
-                                      new Date(activity.timestamp),
-                                      {
-                                        addSuffix: true,
-                                      }
-                                    )
-                                  : "No timestamp"}
-                              </Typography>
-                              <Typography
-                                variant="body1"
-                                sx={{ fontWeight: 500 }}
+                                <AccessTime />
+                              </Avatar>
+                              <Box
+                                sx={{
+                                  flex: 1,
+                                  textAlign: { xs: "center", sm: "left" },
+                                }}
                               >
-                                {activity.activity || "No activity description"}
-                              </Typography>
-                            </Box>
-                          </Stack>
-                        </CardContent>
-                      </Card>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ mb: 0.5 }}
+                                >
+                                  {activity.timestamp
+                                    ? formatDistanceToNow(
+                                        new Date(activity.timestamp),
+                                        {
+                                          addSuffix: true,
+                                        }
+                                      )
+                                    : "No timestamp"}
+                                </Typography>
+                                <Typography
+                                  variant="body1"
+                                  sx={{ fontWeight: 500 }}
+                                >
+                                  {activity.activity ||
+                                    "No activity description"}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </CardContent>
+                        </Card>
                       </Slide>
                     ))}
-                  
+
                   {/* View All Button */}
                   {logs.length > 5 && (
-                    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "center", mt: 2 }}
+                    >
                       <Button
                         variant="outlined"
                         endIcon={<ArrowForward />}
@@ -818,7 +961,6 @@ const Landing = () => {
                       {logs.length === 0
                         ? "No recent activities to display."
                         : "Loading activities..."}
-
                     </Typography>
                   </CardContent>
                 </Card>

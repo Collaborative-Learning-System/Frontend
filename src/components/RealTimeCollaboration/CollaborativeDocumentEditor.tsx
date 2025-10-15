@@ -124,7 +124,7 @@ export default function CollaborativeDocumentEditor() {
     } catch (error) {
       console.error("Error refreshing collaborators:", error);
     }
-  }, [docId]);
+  }, [docId, collaborators]);
 
   // Timeout for loading state
   useEffect(() => {
@@ -265,7 +265,9 @@ export default function CollaborativeDocumentEditor() {
   const editor = useEditor(
     {
       extensions: [
-        StarterKit,
+        StarterKit.configure({
+          history: false,
+        }),
         Highlight.configure({
           multicolor: true,
         }),

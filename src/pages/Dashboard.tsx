@@ -4,7 +4,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Chip,
   Avatar,
   List,
   ListItem,
@@ -13,27 +12,27 @@ import {
   Button,
   useTheme,
   alpha,
-  Paper,
   CircularProgress,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   DialogContentText,
+  Skeleton,
 } from "@mui/material";
 import {
   Group,
-  Quiz,
   History,
   Schedule,
   Add,
-  Workspaces,
-  LocalActivity,
   Dashboard as DashboardIcon,
   AutoFixHigh,
-  AccessTime,
+  WorkspacePremium,
+  Groups,
+  Timeline,
+  Lightbulb,
 } from "@mui/icons-material";
-import { useContext, useEffect, useState, useCallback } from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
@@ -87,6 +86,7 @@ const Dashboard = () => {
   const [suggestedWorkspaces, setSuggestedWorkspaces] = useState<
     SuggestedWorkspace[]
   >([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   const [studyPlans, setStudyPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(false);
@@ -99,6 +99,86 @@ const Dashboard = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [planToDelete, setPlanToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [noSuggestions, setNoSuggestions] = useState(false);
+
+  // Reusable Empty State Component
+  const EmptyStateMessage = ({
+    icon,
+    title,
+    description,
+    actionButton,
+    fullWidth = false,
+  }: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    actionButton?: React.ReactNode;
+    fullWidth?: boolean;
+  }) => (
+    <Box
+      sx={{
+        textAlign: "center",
+        py: { xs: 1, sm: 3 },
+        px: 3,
+        borderRadius: 3,
+        bgcolor: alpha(theme.palette.primary.main, 0.02),
+        border: `2px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
+        width: fullWidth ? "100%" : "auto",
+        gridColumn: fullWidth ? "1 / -1" : "auto",
+        minHeight: "200px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          bgcolor: alpha(theme.palette.primary.main, 0.04),
+          borderColor: alpha(theme.palette.primary.main, 0.3),
+        },
+      }}
+    >
+      <Box
+        sx={{
+          mb: 3,
+          p: 2,
+          borderRadius: "50%",
+          bgcolor: alpha(theme.palette.primary.main, 0.1),
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          "& .MuiSvgIcon-root": {
+            fontSize: { xs: 48, sm: 56 },
+            color: theme.palette.primary.main,
+          },
+        }}
+      >
+        {icon}
+      </Box>
+      <Typography
+        variant="h6"
+        sx={{
+          mb: 2,
+          color: theme.palette.text.primary,
+          fontWeight: 600,
+        }}
+      >
+        {title}
+      </Typography>
+      <Typography
+        variant="body1"
+        sx={{
+          mb: actionButton ? 3 : 0,
+          color: theme.palette.text.secondary,
+          maxWidth: 400,
+          lineHeight: 1.6,
+        }}
+      >
+        {description}
+      </Typography>
+      {actionButton}
+    </Box>
+  );
 
   // Handler functions for study plan modal
   const handleViewPlan = (planId: number) => {
@@ -167,6 +247,39 @@ const Dashboard = () => {
     fetchStudyPlans();
   }, [userId]);
 
+  // Custom scrollbar styles for better UI
+  const customScrollbarStyles = {
+    "&::-webkit-scrollbar": {
+      width: "8px",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.05)"
+          : "rgba(0, 0, 0, 0.05)",
+      borderRadius: "10px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.2)"
+          : "rgba(0, 0, 0, 0.2)",
+      borderRadius: "10px",
+      "&:hover": {
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? "rgba(255, 255, 255, 0.3)"
+            : "rgba(0, 0, 0, 0.3)",
+      },
+    },
+    // Firefox scrollbar
+    scrollbarWidth: "thin",
+    scrollbarColor:
+      theme.palette.mode === "dark"
+        ? "rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)"
+        : "rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05)",
+  };
+
   const stats = [
     {
       title: "Workspaces",
@@ -179,34 +292,6 @@ const Dashboard = () => {
       value: groupData?.count || 0,
       icon: <Group />,
       color: "#4CAF50",
-    },
-    {
-      title: "Completed Quizzes",
-      value: "23",
-      icon: <Quiz />,
-      color: "#FF9800",
-    },
-    {
-      title: "Total Study Hours",
-      value: "147",
-      icon: <AccessTime />,
-      color: "#9C27B0",
-    },
-  ];
-
-  // Upcoming activities data
-  const upcomingActivities = [
-    {
-      task: "React Components Quiz",
-      dueDate: "Today, 3:00 PM",
-      type: "Quiz",
-      color: "#4CAF50",
-    },
-    {
-      task: "Complete Node.js Tutorial",
-      dueDate: "Tomorrow",
-      type: "Study",
-      color: "#ff9800",
     },
   ];
 
@@ -268,6 +353,7 @@ const Dashboard = () => {
     if (!userId) return;
 
     console.log("Fetching suggested workspaces for user:", userId);
+    setLoadingSuggestions(true);
 
     try {
       const response = await axios.get(
@@ -278,9 +364,14 @@ const Dashboard = () => {
       console.log(response.data.data);
       if (response.data.success) {
         setSuggestedWorkspaces(response.data.data.suggestedWorkspacesForYou);
+        if (response.data.data.source === "no_suggestions_available" || response.data.data.suggestedWorkspacesForYou.length === 0) {
+          setNoSuggestions(true);
+        }
       }
     } catch (error) {
       console.error("Error fetching suggested workspaces:", error);
+    } finally {
+      setLoadingSuggestions(false);
     }
   }, [userId]);
 
@@ -402,15 +493,26 @@ const Dashboard = () => {
                 </Box>
               </CardContent>
             ) : (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <CircularProgress />
-              </Box>
+              <CardContent sx={{ width: "100%" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box>
+                    <Skeleton variant="text" width={60} height={48} />
+                    <Skeleton
+                      variant="text"
+                      width={100}
+                      height={20}
+                      sx={{ mt: 1 }}
+                    />
+                  </Box>
+                  <Skeleton variant="circular" width={40} height={40} />
+                </Box>
+              </CardContent>
             )}
           </Card>
         ))}
@@ -443,10 +545,17 @@ const Dashboard = () => {
                   Active Workspaces
                 </Typography>
               </Box>
-              <List sx={{ p: 0, maxHeight: "300px", overflow: "auto" }}>
+              <List
+                sx={{
+                  p: 0,
+                  maxHeight: "300px",
+                  overflow: "auto",
+                  ...customScrollbarStyles,
+                }}
+              >
                 {!loading ? (
                   workspaceData?.workspaces.map((workspace, index) => (
-                    <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+                    <ListItem key={index} sx={{ px: 2, py: 1.5 }}>
                       <ListItemAvatar>
                         <Avatar
                           sx={{
@@ -483,41 +592,32 @@ const Dashboard = () => {
                     </ListItem>
                   ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4].map((item) => (
+                      <ListItem key={item} sx={{ px: 2, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="60%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="40%" height={16} />
+                          }
+                        />
+                        <Skeleton variant="rounded" width={80} height={32} />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {workspaceData?.workspaces.length === 0 && (
-                  <Paper
-                    elevation={3}
-                    sx={{
-                      mt: 3,
-                      p: { xs: 4, sm: 6 },
-                      textAlign: "center",
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Workspaces
-                      sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
-                    />
-                    <Typography
-                      variant="h6"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      No Active Workspaces Yet
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Join workspaces to collaborate and learn with peers!
-                    </Typography>
-                  </Paper>
+                  <EmptyStateMessage
+                    icon={<WorkspacePremium />}
+                    title="No Active Workspaces"
+                    description="Join collaborative workspaces to connect with peers, share knowledge, and learn together in a supportive environment."
+                  
+                  />
                 )}
               </List>
             </CardContent>
@@ -540,11 +640,17 @@ const Dashboard = () => {
                   Active Groups
                 </Typography>
               </Box>
-              <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
+              <Box
+                sx={{
+                  maxHeight: "300px",
+                  overflow: "auto",
+                  ...customScrollbarStyles,
+                }}
+              >
                 {!loading ? (
                   groupData?.groups.length !== 0 &&
                   groupData?.groups.map((group, index) => (
-                    <ListItem key={index} sx={{ px: 0, py: 1.5 }}>
+                    <ListItem key={index} sx={{ px: 2, py: 1.5 }}>
                       <ListItemAvatar>
                         <Avatar
                           sx={{
@@ -572,47 +678,417 @@ const Dashboard = () => {
                     </ListItem>
                   ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4].map((item) => (
+                      <ListItem key={item} sx={{ px: 2, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="70%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="50%" height={16} />
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {groupData?.groups.length === 0 && (
-                  <Paper
-                    elevation={3}
-                    sx={{
-                      mt: 3,
-                      p: { xs: 4, sm: 6 },
-                      textAlign: "center",
-                      borderRadius: 3,
-                    }}
-                  >
-                    <Group
-                      sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
-                    />
-                    <Typography
-                      variant="h6"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      No Active Groups Yet
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Join groups to collaborate and learn with peers!
-                    </Typography>
-                  </Paper>
+                  <EmptyStateMessage
+                    icon={<Groups />}
+                    title="No Active Groups"
+                    description="Join study groups to collaborate on projects, share resources, and engage in meaningful discussions with like-minded learners."
+                    
+                  />
                 )}
               </Box>
             </CardContent>
           </Card>
         </Box>
       </Box>
+
+      {/* My Study Plans Section */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Schedule sx={{ mr: 1, color: theme.palette.primary.main }} />
+              <Typography variant="h6" fontWeight="600">
+                My Study Plans
+              </Typography>
+            </Box>
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => navigate("/study-plans-generator")}
+              startIcon={<Add />}
+            >
+              Create New
+            </Button>
+          </Box>
+
+          {loadingPlans ? (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(2, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: 3,
+              }}
+            >
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    position: "relative",
+                    border: `1px solid ${alpha(
+                      theme.palette.primary.main,
+                      0.1
+                    )}`,
+                  }}
+                >
+                  <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+                    {/* Header with title and status */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 1,
+                      }}
+                    >
+                      <Skeleton variant="text" width="60%" height={24} />
+                      <Skeleton variant="rounded" width={60} height={20} />
+                    </Box>
+
+                    {/* Study Goal */}
+                    <Skeleton
+                      variant="text"
+                      width="80%"
+                      height={20}
+                      sx={{ mb: 1.5 }}
+                    />
+
+                    {/* Subjects */}
+                    <Box sx={{ mb: 1.5 }}>
+                      <Skeleton
+                        variant="text"
+                        width="30%"
+                        height={16}
+                        sx={{ mb: 0.5 }}
+                      />
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        <Skeleton variant="rounded" width={50} height={20} />
+                        <Skeleton variant="rounded" width={60} height={20} />
+                        <Skeleton variant="rounded" width={45} height={20} />
+                      </Box>
+                    </Box>
+
+                    {/* Schedule Info */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                      }}
+                    >
+                      <Skeleton variant="text" width="45%" height={16} />
+                      <Skeleton variant="text" width="25%" height={16} />
+                    </Box>
+
+                    {/* Days remaining */}
+                    <Skeleton
+                      variant="text"
+                      width="40%"
+                      height={16}
+                      sx={{ mb: 1 }}
+                    />
+                  </CardContent>
+
+                  {/* Action buttons */}
+                  <Box sx={{ p: 2, pt: 0, display: "flex", gap: 1 }}>
+                    <Skeleton variant="rounded" width="100%" height={32} />
+                  </Box>
+                </Card>
+              ))}
+            </Box>
+          ) : studyPlans.length > 0 ? (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(2, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
+                gap: 3,
+              }}
+            >
+              {studyPlans.map((plan, index) => (
+                <Box key={plan.planId || index}>
+                  <StudyPlanCard
+                    planId={plan.planId}
+                    title={plan.title}
+                    subjects={plan.subjects}
+                    studyGoal={plan.studyGoal}
+                    startDate={plan.startDate}
+                    endDate={plan.endDate}
+                    dailyHours={plan.dailyHours}
+                    createdAt={plan.createdAt}
+                    progress={plan.progress || Math.floor(Math.random() * 100)}
+                    totalTasks={
+                      plan.totalTasks || Math.floor(Math.random() * 20) + 5
+                    }
+                    completedTasks={
+                      plan.completedTasks || Math.floor(Math.random() * 15)
+                    }
+                    onView={(planId) => {
+                      handleViewPlan(planId);
+                    }}
+                    onResume={(planId) => {
+                      console.log("Resume plan:", planId);
+                      // Navigate to plan execution
+                    }}
+                    onDelete={(planId) => {
+                      handleDeletePlan(planId);
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <EmptyStateMessage
+              icon={<Schedule />}
+              title="No Study Plans Created"
+              description="Create personalized study plans to organize your learning goals, track progress, and stay motivated on your educational journey."
+              actionButton={
+                <Button
+                  variant="contained"
+                  startIcon={<Add />}
+                  onClick={() => navigate("/study-plans-generator")}
+                  sx={{
+                    bgcolor: theme.palette.primary.main,
+                    "&:hover": {
+                      bgcolor: theme.palette.primary.dark,
+                    },
+                  }}
+                >
+                  Create Study Plan
+                </Button>
+              }
+              fullWidth={true}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Suggested Workspaces */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Add sx={{ mr: 1, color: theme.palette.success.main }} />
+              <Typography variant="h6" fontWeight="600">
+                Suggested Workspaces to Join
+              </Typography>
+            </Box>
+            <Button
+              variant="text"
+              size="small"
+              onClick={fetchSuggestedWorkspaces}
+              disabled={loadingSuggestions}
+              startIcon={
+                loadingSuggestions ? <CircularProgress size={16} /> : undefined
+              }
+            >
+              {loadingSuggestions ? "Loading..." : "Get Suggestions"}
+            </Button>
+          </Box>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: "repeat(2, 1fr)",
+                lg: "repeat(3, 1fr)",
+              },
+              gap: 3,
+            }}
+          >
+            {loadingSuggestions ? (
+              // Show skeleton cards while loading
+              <>
+                {[1, 2, 3].map((item) => (
+                  <Card
+                    key={item}
+                    sx={{
+                      border: `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
+                    <CardContent>
+                      <Skeleton
+                        variant="text"
+                        width="80%"
+                        height={32}
+                        sx={{ mb: 1 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="100%"
+                        height={20}
+                        sx={{ mb: 1 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="90%"
+                        height={20}
+                        sx={{ mb: 2 }}
+                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          mb: 2,
+                        }}
+                      >
+                        <Skeleton variant="text" width="40%" height={16} />
+                      </Box>
+                      <Skeleton variant="rounded" width="100%" height={36} />
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
+            ) : suggestedWorkspaces.length !== 0 ? (
+              suggestedWorkspaces.map((workspace, index) => (
+                <Card
+                  key={index}
+                  sx={{
+                    border: `1px solid ${theme.palette.divider}`,
+                    "&:hover": {
+                      boxShadow: theme.shadows[4],
+                      transform: "translateY(-2px)",
+                      transition: "all 0.3s ease",
+                    },
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
+                      {workspace.workspaceName}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 2 }}
+                    >
+                      {workspace.description}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 2,
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary">
+                        {workspace.memberCount} members
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      size="small"
+                      onClick={() => handleJoinWorkspace(workspace.workspaceId)}
+                      sx={{
+                        bgcolor: theme.palette.primary.main,
+                        "&:hover": {
+                          bgcolor: theme.palette.primary.dark,
+                        },
+                      }}
+                    >
+                      Join Workspace
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : noSuggestions ? (
+              <EmptyStateMessage
+                icon={<AutoFixHigh />}
+                title="No Personalized Suggestions"
+                description="We couldn't find personalized workspace suggestions based on your current activity. Join more workspaces and engage with content to get better recommendations!"
+                actionButton={
+                  <Button
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={() => navigate("/landing")}
+                    sx={{
+                      bgcolor: theme.palette.primary.main,
+                      "&:hover": {
+                        bgcolor: theme.palette.primary.dark,
+                      },
+                    }}
+                  >
+                    Discover Workspaces
+                  </Button>
+                }
+                fullWidth={true}
+              />
+            ) : (
+              <EmptyStateMessage
+                icon={<Lightbulb />}
+                title="Getting Suggestions Ready"
+                description="Click 'Get Suggestions' to discover workspaces that match your interests and learning goals."
+                actionButton={
+                  <Button
+                    variant="outlined"
+                    startIcon={<AutoFixHigh />}
+                    onClick={fetchSuggestedWorkspaces}
+                    disabled={loadingSuggestions}
+                    sx={{
+                      borderColor: theme.palette.primary.main,
+                      color: theme.palette.primary.main,
+                      "&:hover": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        borderColor: theme.palette.primary.dark,
+                      },
+                    }}
+                  >
+                    Get Suggestions
+                  </Button>
+                }
+                fullWidth={true}
+              />
+            )}
+          </Box>
+        </CardContent>
+      </Card>
 
       {/* Recent Activities and Upcoming Activities */}
       <Box
@@ -639,7 +1115,14 @@ const Dashboard = () => {
                   Recent Activities
                 </Typography>
               </Box>
-              <List sx={{ p: 0, maxHeight: "300px", overflow: "auto" }}>
+              <List
+                sx={{
+                  p: 0,
+                  maxHeight: "300px",
+                  overflow: "auto",
+                  ...customScrollbarStyles,
+                }}
+              >
                 {!loading ? (
                   logs
                     .sort(
@@ -692,325 +1175,53 @@ const Dashboard = () => {
                       </ListItem>
                     ))
                 ) : (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      p: 2,
-                    }}
-                  >
-                    <CircularProgress size={60} />
-                  </Box>
+                  <>
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <ListItem key={item} sx={{ px: 0, py: 1.5 }}>
+                        <ListItemAvatar>
+                          <Skeleton variant="circular" width={40} height={40} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Skeleton variant="text" width="80%" height={24} />
+                          }
+                          secondary={
+                            <Skeleton variant="text" width="30%" height={16} />
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </>
                 )}
                 {logs.length === 0 && (
-                  <Paper
-                    elevation={3}
-                    sx={{
-                      mt: 3,
-                      p: { xs: 4, sm: 6 },
-                      textAlign: "center",
-                      borderRadius: 3,
-                    }}
-                  >
-                    <LocalActivity
-                      sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
-                    />
-                    <Typography
-                      variant="h6"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      No Recent Activites Yet
-                    </Typography>
-                    <Typography variant="body1" color="text.secondary">
-                      Your recent activities will appear here. Start engaging
-                      with your workspaces and groups!
-                    </Typography>
-                  </Paper>
+                  <EmptyStateMessage
+                    icon={<Timeline />}
+                    title="No Recent Activities"
+                    description="Your activity timeline will appear here. Start engaging with workspaces, groups, and study plans to see your learning journey unfold."
+                    actionButton={
+                      <Button
+                        variant="outlined"
+                        startIcon={<Add />}
+                        onClick={() => navigate("/view-all")}
+                        sx={{
+                          borderColor: theme.palette.primary.main,
+                          color: theme.palette.primary.main,
+                          "&:hover": {
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                            borderColor: theme.palette.primary.dark,
+                          },
+                        }}
+                      >
+                        Start Exploring
+                      </Button>
+                    }
+                  />
                 )}
               </List>
             </CardContent>
           </Card>
         </Box>
-
-        {/* Upcoming Activities - Right Side */}
-        <Box sx={{ flex: 1 }}>
-          <Card sx={{ height: "400px" }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Schedule sx={{ mr: 1, color: theme.palette.secondary.main }} />
-                <Typography variant="h6" fontWeight="600">
-                  Upcoming Activities
-                </Typography>
-              </Box>
-              <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
-                {upcomingActivities.map((activity, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      p: 2,
-                      mb: 2,
-                      borderLeft: `4px solid ${activity.color}`,
-                      backgroundColor: alpha(activity.color, 0.05),
-                      borderRadius: 1,
-                      "&:hover": {
-                        backgroundColor: alpha(activity.color, 0.1),
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                      <Chip
-                        label={activity.type}
-                        size="small"
-                        sx={{
-                          bgcolor: activity.color,
-                          color: "white",
-                          fontSize: "0.75rem",
-                          height: 20,
-                        }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      fontWeight="500"
-                      sx={{ mb: 0.5 }}
-                    >
-                      {activity.task}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Due: {activity.dueDate}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
       </Box>
-
-      {/* My Study Plans Section */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Schedule sx={{ mr: 1, color: theme.palette.primary.main }} />
-              <Typography variant="h6" fontWeight="600">
-                My Study Plans
-              </Typography>
-            </Box>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => navigate("/study-plans-generator")}
-              startIcon={<Add />}
-            >
-              Create New
-            </Button>
-          </Box>
-
-          {loadingPlans ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : studyPlans.length > 0 ? (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "repeat(2, 1fr)",
-                  md: "repeat(2, 1fr)",
-                  lg: "repeat(4, 1fr)",
-                },
-                gap: 3,
-              }}
-            >
-              {studyPlans.map((plan, index) => (
-                <Box key={plan.planId || index}>
-                  <StudyPlanCard
-                    planId={plan.planId}
-                    title={plan.title}
-                    subjects={plan.subjects}
-                    studyGoal={plan.studyGoal}
-                    startDate={plan.startDate}
-                    endDate={plan.endDate}
-                    dailyHours={plan.dailyHours}
-                    createdAt={plan.createdAt}
-                    progress={plan.progress || Math.floor(Math.random() * 100)}
-                    totalTasks={
-                      plan.totalTasks || Math.floor(Math.random() * 20) + 5
-                    }
-                    completedTasks={
-                      plan.completedTasks || Math.floor(Math.random() * 15)
-                    }
-                    onView={(planId) => {
-                      handleViewPlan(planId);
-                    }}
-                    onResume={(planId) => {
-                      console.log("Resume plan:", planId);
-                      // Navigate to plan execution
-                    }}
-                    onDelete={(planId) => {
-                      handleDeletePlan(planId);
-                    }}
-                  />
-                </Box>
-              ))}
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                textAlign: "center",
-                py: 6,
-                px: 3,
-                borderRadius: 2,
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                border: `1px dashed ${alpha(theme.palette.primary.main, 0.3)}`,
-              }}
-            >
-              <AutoFixHigh
-                sx={{
-                  fontSize: 48,
-                  color: alpha(theme.palette.primary.main, 0.6),
-                  mb: 2,
-                }}
-              />
-              <Typography
-                variant="h6"
-                sx={{ mb: 1, color: theme.palette.text.primary }}
-              >
-                No Study Plans Yet
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{ mb: 3, color: theme.palette.text.secondary }}
-              >
-                Create your first study plan to start your learning journey
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={() => navigate("/study-plans-generator")}
-                sx={{
-                  bgcolor: theme.palette.primary.main,
-                  "&:hover": {
-                    bgcolor: theme.palette.primary.dark,
-                  },
-                }}
-              >
-                Create Study Plan
-              </Button>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Suggested Workspaces */}
-      <Card>
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Add sx={{ mr: 1, color: theme.palette.success.main }} />
-              <Typography variant="h6" fontWeight="600">
-                Suggested Workspaces to Join
-              </Typography>
-            </Box>
-            <Button
-              variant="text"
-              size="small"
-              onClick={fetchSuggestedWorkspaces}
-            >
-              Get Suggestions
-            </Button>
-          </Box>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                md: "repeat(2, 1fr)",
-                lg: "repeat(3, 1fr)",
-              },
-              gap: 3,
-            }}
-          >
-            {suggestedWorkspaces.length !== 0 &&
-              suggestedWorkspaces.map((workspace, index) => (
-                <Card
-                  key={index}
-                  sx={{
-                    border: `1px solid ${theme.palette.divider}`,
-                    "&:hover": {
-                      boxShadow: theme.shadows[4],
-                      transform: "translateY(-2px)",
-                      transition: "all 0.3s ease",
-                    },
-                  }}
-                >
-                  <CardContent>
-                    <Typography variant="h6" fontWeight="600" sx={{ mb: 1 }}>
-                      {workspace.workspaceName}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 2 }}
-                    >
-                      {workspace.description}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 2,
-                      }}
-                    >
-                      <Typography variant="caption" color="text.secondary">
-                        {workspace.memberCount} members
-                      </Typography>
-                    </Box>
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      size="small"
-                      onClick={() => handleJoinWorkspace(workspace.workspaceId)}
-                      sx={{
-                        bgcolor: theme.palette.primary.main,
-                        "&:hover": {
-                          bgcolor: theme.palette.primary.dark,
-                        },
-                      }}
-                    >
-                      Join Workspace
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-          </Box>
-        </CardContent>
-      </Card>
 
       {/* Study Plan View Modal */}
       <StudyPlanViewModal
