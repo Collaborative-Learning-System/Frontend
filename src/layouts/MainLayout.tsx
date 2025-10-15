@@ -72,6 +72,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </Box>
         </Box>
       </Box>
+      
+      {/* Elfsight AI Chatbot */}
+      <div className="elfsight-app-caa14bf2-0107-49ab-9603-032c369f1ad8" data-elfsight-app-lazy></div>
     </>
   );
 
