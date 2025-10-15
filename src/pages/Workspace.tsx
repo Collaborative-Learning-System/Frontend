@@ -117,7 +117,6 @@ const Workspace = () => {
   const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
-  const [collapsingHeader, setCollapsingHeader] = useState(false);
   // Leave confirmation dialog state
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
