@@ -384,7 +384,7 @@ const Dashboard = () => {
         }
       );
       if (response.data.success) {
-        handleLogging(`Joined with workspace ${response.data.data.name}`);
+        handleLogging(`You joined with workspace ${response.data.data.name}`);
         navigate(`/workspace/${workspaceId}`); // Redirect to workspaces page
       }
     } catch (err) {
