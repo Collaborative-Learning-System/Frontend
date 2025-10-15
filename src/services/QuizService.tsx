@@ -113,6 +113,32 @@ export const QuizService = {
     }
   },
 
+  async deleteQuiz(quizId: string): Promise<any> {
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/quiz/delete/${quizId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.error("Error deleting quiz:", error);
+
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else if (error.message) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Failed to delete quiz. Please try again.");
+      }
+    }
+  },
+
   async createCompleteQuiz(
     groupId: string,
     metadata: QuizMetadata,

@@ -51,6 +51,8 @@ export default function QuizCreator() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number>(-1);
 
   const { fetchGroupMembers, groupMembers, selectedGroup } = useGroup();
   const { workspaceData } = useWorkspace();
@@ -100,11 +102,25 @@ export default function QuizCreator() {
   };
 
   const handleEditQuestion = (index: number, question: Question) => {
+    setEditingQuestion(question);
+    setEditingIndex(index);
+    // Scroll to the question builder
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpdateQuestion = (index: number, question: Question) => {
     setQuizData((prev) => ({
       ...prev,
       questions: prev.questions.map((q, i) => (i === index ? question : q)),
     }));
+    setEditingQuestion(null);
+    setEditingIndex(-1);
     showSnackbar("Question updated successfully!");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingQuestion(null);
+    setEditingIndex(-1);
   };
 
   const handleDeleteQuestion = (index: number) => {
@@ -259,7 +275,13 @@ export default function QuizCreator() {
 
             {currentStep === 1 && (
               <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <QuestionBuilder onAddQuestion={handleAddQuestion} />
+                <QuestionBuilder 
+                  onAddQuestion={handleAddQuestion}
+                  editingQuestion={editingQuestion}
+                  editingIndex={editingIndex}
+                  onUpdateQuestion={handleUpdateQuestion}
+                  onCancelEdit={handleCancelEdit}
+                />
                 <QuestionList
                   questions={quizData.questions}
                   onEditQuestion={handleEditQuestion}

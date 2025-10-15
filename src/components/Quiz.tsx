@@ -25,6 +25,11 @@ import React, { useState, useEffect , useRef } from "react";
       CircularProgress,
       Alert,
       Snackbar,
+      IconButton,
+      Dialog,
+      DialogTitle,
+      DialogContent,
+      DialogActions,
     } from "@mui/material";
     import {
       Quiz as QuizIcon,
@@ -37,6 +42,7 @@ import React, { useState, useEffect , useRef } from "react";
       TrendingUp as TrendingIcon,
 
       NewReleases as NewIcon,
+      Delete as DeleteIcon,
     } from "@mui/icons-material";
 
     interface Quiz {
@@ -72,6 +78,9 @@ import React, { useState, useEffect , useRef } from "react";
       const [error, setError] = useState<string | null>(null);
       const [snackbarOpen, setSnackbarOpen] = useState(false);
       const [snackbarMessage, setSnackbarMessage] = useState("");
+      const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+      const [quizToDelete, setQuizToDelete] = useState<Quiz | null>(null);
+      const [deletingQuiz, setDeletingQuiz] = useState<string | null>(null);
       const isStartingRef = useRef<Record<string, boolean>>({})
       
      
@@ -280,6 +289,40 @@ import React, { useState, useEffect , useRef } from "react";
 
       const handleBackFromResults = () => {
         setShowingResults(null);
+      };
+
+      const handleDeleteQuiz = (quiz: Quiz) => {
+        setQuizToDelete(quiz);
+        setDeleteDialogOpen(true);
+      };
+
+      const confirmDeleteQuiz = async () => {
+        if (!quizToDelete) return;
+
+        try {
+          setDeletingQuiz(quizToDelete.id);
+          await QuizService.deleteQuiz(quizToDelete.id);
+          
+          // Remove quiz from the list
+          setQuizzes(prevQuizzes => 
+            prevQuizzes.filter(q => q.id !== quizToDelete.id)
+          );
+          
+          setSnackbarMessage(`Quiz "${quizToDelete.title}" deleted successfully!`);
+          setSnackbarOpen(true);
+        } catch (error: any) {
+          setSnackbarMessage(error.message || 'Failed to delete quiz');
+          setSnackbarOpen(true);
+        } finally {
+          setDeletingQuiz(null);
+          setDeleteDialogOpen(false);
+          setQuizToDelete(null);
+        }
+      };
+
+      const cancelDeleteQuiz = () => {
+        setDeleteDialogOpen(false);
+        setQuizToDelete(null);
       };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -580,6 +623,49 @@ import React, { useState, useEffect , useRef } from "react";
                               }}
                             />
                           </Badge>
+                        </Box>
+                      )}
+
+                      {/* Delete button for admin users */}
+                      {workspaceData?.role === "admin" && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: quiz.completed ? 40 : 12,
+                            right: 12,
+                            zIndex: 3,
+                          }}
+                        >
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteQuiz(quiz);
+                            }}
+                            disabled={deletingQuiz === quiz.id}
+                            sx={{
+                              bgcolor: "rgba(255, 255, 255, 0.95)",
+                              color: "error.main",
+                              width: 32,
+                              height: 32,
+                              boxShadow: 2,
+                              "&:hover": {
+                                bgcolor: "error.main",
+                                color: "white",
+                                transform: "scale(1.1)",
+                                boxShadow: 4,
+                              },
+                              transition: "all 0.2s ease-in-out",
+                              border: "1px solid rgba(0, 0, 0, 0.12)",
+                              backdropFilter: "blur(4px)",
+                            }}
+                          >
+                            {deletingQuiz === quiz.id ? (
+                              <CircularProgress size={16} color="inherit" />
+                            ) : (
+                              <DeleteIcon fontSize="small" />
+                            )}
+                          </IconButton>
                         </Box>
                       )}
 
@@ -895,6 +981,40 @@ import React, { useState, useEffect , useRef } from "react";
               </Fade>
             )}
           </Container>
+          
+          {/* Delete Confirmation Dialog */}
+          <Dialog
+            open={deleteDialogOpen}
+            onClose={cancelDeleteQuiz}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>
+              Delete Quiz
+            </DialogTitle>
+            <DialogContent>
+              <Typography>
+                Are you sure you want to delete "{quizToDelete?.title}"? This action cannot be undone.
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button 
+                onClick={cancelDeleteQuiz}
+                disabled={deletingQuiz !== null}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmDeleteQuiz}
+                color="error"
+                variant="contained"
+                disabled={deletingQuiz !== null}
+                startIcon={deletingQuiz !== null ? <CircularProgress size={16} /> : undefined}
+              >
+                {deletingQuiz !== null ? "Deleting..." : "Delete"}
+              </Button>
+            </DialogActions>
+          </Dialog>
           
           {/* Success/Info Snackbar */}
           <Snackbar

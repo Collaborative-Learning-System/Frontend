@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Box,
   Typography,
@@ -33,21 +33,57 @@ export interface Question {
 
 interface QuestionBuilderProps {
   onAddQuestion: (question: Question) => void
+  editingQuestion?: Question | null
+  editingIndex?: number
+  onUpdateQuestion?: (index: number, question: Question) => void
+  onCancelEdit?: () => void
 }
 
-export default function QuestionBuilder({ onAddQuestion }: QuestionBuilderProps) {
+export default function QuestionBuilder({ 
+  onAddQuestion, 
+  editingQuestion, 
+  editingIndex, 
+  onUpdateQuestion, 
+  onCancelEdit 
+}: QuestionBuilderProps) {
   const theme = useTheme()
-  const [questionData, setQuestionData] = useState<Partial<Question>>({
-    type: "mcq",
-    question: "",
-    points: 1,
-    options: ["", "", "", ""],
-    correctAnswer: 0,
-    explanation: "",
+  
+  // Initialize with editing data if provided, otherwise use default
+  const [questionData, setQuestionData] = useState<Partial<Question>>(() => {
+    if (editingQuestion) {
+      return { ...editingQuestion }
+    }
+    return {
+      type: "mcq",
+      question: "",
+      points: 1,
+      options: ["", "", "", ""],
+      correctAnswer: 0,
+      explanation: "",
+    }
   })
 
   const [errors, setErrors] = useState<string[]>([])
 
+  // Update form when editing question changes
+  useEffect(() => {
+    if (editingQuestion) {
+      setQuestionData({ ...editingQuestion })
+      setErrors([])
+    } else {
+      setQuestionData({
+        type: "mcq",
+        question: "",
+        points: 1,
+        options: ["", "", "", ""],
+        correctAnswer: 0,
+        explanation: "",
+      })
+      setErrors([])
+    }
+  }, [editingQuestion])
+
+  const isEditMode = editingQuestion !== undefined && editingQuestion !== null
   const handleTypeChange = (type: "mcq" | "short-answer" | "true-false") => {
     setQuestionData({
       type,
@@ -136,8 +172,8 @@ export default function QuestionBuilder({ onAddQuestion }: QuestionBuilderProps)
     setErrors(validationErrors)
 
     if (validationErrors.length === 0) {
-      const newQuestion: Question = {
-        id: `question-${Date.now()}`,
+      const questionPayload: Question = {
+        id: isEditMode ? editingQuestion!.id : `question-${Date.now()}`,
         type: questionData.type!,
         question: questionData.question!,
         points: questionData.points!,
@@ -156,10 +192,22 @@ export default function QuestionBuilder({ onAddQuestion }: QuestionBuilderProps)
               }),
       }
 
-      onAddQuestion(newQuestion)
+      if (isEditMode && onUpdateQuestion && editingIndex !== undefined) {
+        onUpdateQuestion(editingIndex, questionPayload)
+      } else {
+        onAddQuestion(questionPayload)
+      }
 
-      // Reset form
-      handleTypeChange(questionData.type!)
+      // Reset form only if not in edit mode
+      if (!isEditMode) {
+        handleTypeChange(questionData.type!)
+      }
+    }
+  }
+
+  const handleCancelEdit = () => {
+    if (onCancelEdit) {
+      onCancelEdit()
     }
   }
 
@@ -167,7 +215,7 @@ export default function QuestionBuilder({ onAddQuestion }: QuestionBuilderProps)
     <Card>
       <CardContent sx={{ p: 4 }}>
         <Typography variant="h5" gutterBottom sx={{ color: theme.palette.primary.main, fontWeight: "bold", mb: 3 }}>
-          Add New Question
+          {isEditMode ? "Edit Question" : "Add New Question"}
         </Typography>
 
         {errors.length > 0 && (
@@ -309,19 +357,54 @@ export default function QuestionBuilder({ onAddQuestion }: QuestionBuilderProps)
             </Box>
           )}
 
+          {/* Explanation */}
+          <TextField
+            fullWidth
+            label="Explanation (Optional)"
+            value={questionData.explanation || ""}
+            onChange={(e) => setQuestionData((prev) => ({ ...prev, explanation: e.target.value }))}
+            multiline
+            rows={2}
+            placeholder="Provide an explanation for the correct answer (optional)"
+          />
 
-          <Button
-            variant="contained"
-            onClick={handleAddQuestion}
-            startIcon={<Add />}
-            sx={{
-              bgcolor: theme.palette.primary.main,
-              "&:hover": { bgcolor: theme.palette.primary.dark },
-              alignSelf: "flex-start",
-            }}
-          >
-            Add Question
-          </Button>
+          {isEditMode ? (
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                variant="contained"
+                onClick={handleAddQuestion}
+                sx={{
+                  bgcolor: theme.palette.primary.main,
+                  "&:hover": { bgcolor: theme.palette.primary.dark },
+                }}
+              >
+                Update Question
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleCancelEdit}
+                sx={{
+                  color: theme.palette.text.secondary,
+                  borderColor: theme.palette.text.secondary,
+                }}
+              >
+                Cancel
+              </Button>
+            </Box>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={handleAddQuestion}
+              startIcon={<Add />}
+              sx={{
+                bgcolor: theme.palette.primary.main,
+                "&:hover": { bgcolor: theme.palette.primary.dark },
+                alignSelf: "flex-start",
+              }}
+            >
+              Add Question
+            </Button>
+          )}
         </Box>
       </CardContent>
     </Card>
