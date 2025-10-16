@@ -258,8 +258,8 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo(response.data.message);
         handleLogging(
-          `${
-            response.data.data.action === "joined" ? "Joined" : "Left"
+          `You ${
+            response.data.data.action === "joined" ? "joined" : "left"
           } the group ${
             groups.find((g) => g.id === groupId)?.name || ""
           } in the workspace ${workspaceData?.name}`
@@ -323,7 +323,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo("Group created successfully");
         handleLogging(
-          `Created the group ${groupName.trim()} in the workspace ${
+          `You created a group ${groupName.trim()} in the workspace ${
             workspaceData?.name
           }`
         );
@@ -373,7 +373,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo("Group deleted successfully");
         handleLogging(
-          `Deleted the group ${
+          `You deleted a group ${
             groups.find((g) => g.id === groupId)?.name || ""
           } in the workspace ${workspaceData?.name}`
         );
@@ -706,7 +706,7 @@ const Workspace = () => {
 
       if (response.data.success) {
         NotificationService.showInfo("You have left the workspace.");
-        handleLogging("Left the workspace " + workspaceData?.name);
+        handleLogging("You left the workspace " + workspaceData?.name);
 
         navigate("/landing");
       } else {
@@ -786,7 +786,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showSuccess("Admin role assigned successfully!");
         handleLogging(
-          `Assigned admin role to member ${memberId} in workspace ${workspaceData?.name}`
+          `You assigned a new admin to the workspace ${workspaceData?.name}`
         );
         let users: string[] = [];
         users.push(memberId);
