@@ -263,7 +263,7 @@ interface Notification {
                 color: "primary.main",
                 fontWeight: 500,
                 "&:hover": {
-                  backgroundColor: "primary.light",
+                  backgroundColor: theme.palette.primary.main,
                   color: "primary.contrastText",
                 },
               }}
@@ -306,17 +306,17 @@ interface Notification {
                         ? "action.hover"
                         : "action.selected",
                     },
-                    minWidth: 0, // Allow shrinking
-                    width: "100%", // Take full width
-                    minHeight: "auto", // Allow natural height
-                    whiteSpace: "normal", // Allow text wrapping
+                    minWidth: 0, 
+                    width: "100%",
+                    minHeight: "auto", 
+                    whiteSpace: "normal", 
                   }}
                   onClick={() => handleNotificationRedirect(notification)}
                 >
                   <ListItemText
                     sx={{
                       margin: 0,
-                      minWidth: 0, // Allow shrinking
+                      minWidth: 0,
                     }}
                     primary={
                       <Box
@@ -324,8 +324,8 @@ interface Notification {
                           display: "flex",
                           alignItems: "flex-start",
                           gap: 1,
-                          minWidth: 0, // Allow shrinking
-                          width: "100%", // Take full width
+                          minWidth: 0, 
+                          width: "100%",
                         }}
                       >
                         {!notification.isRead && (
@@ -334,7 +334,7 @@ interface Notification {
                               fontSize: 8,
                               color: "primary.main",
                               mt: 0.5,
-                              flexShrink: 0, // Don't shrink the dot
+                              flexShrink: 0,
                             }}
                           />
                         )}
@@ -344,11 +344,11 @@ interface Notification {
                             fontWeight: notification.isRead ? 400 : 600,
                             opacity: notification.isRead ? 0.7 : 1,
                             flex: 1,
-                            minWidth: 0, // Allow shrinking
-                            wordBreak: "break-word", // Break long words
-                            overflowWrap: "break-word", // Break long words
-                            hyphens: "auto", // Add hyphens for better wrapping
-                            lineHeight: 1.4, // Better line spacing
+                            minWidth: 0, 
+                            wordBreak: "break-word", 
+                            overflowWrap: "break-word", 
+                            hyphens: "auto", 
+                            lineHeight: 1.4, 
                           }}
                         >
                           {notification.notification}
@@ -364,8 +364,8 @@ interface Notification {
                           opacity: notification.isRead ? 0.6 : 0.8,
                           display: "block",
                           mt: 0.5,
-                          wordBreak: "break-word", // Break long words
-                          overflowWrap: "break-word", // Break long words
+                          wordBreak: "break-word", 
+                          overflowWrap: "break-word",
                         }}
                       >
                         {notification.timestamp

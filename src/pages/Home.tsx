@@ -122,7 +122,7 @@ export default function CollaborativeLearningHomepage() {
       <Navigation />
 
       {/* Hero Section */}
-      <Box sx={{ py: { xs: 6, md: 10 } }}>
+      <Box sx={{ py: { xs: 6, md: 13 } }}>
         <Container maxWidth="lg">
           <Grid container spacing={4} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
@@ -130,14 +130,22 @@ export default function CollaborativeLearningHomepage() {
                 variant="h2"
                 component="h1"
                 gutterBottom
-                sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
+                sx={{ color: theme.palette.primary.main, fontWeight: "bold", mb: 4}}
+              >
+                Welcome to EduCollab
+              </Typography>
+              <Typography
+                variant="h4"
+                component="h1"
+                gutterBottom
+                sx={{ color: theme.palette.primary.main, fontWeight: "bold", mb: 3 }}
               >
                 Learn Together, Achieve More
               </Typography>
               <Typography
                 variant="h5"
                 paragraph
-                sx={{ color: "text.secondary", mb: 4 }}
+                sx={{ color: "text.secondary", mb: 5 }}
               >
                 Join the ultimate collaborative learning platform where students
                 connect, share resources, and create personalized study plans
@@ -167,12 +175,15 @@ export default function CollaborativeLearningHomepage() {
                   Watch Demo
                 </Button>
               </Box>
-              <Box sx={{ mt: 4, display: "flex", alignItems: "center", gap: 2 }}>
+              <Box
+                sx={{ mt: 4, display: "flex", alignItems: "center", gap: 2 }}
+              >
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <CheckCircle
                     sx={{
                       color:
-                        theme.palette.success?.main || theme.palette.primary.main,
+                        theme.palette.success?.main ||
+                        theme.palette.primary.main,
                       mr: 1,
                     }}
                   />
@@ -182,11 +193,14 @@ export default function CollaborativeLearningHomepage() {
                   <CheckCircle
                     sx={{
                       color:
-                        theme.palette.success?.main || theme.palette.primary.main,
+                        theme.palette.success?.main ||
+                        theme.palette.primary.main,
                       mr: 1,
                     }}
                   />
-                  <Typography variant="body2">No credit card required</Typography>
+                  <Typography variant="body2">
+                    No credit card required
+                  </Typography>
                 </Box>
               </Box>
             </Grid>
@@ -284,11 +298,7 @@ export default function CollaborativeLearningHomepage() {
       <Box sx={{ py: 8 }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: "center", mb: 8 }}>
-            <Chip
-              label="Platform Features"
-              color="primary"
-              sx={{ mb: 3 }}
-            />
+            <Chip label="Platform Features" color="primary" sx={{ mb: 3 }} />
             <Typography
               variant="h3"
               component="h2"
@@ -301,8 +311,8 @@ export default function CollaborativeLearningHomepage() {
               variant="h6"
               sx={{ color: "text.secondary", maxWidth: 600, mx: "auto" }}
             >
-              Comprehensive tools designed to enhance your learning experience and
-              boost academic success
+              Comprehensive tools designed to enhance your learning experience
+              and boost academic success
             </Typography>
           </Box>
           <Grid container spacing={4}>
@@ -315,9 +325,10 @@ export default function CollaborativeLearningHomepage() {
                     transition: "all 0.3s ease",
                     "&:hover": {
                       transform: "translateY(-8px)",
-                      boxShadow: theme.palette.mode === "light" 
-                        ? "0 12px 40px rgba(0,0,0,0.1)" 
-                        : "0 12px 40px rgba(255,255,255,0.1)",
+                      boxShadow:
+                        theme.palette.mode === "light"
+                          ? "0 12px 40px rgba(0,0,0,0.1)"
+                          : "0 12px 40px rgba(255,255,255,0.1)",
                     },
                   }}
                 >
@@ -349,7 +360,10 @@ export default function CollaborativeLearningHomepage() {
                     >
                       {feature.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary" }}
+                    >
                       {feature.description}
                     </Typography>
                   </CardContent>
@@ -370,11 +384,7 @@ export default function CollaborativeLearningHomepage() {
       >
         <Container maxWidth="lg">
           <Box sx={{ textAlign: "center", mb: 8 }}>
-            <Chip
-              label="Student Reviews"
-              color="primary"
-              sx={{ mb: 3 }}
-            />
+            <Chip label="Student Reviews" color="primary" sx={{ mb: 3 }} />
             <Typography
               variant="h3"
               component="h2"
@@ -450,7 +460,12 @@ export default function CollaborativeLearningHomepage() {
             <Typography
               variant="h6"
               paragraph
-              sx={{ mb: 4, color: theme.palette.text.secondary, maxWidth: 600, mx: "auto" }}
+              sx={{
+                mb: 4,
+                color: theme.palette.text.secondary,
+                maxWidth: 600,
+                mx: "auto",
+              }}
             >
               Join EduCollab today and experience the power of collaborative
               learning with thousands of students worldwide
@@ -462,7 +477,9 @@ export default function CollaborativeLearningHomepage() {
               size="large"
               sx={{
                 bgcolor: theme.palette.primary.main,
-                color: theme.palette.getContrastText(theme.palette.primary.main),
+                color: theme.palette.getContrastText(
+                  theme.palette.primary.main
+                ),
                 px: 4,
                 py: 1.5,
                 fontSize: "1.1rem",
