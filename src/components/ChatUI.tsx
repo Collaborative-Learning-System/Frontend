@@ -232,10 +232,13 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
 
   useEffect(() => {
     console.log("🚀 [ChatUI] Initializing chat WebSocket connection");
-    console.log("🔗 [ChatUI] Chat Socket URL:", `${import.meta.env.VITE_SOCKET_URL_CHAT}/chat`);
+    console.log(
+      "🔗 [ChatUI] Chat Socket URL:",
+      `${import.meta.env.VITE_SOCKET_URL_CHAT}/chat`
+    );
     console.log("🌍 [ChatUI] Environment:", import.meta.env.MODE);
     console.log("🏷️ [ChatUI] Group ID:", groupId);
-    
+
     const newSocket = io(`${import.meta.env.VITE_SOCKET_URL_CHAT}/chat`, {
       withCredentials: true,
       transports: ["websocket", "polling"],
@@ -260,7 +263,10 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
     newSocket.on("connect_error", (error) => {
       console.error("❌ [ChatUI] Connection error:", error);
       console.error("🔍 [ChatUI] Error message:", error.message);
-      console.error("🔍 [ChatUI] Error details:", JSON.stringify(error, null, 2));
+      console.error(
+        "🔍 [ChatUI] Error details:",
+        JSON.stringify(error, null, 2)
+      );
     });
 
     newSocket.on("disconnect", (reason) => {
@@ -269,7 +275,11 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
     });
 
     newSocket.on("reconnect", (attemptNumber) => {
-      console.log("🔄 [ChatUI] Socket reconnected after", attemptNumber, "attempts");
+      console.log(
+        "🔄 [ChatUI] Socket reconnected after",
+        attemptNumber,
+        "attempts"
+      );
     });
 
     newSocket.on("error", (err) => {
@@ -290,8 +300,8 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
     const handleNewMessage = (message: SocketMessage) => {
       const resolvedMessageType: MessageType =
         message.messageType ?? (message.resource ? "resource" : "text");
-      
-      console.log(message)
+
+      console.log(message);
       const formattedMessage: Message = {
         id: message.chatId,
         sender:
