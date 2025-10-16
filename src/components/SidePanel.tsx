@@ -25,8 +25,11 @@ import {
   Logout,
   AutoAwesome,
   Dashboard,
+  ContactSupport,
 } from "@mui/icons-material";
 import { AppContext } from "../context/AppContext";
+import { useContactModal } from "../context/ContactModalContext";
+
 
 interface SidePanelProps {
   open: boolean;
@@ -40,6 +43,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { userData, logout } = useContext(AppContext);
+  const { openContactModal } = useContactModal();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -93,11 +97,26 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       ),
       path: "/document-summary",
     },
+    {
+      text: "Contact Us",
+      icon: (
+        <Tooltip title="Contact Us">
+          <ContactSupport />
+        </Tooltip>
+      ),
+      path: null, // Special case for modal
+      isModal: true,
+    },
   ];
 
-  const handleMenuItemClick = (path: string) => {
-    navigate(path);
-    if (isMobile) onClose();
+  const handleMenuItemClick = (item: any) => {
+    if (item.isModal) {
+      openContactModal();
+      if (isMobile) onClose();
+    } else {
+      navigate(item.path);
+      if (isMobile) onClose();
+    }
   };
 
   const drawerContent = (
@@ -133,8 +152,8 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
               src="/EduCollab.png"
               alt="EduCollab Logo"
               sx={{
-                width: 35,
-                height: 35,
+                width: 41,
+                height: 41,
                 borderRadius: 0,
                 objectFit: "cover",
                 animation: "logoFloat 2s ease-in-out infinite",
@@ -203,12 +222,12 @@ const SidePanel: React.FC<SidePanelProps> = ({ open, onToggle, onClose }) => {
       <Box sx={{ flexGrow: 1, overflow: "auto" }}>
         <List sx={{ px: 1, py: 2 }}>
           {menuItems.map((item) => {
-            const isSelected = location.pathname === item.path;
+            const isSelected = !item.isModal && location.pathname === item.path;
             return (
               <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
                 <ListItemButton
                   selected={isSelected}
-                  onClick={() => handleMenuItemClick(item.path)}
+                  onClick={() => handleMenuItemClick(item)}
                   sx={{
                     borderRadius: 2,
                     justifyContent: open ? "initial" : "center",

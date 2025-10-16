@@ -46,6 +46,7 @@ export default function Navigation() {
 
        
         <Box sx={{ ml: 2, gap: 3, display: "flex", alignItems: "center" }}>
+
           <Tooltip
             title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}
           >

@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { ThemeContextProvider } from "./context/ThemeContext";
 import { GroupProvider } from "./context/GroupContext";
+import { ContactModalProvider, useContactModal } from "./context/ContactModalContext";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import MainLayout from "./layouts/MainLayout";
@@ -10,21 +11,22 @@ import StudyPlanGenerator from "./pages/study-plan-generator";
 import Workspace from "./pages/Workspace";
 import Profile from "./pages/Userprofile";
 import QuizCreator from "./pages/quiz-creator";
-import ContactForm from "./components/ContactForm";
 import ResetPassword from "./pages/ResetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentSummary from "./pages/DocumentSummary";
 import Dashboard from "./pages/Dashboard";
 import ViewAll from "./pages/ViewAll";
 import CollaborativeDocumentEditor from "./components/RealTimeCollaboration/CollaborativeDocumentEditor";
+import ContactUsModal from "./components/ContactUsModal";
 import { ProtectedRoute } from "./Routes/ProtectedRoutes";
 import NotFound from "./pages/NotFound";
 
-const App = () => {
+const AppWithModal = () => {
+  const { isContactModalOpen, closeContactModal } = useContactModal();
+  
   return (
-    <ThemeContextProvider>
-      <GroupProvider>
-        <Routes>
+    <>
+      <Routes>
           {/* Public routes - no authentication required */}
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
@@ -92,16 +94,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/contact-us"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <ContactForm />
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/document-summary"
             element={
@@ -144,6 +137,19 @@ const App = () => {
           {/* Catch-all route for 404 - must be last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+      
+      <ContactUsModal open={isContactModalOpen} onClose={closeContactModal} />
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <ThemeContextProvider>
+      <GroupProvider>
+        <ContactModalProvider>
+          <AppWithModal />
+        </ContactModalProvider>
       </GroupProvider>
     </ThemeContextProvider>
   );

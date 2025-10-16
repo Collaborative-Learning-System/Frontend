@@ -70,10 +70,10 @@ export default function RealTimeCollaboration({
     try {
       const response = await axios.get(
         `${
-          import.meta.env.VITE_BACKEND_URL_WS
+          import.meta.env.VITE_BACKEND_URL_DOC
         }/documents/get-documents/${groupId}`
       );
-      setDocuments(response.data.data);
+      setDocuments(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (error) {
       console.error("Error fetching documents:", error);
       setDocumentError("Failed to load documents. Please try again.");
@@ -89,7 +89,7 @@ export default function RealTimeCollaboration({
     try {
       const response = await axios.post(
         `${
-          import.meta.env.VITE_BACKEND_URL_WS
+          import.meta.env.VITE_BACKEND_URL_DOC
         }/documents/create-document/${groupId}`,
         { userId: userId }
       );
@@ -132,7 +132,7 @@ export default function RealTimeCollaboration({
       try {
         await axios.post(
           `${
-            import.meta.env.VITE_BACKEND_URL_WS
+            import.meta.env.VITE_BACKEND_URL_DOC
           }/collaborators/add-collaborator/${docId}`,
           { userId }
         );
@@ -320,7 +320,7 @@ export default function RealTimeCollaboration({
               gap: 3,
             }}
           >
-            {documents.map((document) => (
+            {documents && documents.map((document) => (
               <Card
                 key={document.documentId}
                 sx={{
