@@ -40,6 +40,7 @@ export default function UserProfile() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [profilePicture, setProfilePicture] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Update local profile picture state when context userData changes
   useEffect(() => {
@@ -57,10 +58,15 @@ export default function UserProfile() {
 
   const handleSave = async () => {
     try {
+      setIsSaving(true);
+      setError("");
+      setSuccess("");
+      
       if (!editData) {
         setError("Profile Updation Failed. Please try again later.");
         return;
       }
+      
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/auth/update-profile`,
         {
@@ -70,6 +76,7 @@ export default function UserProfile() {
           bio: editData?.bio,
         }
       );
+      
       if (response.status === 200) {
         setSuccess("Profile updated successfully!");
         handleLogging(`You updated your profile successfully`);
@@ -86,6 +93,7 @@ export default function UserProfile() {
       setIsEditing(false);
       setUserData(userData);
     } finally {
+      setIsSaving(false);
       setTimeout(() => {
         setError(""), setSuccess("");
       }, 4000);
@@ -280,7 +288,7 @@ export default function UserProfile() {
             <IconButton
               size="small"
               onClick={handleProfilePictureClick}
-              disabled={isUploading}
+              disabled={isUploading || isSaving}
               sx={{
                 position: "absolute",
                 bottom: -5,
@@ -306,6 +314,7 @@ export default function UserProfile() {
               ref={fileInputRef}
               onChange={handleFileChange}
               accept="image/*"
+              disabled={isSaving || isUploading}
               style={{ display: "none" }}
             />
           </Box>
@@ -361,6 +370,7 @@ export default function UserProfile() {
               variant="contained"
               startIcon={<Edit />}
               onClick={handleEdit}
+              disabled={isSaving}
               sx={{ ml: "auto" }}
             >
               Edit Profile
@@ -371,15 +381,17 @@ export default function UserProfile() {
                 variant="outlined"
                 startIcon={<Cancel />}
                 onClick={handleCancel}
+                disabled={isSaving}
               >
                 Cancel
               </Button>
               <Button
                 variant="contained"
-                startIcon={<Save />}
+                startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <Save />}
                 onClick={handleSave}
+                disabled={isSaving}
               >
-                Save
+                {isSaving ? "Saving..." : "Save"}
               </Button>
             </Stack>
           )}
@@ -424,6 +436,7 @@ export default function UserProfile() {
                     prev ? { ...prev, fullName: e.target.value } : prev
                   )
                 }
+                disabled={isSaving}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -461,6 +474,7 @@ export default function UserProfile() {
                     prev ? { ...prev, email: e.target.value } : prev
                   )
                 }
+                disabled={isSaving}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha(theme.palette.primary.main, 0.05),
@@ -499,6 +513,7 @@ export default function UserProfile() {
                     prev ? { ...prev, bio: e.target.value } : prev
                   )
                 }
+                disabled={isSaving}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha(theme.palette.primary.main, 0.05),

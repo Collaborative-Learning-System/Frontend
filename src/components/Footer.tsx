@@ -6,25 +6,20 @@ import {
   Button,
   Divider,
   useTheme,
-  IconButton,
-  Stack,
 } from '@mui/material';
 import {
-  Facebook,
-  Twitter,
-  LinkedIn,
-  GitHub,
   Login,
   Dashboard,
-  Quiz,
   School,
   AutoFixHigh,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useContactModal } from '../context/ContactModalContext';
 
 export default function Footer() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { openContactModal } = useContactModal();
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -42,7 +37,7 @@ export default function Footer() {
       <Container maxWidth="lg">
         <Grid container spacing={{ xs: 4, md: 6 }}>
           {/* Company Info */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12, md: 6, lg: 3 }}>
             <Typography
               variant="h5"
               gutterBottom
@@ -64,76 +59,11 @@ export default function Footer() {
             >
               Revolutionizing education through collaborative learning, AI-powered study plans, and real-time collaboration tools for students worldwide.
             </Typography>
-            <Stack direction="row" spacing={1.5} sx={{ mt: 1 }}>
-              <IconButton
-                color="primary"
-                aria-label="Facebook"
-                size="medium"
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  transition: 'all 0.2s ease',
-                  '&:hover': { 
-                    bgcolor: `${theme.palette.primary.main}15`,
-                    borderColor: theme.palette.primary.main,
-                    transform: 'translateY(-2px)'
-                  },
-                }}
-              >
-                <Facebook fontSize="small" />
-              </IconButton>
-              <IconButton
-                color="primary"
-                aria-label="Twitter"
-                size="medium"
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  transition: 'all 0.2s ease',
-                  '&:hover': { 
-                    bgcolor: `${theme.palette.primary.main}15`,
-                    borderColor: theme.palette.primary.main,
-                    transform: 'translateY(-2px)'
-                  },
-                }}
-              >
-                <Twitter fontSize="small" />
-              </IconButton>
-              <IconButton
-                color="primary"
-                aria-label="LinkedIn"
-                size="medium"
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  transition: 'all 0.2s ease',
-                  '&:hover': { 
-                    bgcolor: `${theme.palette.primary.main}15`,
-                    borderColor: theme.palette.primary.main,
-                    transform: 'translateY(-2px)'
-                  },
-                }}
-              >
-                <LinkedIn fontSize="small" />
-              </IconButton>
-              <IconButton
-                color="primary"
-                aria-label="GitHub"
-                size="medium"
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  transition: 'all 0.2s ease',
-                  '&:hover': { 
-                    bgcolor: `${theme.palette.primary.main}15`,
-                    borderColor: theme.palette.primary.main,
-                    transform: 'translateY(-2px)'
-                  },
-                }}
-              >
-                <GitHub fontSize="small" />
-              </IconButton>
-            </Stack>
+           
           </Grid>
 
           {/* Platform Links */}
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -184,7 +114,7 @@ export default function Footer() {
           </Grid>
 
           {/* Features Links */}
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3 }}>
             <Typography
               variant="h6"
               gutterBottom
@@ -197,23 +127,6 @@ export default function Footer() {
               Features
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Button
-                startIcon={<Quiz fontSize="small" />}
-                onClick={() => handleNavigation('/quiz-creator')}
-                sx={{
-                  justifyContent: 'flex-start',
-                  p: 0.5,
-                  textAlign: 'left',
-                  color: 'text.secondary',
-                  fontSize: '0.875rem',
-                  '&:hover': { 
-                    color: 'primary.main',
-                    bgcolor: `${theme.palette.primary.main}08`
-                  },
-                }}
-              >
-                Quiz Creator
-              </Button>
               <Button
                 startIcon={<AutoFixHigh fontSize="small" />}
                 onClick={() => handleNavigation('/document-summary')}
@@ -247,6 +160,39 @@ export default function Footer() {
                 }}
               >
                 Study Plan Generator
+              </Button>
+            </Box>
+          </Grid>
+
+          {/* Support Links */}
+          <Grid size={{ xs: 12, sm: 6, md: 3, lg: 3 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ 
+                fontWeight: 'bold', 
+                mb: 3,
+                color: theme.palette.text.primary 
+              }}
+            >
+              Support
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Button
+                onClick={openContactModal}
+                sx={{
+                  justifyContent: 'flex-start',
+                  p: 0.5,
+                  textAlign: 'left',
+                  color: 'text.secondary',
+                  fontSize: '0.875rem',
+                  '&:hover': { 
+                    color: 'primary.main',
+                    bgcolor: `${theme.palette.primary.main}08`
+                  },
+                }}
+              >
+                Contact Us
               </Button>
             </Box>
           </Grid>
