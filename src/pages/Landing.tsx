@@ -73,7 +73,7 @@ interface CreateWorkspaceResponse {
 const Landing = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { userData } = useContext(AppContext);
+  const { userData, getUserData, logout } = useContext(AppContext);
 
   const [createWs, setCreateWs] = useState(false);
   const [browseWS, setBrowseWS] = useState(false);
@@ -111,7 +111,18 @@ const Landing = () => {
           response.data.message || "Failed to fetch workspaces"
         );
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        try {
+          await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/auth/refresh-token`
+          );
+          getUserData();
+        } catch (error) {
+          navigate("/auth");
+          logout();
+        }
+      }
       console.error("Error fetching workspaces:", error);
       setWorkspaceError(
         "There is a issue with loading workspaces. Refresh to try again."
@@ -1022,8 +1033,8 @@ const Landing = () => {
               p: 2,
             }}
           >
-            <BrowseWorkspace 
-              onClose={() => setBrowseWS(false)} 
+            <BrowseWorkspace
+              onClose={() => setBrowseWS(false)}
               onWorkspaceJoined={fetchWorkspaces}
             />
           </Box>

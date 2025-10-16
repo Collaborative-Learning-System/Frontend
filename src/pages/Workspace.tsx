@@ -130,7 +130,6 @@ const Workspace = () => {
   const { setWorkspaceData: setGlobalWorkspaceData } = useWorkspace();
   const { setSelectedGroup: setGlobalSelectedGroup } = useGroup();
 
-  // Helper function to update both local and global selected group
   const updateSelectedGroup = (groupId: string | null) => {
     setSelectedGroup(groupId);
 
@@ -158,7 +157,7 @@ const Workspace = () => {
       try {
         setLoading(true);
         const response = await axios.post(
-          "http://localhost:3000/api/workspaces/details",
+          `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/details`,
           { workspaceId: workspaceId },
           { withCredentials: true }
         );
@@ -214,7 +213,7 @@ const Workspace = () => {
       try {
         setGroupsLoading(true);
         const response = await axios.get(
-          `http://localhost:3000/api/workspaces/${workspaceId}/groups`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
           { withCredentials: true }
         );
 
@@ -251,7 +250,7 @@ const Workspace = () => {
       setJoiningGroups((prev) => new Set(prev).add(groupId));
 
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces/groups/join-leave",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/groups/join-leave`,
         { groupId },
         { withCredentials: true }
       );
@@ -259,8 +258,8 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo(response.data.message);
         handleLogging(
-          `${
-            response.data.data.action === "joined" ? "Joined" : "Left"
+          `You ${
+            response.data.data.action === "joined" ? "joined" : "left"
           } the group ${
             groups.find((g) => g.id === groupId)?.name || ""
           } in the workspace ${workspaceData?.name}`
@@ -313,7 +312,7 @@ const Workspace = () => {
       setCreatingGroup(true);
 
       const response = await axios.post(
-        `http://localhost:3000/api/workspaces/${workspaceId}/groups`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups`,
         {
           groupname: groupName.trim(),
           description: groupDescription.trim(),
@@ -324,7 +323,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showInfo("Group created successfully");
         handleLogging(
-          `Created the group ${groupName.trim()} in the workspace ${
+          `You created a group ${groupName.trim()} in the workspace ${
             workspaceData?.name
           }`
         );
@@ -368,13 +367,13 @@ const Workspace = () => {
     try {
       setDeletingGroups((prev) => new Set(prev).add(groupId));
       const response = await axios.post(
-        `http://localhost:3000/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/${workspaceId}/groups/${groupId}/delete`,
         { withCredentials: true }
       );
       if (response.data.success) {
         NotificationService.showInfo("Group deleted successfully");
         handleLogging(
-          `Deleted the group ${
+          `You deleted a group ${
             groups.find((g) => g.id === groupId)?.name || ""
           } in the workspace ${workspaceData?.name}`
         );
@@ -700,14 +699,14 @@ const Workspace = () => {
       setIsLeaving(true);
 
       const response = await axios.post(
-        "http://localhost:3000/api/workspaces/leave",
+        `${import.meta.env.VITE_BACKEND_URL}/api/workspaces/leave`,
         { workspaceId: workspaceId },
         { withCredentials: true }
       );
 
       if (response.data.success) {
         NotificationService.showInfo("You have left the workspace.");
-        handleLogging("Left the workspace " + workspaceData?.name);
+        handleLogging("You left the workspace " + workspaceData?.name);
 
         navigate("/landing");
       } else {
@@ -787,7 +786,7 @@ const Workspace = () => {
       if (response.data.success) {
         NotificationService.showSuccess("Admin role assigned successfully!");
         handleLogging(
-          `Assigned admin role to member ${memberId} in workspace ${workspaceData?.name}`
+          `You assigned a new admin to the workspace ${workspaceData?.name}`
         );
         let users: string[] = [];
         users.push(memberId);
