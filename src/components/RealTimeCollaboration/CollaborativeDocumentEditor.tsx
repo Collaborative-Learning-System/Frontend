@@ -170,7 +170,7 @@ export default function CollaborativeDocumentEditor() {
     try {
       const response = await axios.get(
         `${
-          import.meta.env.VITE_BACKEND_URL_WS
+          import.meta.env.VITE_BACKEND_URL_DOC
         }/collaborators/get-collaborators/${docId}`
       );
       setCollaborators(response.data.data.collaborators || []);
@@ -487,12 +487,12 @@ export default function CollaborativeDocumentEditor() {
           await Promise.allSettled([
             axios.get(
               `${
-                import.meta.env.VITE_BACKEND_URL_WS
+                import.meta.env.VITE_BACKEND_URL_DOC
               }/documents/get-document-data/${docId}`
             ),
             axios.get(
               `${
-                import.meta.env.VITE_BACKEND_URL_WS
+                import.meta.env.VITE_BACKEND_URL_DOC
               }/collaborators/get-collaborators/${docId}`
             ),
             groupId
@@ -603,7 +603,7 @@ export default function CollaborativeDocumentEditor() {
             // Also update the title in the backend
             await axios.post(
               `${
-                import.meta.env.VITE_BACKEND_URL_WS
+                import.meta.env.VITE_BACKEND_URL_DOC
               }/documents/update-title/${docId}`,
               { title: newTitle.trim() }
             );

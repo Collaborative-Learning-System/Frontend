@@ -1,7 +1,7 @@
 // socket.js
 import { io } from "socket.io-client";
 
-export const socket = io(`${import.meta.env.VITE_BACKEND_URL_WS}`, {
+export const socket = io(`${import.meta.env.VITE_SOCKET_URL_DOC}`, {
   transports: ["websocket"],
   autoConnect: true,
   reconnection: true,
