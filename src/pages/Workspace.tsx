@@ -281,8 +281,7 @@ const Workspace = () => {
           if (remainingJoinedGroups.length > 0) {
             updateSelectedGroup(remainingJoinedGroups[0].id);
           } else {
-            // updateSelectedGroup(groups.length > 0 ? groups[0].id : null);
-            setSelectedGroup(null);
+            updateSelectedGroup(null);
           }
         }
       } else {
@@ -381,10 +380,14 @@ const Workspace = () => {
           prevGroups.filter((group) => group.id !== groupId)
         );
         if (selectedGroup === groupId) {
-          const joinedGroups = groups.filter(
+          const remainingJoinedGroups = groups.filter(
             (group) => group.id !== groupId && group.isMember
           );
-          setSelectedGroup(joinedGroups.length > 0 ? joinedGroups[0].id : groups.length > 0 ? groups[0].id : null);
+          if (remainingJoinedGroups.length > 0) {
+            updateSelectedGroup(remainingJoinedGroups[0].id);
+          } else {
+            updateSelectedGroup(null);
+          }
         }
       } else {
         throw new Error(response.data.message || "Failed to delete group");
