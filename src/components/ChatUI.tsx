@@ -231,6 +231,14 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
   }, [selectedFilePreview]);
 
   useEffect(() => {
+    console.log("🚀 [ChatUI] Initializing chat WebSocket connection");
+    console.log(
+      "🔗 [ChatUI] Chat Socket URL:",
+      `${import.meta.env.VITE_SOCKET_URL_CHAT}/chat`
+    );
+    console.log("🌍 [ChatUI] Environment:", import.meta.env.MODE);
+    console.log("🏷️ [ChatUI] Group ID:", groupId);
+
     const newSocket = io(`${import.meta.env.VITE_SOCKET_URL_CHAT}/chat`, {
       withCredentials: true,
       transports: ["websocket", "polling"],
@@ -238,9 +246,40 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
 
     setSocket(newSocket);
 
+    // Add connection event listeners with logging
+    newSocket.on("connect", () => {
+      console.log("✅ [ChatUI] Socket connected successfully");
+      console.log("🔌 [ChatUI] Socket ID:", newSocket.id);
+      console.log("🌐 [ChatUI] Transport:", newSocket.io.engine.transport.name);
+    });
+
     newSocket.on("connection_success", (data) => {
+      console.log("🎉 [ChatUI] Connection success event received:", data);
+      console.log("👤 [ChatUI] User ID:", data.userId);
       setCurrentUserId(data.userId);
       setIsConnected(true);
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("❌ [ChatUI] Connection error:", error);
+      console.error("🔍 [ChatUI] Error message:", error.message);
+      console.error(
+        "🔍 [ChatUI] Error details:",
+        JSON.stringify(error, null, 2)
+      );
+    });
+
+    newSocket.on("disconnect", (reason) => {
+      console.warn("🔌 [ChatUI] Socket disconnected:", reason);
+      setIsConnected(false);
+    });
+
+    newSocket.on("reconnect", (attemptNumber) => {
+      console.log(
+        "🔄 [ChatUI] Socket reconnected after",
+        attemptNumber,
+        "attempts"
+      );
     });
 
     newSocket.on("error", (err) => {
@@ -261,8 +300,8 @@ const ChatUI: React.FC<ChatUIProps> = ({ groupId }) => {
     const handleNewMessage = (message: SocketMessage) => {
       const resolvedMessageType: MessageType =
         message.messageType ?? (message.resource ? "resource" : "text");
-      
-      console.log(message)
+
+      console.log(message);
       const formattedMessage: Message = {
         id: message.chatId,
         sender:
