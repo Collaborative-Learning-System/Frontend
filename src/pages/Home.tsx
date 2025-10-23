@@ -20,7 +20,7 @@ import {
 import {
   Groups,
   School,
-  Analytics,
+  DocumentScanner,
   Quiz,
   CloudUpload,
   Edit,
@@ -33,6 +33,11 @@ import Navigation from "../components/Navigation";
 export default function CollaborativeLearningHomepage() {
   const navigate = useNavigate();
   const theme = useTheme();
+
+
+  const handleBtnClick = () => {
+    window.open("https://youtu.be/rFa6zTe8mlQ", "_blank");
+  }
 
   const features = [
     {
@@ -62,13 +67,11 @@ export default function CollaborativeLearningHomepage() {
         "AI-powered study plan generation tailored to your learning style, pace, and goals.",
     },
     {
-      icon: (
-        <Analytics sx={{ fontSize: 40, color: theme.palette.primary.main }} />
-      ),
-      title: "Progress Tracking",
-      description:
-        "Visual dashboards to monitor your learning progress and identify areas for improvement.",
-    },
+    icon: <DocumentScanner sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
+    title: "Document Summarizing",
+     description:
+    "Automatically condense lengthy documents, research papers, or notes into concise summaries. Gain quick insights, key points, and action items without reading the entire text.",
+     },
     {
       icon: <Quiz sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
       title: "Interactive Assessments",
@@ -166,6 +169,7 @@ export default function CollaborativeLearningHomepage() {
                 </Button>
                 <Button
                   variant="outlined"
+                  onClick={handleBtnClick}
                   size="large"
                   sx={{
                     color: theme.palette.primary.main,
