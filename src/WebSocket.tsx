@@ -2,7 +2,8 @@
 import { io } from "socket.io-client";
 
 export const socket = io(`${import.meta.env.VITE_SOCKET_URL_DOC}/doc`, {
-  transports: ["websocket"],
+  path: '/doc/socket.io',  // ADD THIS LINE - crucial for nginx routing
+  transports: ["websocket", "polling"], // Add polling as fallback
   autoConnect: true,
   reconnection: true,
   reconnectionAttempts: 5,
