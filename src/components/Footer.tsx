@@ -4,7 +4,6 @@ import {
   Grid,
   Typography,
   Button,
-  Divider,
   useTheme,
 } from '@mui/material';
 import {
@@ -201,34 +200,8 @@ export default function Footer() {
 
         </Grid>
 
-        <Divider sx={{ my: 6, bgcolor: theme.palette.divider }} />
 
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{ color: 'text.secondary', textAlign: 'center' }}
-          >
-            © 2025 EduCollab. All rights reserved. Built with ❤️ for collaborative learning.
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: 'text.secondary', textAlign: 'center' }}
-          >
-            Empowering {' '}
-            <Box component="span" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-              10,000+
-            </Box>
-            {' '} students worldwide
-          </Typography>
-        </Box>
+      
       </Container>
     </Box>
   );
