@@ -70,7 +70,7 @@ export default function CollaborativeLearningHomepage() {
     icon: <DocumentScanner sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
     title: "Document Summarizing",
      description:
-    "Automatically condense lengthy documents, research papers, or notes into concise summaries. Gain quick insights, key points, and action items without reading the entire text.",
+    "Automatically condense lengthy documents, research papers, or notes into concise summaries.",
      },
     {
       icon: <Quiz sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
